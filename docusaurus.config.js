@@ -190,10 +190,10 @@ const config = {
         copyright: `Copyright © Shardeum ${new Date().getFullYear()}`,
       },
       prism: {
-        theme: lightCodeTheme,
+        theme: darkCodeTheme,
       },
       colorMode: {
-        defaultMode: 'light',
+        defaultMode: 'dark',
         disableSwitch: true,
         respectPrefersColorScheme: false
       }
