@@ -689,9 +689,17 @@ export APP_IP="EXTERNAL_IP"
 
 :::
 
-## Check Installed Validator Version
+## Validator
 
-Outside the Validator CLI:
+### Check Installed Version
+
+:::warning
+New validator versions will be released over time. 
+It is necessary to keep your validator updated 
+by checking the minimum version required and your current version periodically.
+:::
+
+Run:
 
 <Tabs groupId="validator-local-or-server">
   <TabItem value="local" label="Local" default>
@@ -710,9 +718,42 @@ curl <server_ip>:9001/nodeinfo
   </TabItem>
 </Tabs>
 
-## Check Installed GUI And CLI Version
+### Update
 
-Inside the Validator CLI:
+Run:
+
+<Tabs>
+  <TabItem value="shell" label="Shell" default>
+
+```shell
+cd
+cd .shardeum
+./update.sh
+```
+
+  </TabItem>
+</Tabs>
+
+:::caution
+You might manually have to start the GUI afterwards with:
+
+<Tabs>
+  <TabItem value="shell" label="Shell" default>
+
+```shell
+operator-cli gui start
+```
+
+  </TabItem>
+</Tabs>
+
+:::
+
+## CLI And GUI
+
+### Check Installed Versions
+
+Run:
 
 <Tabs>
   <TabItem value="shell" label="Shell" default>
@@ -723,6 +764,35 @@ operator-cli version
 
   </TabItem>
 
+</Tabs>
+
+
+### Update
+
+Run:
+
+<Tabs>
+  <TabItem value="shell" label="Shell" default>
+
+```shell
+operator-cli update
+```
+
+  </TabItem>
+</Tabs>
+
+### Commands
+
+To see all CLI commands, run:
+
+<Tabs>
+  <TabItem value="shell" label="Shell" default>
+
+```shell
+operator-cli --help
+```
+
+  </TabItem>
 </Tabs>
 
 ## Uninstall Validator
