@@ -1,7 +1,7 @@
 ---
 title: Claim Testnet SHM
 sidebar_position: 1
-image: /img/claim_9.jpeg
+image: /img/claim/claim_9.jpeg
 ---
 
 # Claim Testnet SHM
@@ -21,11 +21,11 @@ image: /img/claim_9.jpeg
   https://discord.com/channels/933959587462254612/1070780355931541514
 
   Liberty 2.X:
-  
+
   https://discord.com/channels/933959587462254612/1031497272191627284
 
-  Liberty 1.X: 
-  
+  Liberty 1.X:
+
   https://discord.com/channels/933959587462254612/1021737152251441244
 
 4. Submit the following text in the faucet text channel you are in (a black box with address will appear after you type /faucet):
@@ -66,34 +66,34 @@ Video tutorial on using Shardeum Discord Faucet:
   https://faucet.liberty10.shardeum.org/
 
 
-![claim_1](/img/claim/claim_1.png)
+![claim_1](/img/claim/claim_1.jpg)
 
 3. Click the “Tweet Now” link on the page.
 
-![claim_8](/img/claim/claim_8.png)
+![claim_8](/img/claim/claim_8.jpg)
 
 *Tweet required to avoid malicious activities or abuse of the faucet and to spread Shardeum/its mission to bring decentralization to everyone
 
 4. Twitter will automatically open with a pre-populated tweet. Replace the blank address: 0x0000000000000000000000000000000000000000, with your account address and post the tweet.
 
-![claim_2](/img/claim/claim_2.png)
+![claim_2](/img/claim/claim_2.jpg)
 
 5. Click on the tweet to visit its particular tweet URL.
 
-![claim_3](/img/claim/claim_3.png)
+![claim_3](/img/claim/claim_3.jpg)
 
 6. Copy the tweet URL.
 
-![claim_5](/img/claim/claim_5.png)
+![claim_5](/img/claim/claim_5.jpg)
 
 7. Paste the copied URL into the Shardeum Liberty faucet page and request SHM.
 
-![claim_4](/img/claim/claim_4.png)
-![claim_6](/img/claim/claim_6.png)
+![claim_4](/img/claim/claim_4.jpg)
+![claim_6](/img/claim/claim_6.jpg)
 
 8. A pop-up message will appear if the request is successful and testnet SHM will arrive in your wallet shortly.
 
-![claim_7](/img/claim/claim_7.png)
+![claim_7](/img/claim/claim_7.jpg)
 
 ## Chaindrop Faucet Website
 
@@ -107,11 +107,8 @@ Liberty 2.X:
 
 https://chaindrop.org/?chainid=8081&token=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
-![chaindrop_2](/img/chaindrop/chaindrop_2.png)
+![chaindrop_2](/img/chaindrop/chaindrop_2.jpg)
 
 2. Enter valid wallet address and complete the captcha and click send to receive tokens.
 
-![chaindrop_3](/img/chaindrop/chaindrop_3.png)
-
-
-
+![chaindrop_3](/img/chaindrop/chaindrop_3.jpg)

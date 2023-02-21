@@ -23,15 +23,15 @@ To get started you will want to visit the Pinata website and  [sign up for a fre
 
 After you have signed up you can start uploading! Simply press the "Upload" button and select "file":
 
-<img src="https://gateway.pinata.cloud/ipfs/QmNWiQyceu4eTQ9NJK7QEGtuYwPZw6UNcuR32x78UoqvpM/1.png" alt="step 1" />
+<img src="https://gateway.pinata.cloud/ipfs/QmNWiQyceu4eTQ9NJK7QEGtuYwPZw6UNcuR32x78UoqvpM/1.jpg" alt="step 1" />
 
 Once you have selected the file on your computer, you can give it a name and click "Upload":
 
-<img src="https://gateway.pinata.cloud/ipfs/QmNWiQyceu4eTQ9NJK7QEGtuYwPZw6UNcuR32x78UoqvpM/3.png" alt="step 2" />
+<img src="https://gateway.pinata.cloud/ipfs/QmNWiQyceu4eTQ9NJK7QEGtuYwPZw6UNcuR32x78UoqvpM/3.jpg" alt="step 2" />
 
 As soon as the file has completed uploading, you should see it listed in your file manager with the name (that you can click on to preview a file) as well as the CID for that file.
 
-<img src="https://gateway.pinata.cloud/ipfs/QmNWiQyceu4eTQ9NJK7QEGtuYwPZw6UNcuR32x78UoqvpM/4.png" alt="step 3" />
+<img src="https://gateway.pinata.cloud/ipfs/QmNWiQyceu4eTQ9NJK7QEGtuYwPZw6UNcuR32x78UoqvpM/4.jpg" alt="step 3" />
 
 ### Pinata API
 

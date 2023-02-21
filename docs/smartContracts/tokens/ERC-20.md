@@ -69,7 +69,7 @@ Code explanation in brief for reference:
 
 Compile the contract by going over to the ‘Compiler’ tab in Remix and selecting ‘ShardeumERC20Token.sol’, and then hit ‘Compile’.
 
-![mint_your_own_crypto_1](/img/mint_your_own_crypto/mint_your_own_crypto_1.png)
+![mint_your_own_crypto_1](/img/mint_your_own_crypto/mint_your_own_crypto_1.jpg)
 
 ## Deploying the Smart Contract on Shardeum Liberty
 
@@ -81,17 +81,17 @@ Select the ‘Injected Web3’ environment (make sure you select Shardeum Libert
 
 Now, select the ‘ShardeumERC20Token.sol’ contract, and enter values for the constructor arguments ‘_Name’ and ‘_Symbol’ as shown in the image below.
 
-![mint_your_own_crypto_2](/img/mint_your_own_crypto/mint_your_own_crypto_2.png)
+![mint_your_own_crypto_2](/img/mint_your_own_crypto/mint_your_own_crypto_2.jpg)
 
 Proceed to click ‘Transact’ and approve the transaction in ‘Metamask’ to deploy your contract!
 
-![mint_your_own_crypto_3](/img/mint_your_own_crypto/mint_your_own_crypto_3.png)
+![mint_your_own_crypto_3](/img/mint_your_own_crypto/mint_your_own_crypto_3.jpg)
 
 You have now successfully deployed ERC-20 Token on Shardeum Liberty!
 
 After deploying, click the ‘Copy Address’ button to copy the contract address.
 
-![mint_your_own_crypto_4](/img/mint_your_own_crypto/mint_your_own_crypto_4.png)
+![mint_your_own_crypto_4](/img/mint_your_own_crypto/mint_your_own_crypto_4.jpg)
 
 You can now go to [Shardeum Explorer](https://explorer.liberty10.shardeum.org/) and search for your contract address and you should be able to see it there!
 

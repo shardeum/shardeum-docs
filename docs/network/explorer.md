@@ -23,22 +23,22 @@ https://explorer-liberty10.shardeum.org/
 
 Select a transaction on the Shardeum Explorer to see transaction data.
 
-![explorer_transactions](/img/explorer/transactions.png)
+![explorer_transactions](/img/explorer/transactions.jpg)
 
 ## Overview
 
 Shows general details for a transaction.
 
-![explorer_overview](/img/explorer/overview.png)
+![explorer_overview](/img/explorer/overview.jpg)
 
 ## Logs
 
 Shows event logs for a transaction.
 
-![explorer_logs](/img/explorer/eventLogs.png)
+![explorer_logs](/img/explorer/eventLogs.jpg)
 
 ## JSON view
 
 Shows the raw JSON view for a transaction.
 
-![explorer_json_view](/img/explorer/rawJSON.png)
+![explorer_json_view](/img/explorer/rawJSON.jpg)

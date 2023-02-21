@@ -7,23 +7,23 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 Foundry is a fast testing and deployment tool for developing EVM smart contracts.
-Tests are written in Solidity to keep the workflow consistent with smart contract development and testing before deployments. 
+Tests are written in Solidity to keep the workflow consistent with smart contract development and testing before deployments.
 
 Foundry is written in Rust:
-https://github.com/foundry-rs/foundry 
+https://github.com/foundry-rs/foundry
 
-Paradigm supports Foundry: 
+Paradigm supports Foundry:
 https://www.paradigm.xyz/2021/12/introducing-the-foundry-ethereum-development-toolbox
 
-## Installing Foundry 
+## Installing Foundry
 
-1. Install 
+1. Install
 
 ```
 foundryup
 ```
 
-with the Foundry toolchain installer: 
+with the Foundry toolchain installer:
 
 <Tabs>
   <TabItem value="shell" label="Shell" default>
@@ -51,7 +51,7 @@ foundryup
   </TabItem>
 </Tabs>
 
-If this installation method does not work, 
+If this installation method does not work,
 or you would like to install Foundry a different way, see other installation methods in Foundry's README:
 
 https://github.com/foundry-rs/foundry#installation
@@ -99,7 +99,7 @@ error msgValueZero();
 contract SimpleStorage {
 
     uint  public storedData;  //Do not set 0 manually it wastes gas!
-    uint  public ownerUnixTimeContract; 
+    uint  public ownerUnixTimeContract;
     address public immutable owner;
 
     constructor() {
@@ -175,14 +175,14 @@ contract TestContract is Test {
     function testSetValidPath() public {
         assertEq(simpleStorageInstance.storedData(),0);
         vm.expectEmit(true,false,false,true); // Events have bool flags for indexed topic parameters in order (3 topics possible) along with arguments that might not be indexed (last flag). You can also check which address sent the event.
-        emit setOpenDataEvent(address(this),1); 
+        emit setOpenDataEvent(address(this),1);
         simpleStorageInstance.set(1);
         assertEq(simpleStorageInstance.storedData(),1);
     }
 
     function testSetRevertPath() public {
         assertEq(simpleStorageInstance.storedData(),0);
-        vm.expectRevert(sameStorageValue.selector);    //Revert if the new value matches the current storage value. Custom error from SimpleStorage. 
+        vm.expectRevert(sameStorageValue.selector);    //Revert if the new value matches the current storage value. Custom error from SimpleStorage.
         simpleStorageInstance.set(0);
         assertEq(simpleStorageInstance.storedData(),0);
     }
@@ -203,14 +203,14 @@ contract TestContract is Test {
         vm.expectRevert(notOwner.selector);    //Revert if not the owner. Custom error from SimpleStorage.
         simpleStorageInstance.setOwnerData();
     }
-    
+
     function testDonateToOwnerValidPath() public {
         uint ownerBalanceStart = address(this).balance;
         assertEq(ownerBalanceStart,79228162514264337593543950335);
         vm.deal(address(0),ownerBalanceStart);
         uint prankBalanceStart = address(this).balance;
         assertEq(ownerBalanceStart,79228162514264337593543950335);
-        assertEq(address(simpleStorageInstance).balance, 0); 
+        assertEq(address(simpleStorageInstance).balance, 0);
         vm.startPrank(address(0)); //Change the address to not be the owner. The owner is address(this) in this context.
         uint msgValueWei = 1;
         vm.expectEmit(false,false,false,false); // Events have bool flags for indexed topic parameters in order (3 topics possible) along with arguments that might not be indexed (last flag). You can also check which address sent the event.
@@ -218,14 +218,14 @@ contract TestContract is Test {
         assertEq(address(simpleStorageInstance).balance, 0);        
         simpleStorageInstance.donateToOwner{value: msgValueWei}();
         vm.stopPrank(); //Stop prank since we don't need to be another address anymore for increasing the owner balance from a transfer.
-        assertEq(address(simpleStorageInstance).balance, 0); 
-        assertEq(address(this).balance, ownerBalanceStart+1); 
-        assertEq(address(0).balance, prankBalanceStart-1); 
+        assertEq(address(simpleStorageInstance).balance, 0);
+        assertEq(address(this).balance, ownerBalanceStart+1);
+        assertEq(address(0).balance, prankBalanceStart-1);
     }
 
     function testDonateToOwnerRevertPath() public {
         vm.expectRevert(msgValueZero.selector);  //Revert if MSG.VALUE is 0. Custom error from SimpleStorage.
-        simpleStorageInstance.donateToOwner();   //MSG.VALUE is not set for call, so it is 0. 
+        simpleStorageInstance.donateToOwner();   //MSG.VALUE is not set for call, so it is 0.
     }
 }
 ```
@@ -267,11 +267,11 @@ forge test -vvvv -match-test testDonateToOwnerValidPath
   </TabItem>
 </Tabs>
 
-## General Test Coverage Percentage 
+## General Test Coverage Percentage
 
 If you want to see how many lines and branches you are hitting with all tests:
 
-1. Run 
+1. Run
 
 <Tabs>
   <TabItem value="shell" label="Shell" default>
@@ -287,14 +287,14 @@ forge coverage --report lcov && genhtml lcov.info -o report --branch-coverage
         report/index.html
 
 The coverage report should look like this in your web browser:
-![foundryCoverageLCOV](/img/foundry/foundryCoverageLCOV.png)
-    
+![foundryCoverageLCOV](/img/foundry/foundryCoverageLCOV.jpg)
+
 3. Delete the following before pushing to GitHub to keep commits lightweight:
 
         lcov.info
         reports
 
-## Fork Network General Test Coverage Percentage 
+## Fork Network General Test Coverage Percentage
 
 The test coverage above uses a local network to save time.
 However, some contract applications integrate with contracts already deployed to a network.
@@ -338,17 +338,17 @@ Chain ID: 31337
 
 ## Deploy to Goerli with EIP-1559 and verify with Etherscan
 
-You will need the following environmental variables setup to do this. 
+You will need the following environmental variables setup to do this.
 You can set these variables in your ```.bashrc``` file, or in a local ```.env``` folder:
 
 ```
-$goerliHTTPS_InfuraAPIKey 
+$goerliHTTPS_InfuraAPIKey
 $devTestnetPrivateKey
 $etherscanApiKey
 ```
 
 :::tip
-Using 
+Using
 
 ```
 forge create
@@ -374,14 +374,14 @@ forge create --rpc-url $goerliHTTPS_InfuraAPIKey --etherscan-api-key $etherscanA
 If the following Goerli deployment worked, the following Shardeum deployment should work as well.
 
 :::warning Warning
-The 
+The
 
 ```
---legacy 
+--legacy
 ```
 
 flag is used when deploying a smart contract using Legacy gas parameters for the transaction.
-This is important, since Shardeum currently doesn't support EIP-1559. 
+This is important, since Shardeum currently doesn't support EIP-1559.
 Otherwise, you will see the following error when attempting to deploy to Shardeum:
 
 ```
@@ -392,7 +392,7 @@ EIP-1559 not activated
 
 
 :::warning Warning
-The terminal might not notify you if the contract deployment worked. 
+The terminal might not notify you if the contract deployment worked.
 Check the Shardeum Explorer after a transaction cycle to see if the contract deployed from the signer address from the private key used.
 :::
 

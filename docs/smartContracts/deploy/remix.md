@@ -14,7 +14,7 @@ Remix IDE is an open source web and desktop application. It fosters a fast devel
 
 2, Create a "New File" under contracts with name HelloWorld.sol.
 
-![remix_1](/img/remix/remix_1.png)
+![remix_1](/img/remix/remix_1.jpg)
 
 3, Copy and paste the code below to HelloWorld.sol file.
 
@@ -47,7 +47,7 @@ contract HelloWorld { // Defines a contract named `HelloWorld`
 
 4, Compile HelloWorld.sol.
 
-![remix_2](/img/remix/remix_2.png)
+![remix_2](/img/remix/remix_2.jpg)
 
 ## Deploying to Shardeum
 
@@ -57,30 +57,30 @@ contract HelloWorld { // Defines a contract named `HelloWorld`
 If Injected Web3 cannot detect the network, refresh the Remix IDE page, and then switch between networks in MetaMask.
 :::
 
-![remix_3](/img/remix/remix_3.png)
+![remix_3](/img/remix/remix_3.jpg)
 
 6, Deploy the compiler contract.
 
-![remix_4](/img/remix/remix_4.png)
+![remix_4](/img/remix/remix_4.jpg)
 
 7, Confirm the deploy transaction in MetaMask.
 
-![remix_5](/img/remix/remix_5.png)
+![remix_5](/img/remix/remix_5.jpg)
 
 8, Find the deployed contract address in Remix.
 
-![remix_6](/img/remix/remix_6.png)
+![remix_6](/img/remix/remix_6.jpg)
 
 ## Interacting
 
 9, Update the contract by interacting with the contract.
 
-![remix_7](/img/remix/remix_7.png)
+![remix_7](/img/remix/remix_7.jpg)
 
 10, Confirm the deploy transaction in MetaMask.
 
-![remix_8](/img/remix/remix_8.png)
+![remix_8](/img/remix/remix_8.jpg)
 
 11, Check the contract has been updated.
 
-![remix_9](/img/remix/remix_9.png)
+![remix_9](/img/remix/remix_9.jpg)

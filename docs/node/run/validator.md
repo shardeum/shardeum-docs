@@ -54,9 +54,9 @@ Ctrl + Alt + T
 
 ```
 (Press at the same time)
-Command + Space bar 
+Command + Space bar
 (Type)
-Terminal 
+Terminal
 ```
 
   </TabItem>
@@ -220,7 +220,7 @@ curl -O https://gitlab.com/shardeum/validator/dashboard/-/raw/main/installer.sh 
   </TabItem>
 </Tabs>
 
-:::warning 
+:::warning
 If you see error:
 
 ```shell
@@ -245,16 +245,16 @@ if that does not work, also try:
   <TabItem value="shell" label="Shell" default>
 
 ```shell
-sudo service docker start 
+sudo service docker start
 ```
 
   </TabItem>
 </Tabs>
 
-then try to install with the curl command again. 
+then try to install with the curl command again.
 :::
 
-The terminal will ask questions about your setup settings. 
+The terminal will ask questions about your setup settings.
 
 Give permission to collect validator data for bug reporting:
 
@@ -265,19 +265,19 @@ By running this installer, you agree to allow the Shardeum team to collect this 
 Enter y to setup the web based dashboard:
 
 ```shell
-Do you want to run the web based Dashboard? (y/n): y 
+Do you want to run the web based Dashboard? (y/n): y
 ```
 
 Set a password for dashboard access:
 
 ```shell
-Set the password to access the Dashboard: 
+Set the password to access the Dashboard:
 ```
 
 Add a custom session port for the web based dashboard or hit enter for port 8080:
 
 ```shell
-Enter the port (1025-65536) to access the web based Dashboard (default 8080): 
+Enter the port (1025-65536) to access the web based Dashboard (default 8080):
 ```
 
 Set the first p2p port (default 9001):
@@ -295,7 +295,7 @@ Enter the second port (1025-65536) for p2p communication (default 10001):
 Add a custom path or install to root:
 
 ```shell
-What base directory should the node use (defaults to ~/.shardeum): 
+What base directory should the node use (defaults to ~/.shardeum):
 ```
 
 Wait for the installation process to complete.
@@ -306,7 +306,7 @@ make sure ports 9001 and 10001, are forwarded (be careful doing this since it wi
 
 https://www.noip.com/support/knowledgebase/general-port-forwarding-guide/
 
-Reference: 
+Reference:
 
 https://gitlab.com/shardeum/validator/dashboard/
 :::
@@ -349,15 +349,15 @@ Start the CLI by running the following shell script:
   </TabItem>
 </Tabs>
 
-:::warning 
+:::warning
 If you see error:
 
 ```golang
-Got permission denied while trying to connect to the Docker daemon socket at 
-unix:///var/run/docker.sock: 
-Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/shardeum-dashboard/json": 
-dial unix /var/run/docker.sock: 
-connect: 
+Got permission denied while trying to connect to the Docker daemon socket at
+unix:///var/run/docker.sock:
+Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/shardeum-dashboard/json":
+dial unix /var/run/docker.sock:
+connect:
 permission denied
 ```
 
@@ -379,7 +379,7 @@ if that does not work, also try:
   <TabItem value="shell" label="Shell" default>
 
 ```shell
-sudo service docker start 
+sudo service docker start
 ```
 
   </TabItem>
@@ -438,7 +438,7 @@ Scroll down to locate “View Certificates” and click that button.
 
 Click the “Servers” tab, then click “Add Exception”.
 
-Type: “https://localhost:8080” (or your remote/VPS server’s IP and port), 
+Type: “https://localhost:8080” (or your remote/VPS server’s IP and port),
 then click “Get Certificate”, then click “Confirm Security Exception”.
 
 The result should be the server/localhost in the list, click “OK”.
@@ -454,12 +454,12 @@ Click on the “Not secure” alert and select/click on “Certificate is not va
 
 Click on the “Details” tab, then click n “localhost” in the “Certificate Hierarchy” box and click the “Export” button.
 
-Click on the “Details” tab, then click on 
+Click on the “Details” tab, then click on
 “mynode-sphinx.shardeum.local” in the “Certificate Hierarchy” box and click the “Export” button.
 
 The result of the steps above are two certificate files save in a location to be used in the following steps.
 
-Type: chrome://settings in address bar, hit enter. 
+Type: chrome://settings in address bar, hit enter.
 
 Click on “Privacy and security” on the left menu. Then click “Security” from the list in the main window.
 
@@ -467,19 +467,19 @@ Scroll down to find “Manage device certificates” in the main windows and sel
 
 Click the “Import” button.
 
-Follow the import prompts. 
+Follow the import prompts.
 
 Place the ‘mynode-sphinx.shardeum.local.crt” in the “Trusted Root Cert… Auth..” folder.
 
 Click “Yes” and then “OK”.
 
-Click “Import” once more. 
+Click “Import” once more.
 
-Then follow the import prompts. 
+Then follow the import prompts.
 
 Place the ‘localhost.crt” in the “Personal” folder.
 
-Close all Chrome windows (as in Exit Chrome). 
+Close all Chrome windows (as in Exit Chrome).
 
 When you have successfully restarted chrome, the operator dashboard will not show with a white lock.
 ```
@@ -492,7 +492,7 @@ When you have successfully restarted chrome, the operator dashboard will not sho
 
 You will be asked for your password set during setup.
 
-![loginPage.png](/img/node/run/validator/loginPage.png)
+![loginPage.jpg](/img/node/run/validator/loginPage.jpg)
 
 :::danger
 The login will fail even if you put no password during the setup process.
@@ -512,13 +512,13 @@ operator-cli gui set password <type_new_password__here>
 
 You should see the “Overview” page for the Shardeum Validator Dashboard in your web browser:
 
-![overviewBetanet.png](/img/node/run/validator/overviewBetanet.png)
+![overviewBetanet.jpg](/img/node/run/validator/overviewBetanet.jpg)
 
-## Step 5: Start validator 
+## Step 5: Start validator
 
 Go to the “Maintenance” page, then click the “Start Node” button in the top left white box:
 
-![startBetanet.png](/img/node/run/validator/startBetanet.png)
+![startBetanet.jpg](/img/node/run/validator/startBetanet.jpg)
 
 (Same as running)
 
@@ -532,7 +532,7 @@ operator-cli start
   </TabItem>
 </Tabs>
 
-Wait and refresh the page. 
+Wait and refresh the page.
 
 The node is running correctly if the “Start Node” button now says “Stop Node”. If you want to stop tne node with the CLI:
 
@@ -546,13 +546,13 @@ operator-cli stop
   </TabItem>
 </Tabs>
 
-![startedBetanet.png](/img/node/run/validator/startedBetanet.png)
+![startedBetanet.jpg](/img/node/run/validator/startedBetanet.jpg)
 
-## Step 6: Monitor validator 
+## Step 6: Monitor validator
 
 Go to “Performance” to see your node’s hardware performance here:
 
-![performanceBetanet.png](/img/node/run/validator/performanceBetanet.png)
+![performanceBetanet.jpg](/img/node/run/validator/performanceBetanet.jpg)
 
 For more details about your node status run the following inside the CLI:
 
@@ -604,15 +604,15 @@ pm2 delete [id]
 
 After you start the validator, go to the “Settings” page. You will be asked to connect your wallet:
 
-![connectWalletBetanet.png](/img/node/run/validator/connectWalletBetanet.png)
+![connectWalletBetanet.jpg](/img/node/run/validator/connectWalletBetanet.jpg)
 
 After you connect your wallet, you should see the following:
 
-![connectedWalletOptions.png](/img/node/run/validator/connectedWalletOptions.png)
+![connectedWalletOptions.jpg](/img/node/run/validator/connectedWalletOptions.jpg)
 
 When you click "Add Stake", you will see the following:
 
-![connectedWalletAddStake.png](/img/node/run/validator/connectedWalletAddStake.png)
+![connectedWalletAddStake.jpg](/img/node/run/validator/connectedWalletAddStake.jpg)
 
 ```
 -Stake Wallet Address [wallet connected]
@@ -620,18 +620,18 @@ When you click "Add Stake", you will see the following:
 -Stake amount (SHM) [empty and is in units ether not wei]
 ```
 
-This example has filled in 10 SHM tokens to stake. 
+This example has filled in 10 SHM tokens to stake.
 
-Once all fields are filled, click the “Stake” button. 
+Once all fields are filled, click the “Stake” button.
 
 Your wallet will ask you to sign the transaction stake your SHM.
 
-Once the transaction is signed and complete, you have staked your SHM tokens successfully. 
+Once the transaction is signed and complete, you have staked your SHM tokens successfully.
 
 :::tip
 If your node status is on Standby and you have 10 SHM or more staked, your validator node is setup correctly.
 
-The network will automatically add your validator to be active in the network. 
+The network will automatically add your validator to be active in the network.
 
 The time to be added as an active validator will vary based on network load and validators in the network.
 :::
@@ -735,7 +735,7 @@ You can delete the validator folder while in your root directory with:
 rm -rf .shardeum
 ```
 
-You can also delete docker containers and images that the Shardeum validator was using. 
+You can also delete docker containers and images that the Shardeum validator was using.
 
 :::danger
 These commands will delete all docker images and containers on your computer!
