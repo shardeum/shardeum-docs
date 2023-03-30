@@ -20,16 +20,9 @@
   --ifm-color-primary-light: #909090;
   --ifm-color-primary-lighter: #A0A0A0;
   --ifm-color-primary-lightest: #B0B0B0;
-
-  --ifm-footer-background-color: #151515;
-  --ifm-footer-title-color: #FAFAFA;
-  --ifm-footer-link-color: #9E9E9E;
-  --ifm-footer-link-hover-color: #E0E0E0;
-  --ifm-footer-color: #9E9E9E;
-
 }
 
-[data-theme='light'] { /* Overriding root Infima variables */
+html[data-theme='light'] { /* Overriding root Infima variables */
   --ifm-background-color: #FFFFFF;
   --ifm-background-surface-color: #FFFFFF;
   --ifm-color-primary: #FF0000;
@@ -225,6 +218,11 @@ img[alt*="claim_8"] {
   --docsearch-hit-background: var(--ifm-color-white);
   /* Footer */
   --docsearch-footer-background: var(--ifm-color-white);
+  --docsearch-key-gradient: linear-gradient(
+    -26.5deg,
+    var(--ifm-color-emphasis-200) 0%,
+    var(--ifm-color-emphasis-100) 100%
+  );
 }
 
 [data-theme='dark'] .DocSearch {
