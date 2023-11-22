@@ -15,4 +15,4 @@ Running your own archive:
 ## How do I run an archive on Shardeum?
 
 More details on how to run a Shardeum archive will be shared at Shardeum Mainnet.
-Mainnet ETA is Q2 2023.
+Mainnet ETA is Q1 2024.

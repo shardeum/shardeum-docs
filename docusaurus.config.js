@@ -166,8 +166,8 @@ module.exports = {
               title: 'Resources',
               items: [
                 {
-                  label: 'Litepaper',
-                  to: 'https://shardeum.org/Shardeum-Litepaper.pdf',
+                  label: 'Whitepaper',
+                  to: 'https://shm.gg/whitepaper',
                 },
                 {
                   label: 'FAQs',

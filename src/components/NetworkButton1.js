@@ -4,7 +4,7 @@ export default function connectToSphinx() {
 
   const chainId = '0x1f92';
   const rpcURL = 'https://sphinx.shardeum.org/';
-  const networkName = 'Shardeum Validator Sphinx 1.X';
+  const networkName = 'Shardeum Validator Sphinx ';
   const currencyName = 'SHM';
   const currencySymbol = 'SHM';
   const explorerURL = 'https://explorer-sphinx.shardeum.org/';
@@ -45,7 +45,7 @@ export default function connectToSphinx() {
   };
 
   return (
-    <button className="button buttonHighContrast" onClick={addNetwork}>Click to Connect to Validator Network </button>
+      <button className="button buttonHighContrast" onClick={addNetwork}>Connect to Shardeum Sphinx Validator </button>
   );
 
 }

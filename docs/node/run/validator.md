@@ -21,10 +21,10 @@ export const Validator=()=>(
 </div>
 <div className="row valrow">
 <div  className="card valcard">
-<a className="vlink" href="#step-3-open-validator-cli"> Validator CLI Commands</a >
+<a className="vlink" href="#step-3-open-validator-cli"> Validator ClI Commands</a >
 </div>
 <div  className="card valcard ">
-<a className="vlink" href="#step-8-get-shm-from-betanet-faucet"> Get Betanet SHM</a >
+<a className="vlink" href="#step-8-get-shm-from-betanet-faucet"> Get Betanet SHM </a >
 </div>
 <div  className="card valcard">
 <a className="vlink" href="#uninstall-validator"> Uninstall Validator</a >
@@ -809,9 +809,8 @@ curl <server_ip>:9001/nodeinfo
 
 ### Update
 
-- Never update your validator if its status is "active" or it may be slashed
-- Stop your validator before updating while status is "waiting-for-network" or "standby"
-- In your terminal, first exit from the container using :-
+- Stop your validator before updating (you don't need to unstake though)
+- In your terminal, first exit from the container using
 
 ```shell
 exit
