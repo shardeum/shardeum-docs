@@ -20,7 +20,7 @@ Shardeum exposes block-related public API endpoints so JSON RPC servers can use 
 |-----------	|------------	|---------------	|----------------------------------------------------------------------------------------------------------------------------------	|
 | 40        	| BLOCKHASH  	| Supported     	| Hash of the specific block, only valid for the 256 most recent blocks, excluding the current one                                 	|
 | 41        	| COINBASE   	| Supported     	| Return network account address because there is no block miner in Shardeum                                                       	|
-| 42        	| TIMESTAMP  	| Supported     	| Return network account address because there is no block miner in Shardeum                                                       	|
+| 42        	| TIMESTAMP  	| Supported     	| Returns the timestamp of the current block in seconds since the Unix epoch.                                                       	|
 | 43        	| NUMBER     	| Supported     	| Current block's number                                                                                                           	|
 | 44        	| DIFFICULTY 	| Supported     	| Current block's difficulty. Since Shardeum does not use Proof of Work for transaction consensus the difficulty value is set to 0 	|
 | 45        	| GASLIMIT   	| Supported     	| Current block's gas limit                                                                                                        	|
