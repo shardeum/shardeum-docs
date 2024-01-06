@@ -780,6 +780,64 @@ operator-cli unstake
 
 ## Validator
 
+### Restarting Validator After Shutdown or Restart
+
+If your computer restarts or if the Docker container running your Shardeum validator shuts down, there's no need to go through the entire installation process again. You can simply restart the container. This section covers how to restart your Shardeum validator node effectively.
+
+:::info
+When a Docker container, like your validator node, is stopped or if the computer restarts, the container remains in a non-running state but is not deleted. This is typically referred to as a 'stopped' or 'exited' state.
+:::
+
+#### Restarting the Docker Container
+
+1. **Identify the Container**: To restart your validator, first, identify the container ID or name. You can list all Docker containers, including those not currently running, by using the command:
+
+   ```
+   docker ps -a
+   ```
+
+   Look for the container named `shardeum-dashboard` or note its container ID.
+
+2. **Restart the Container**: Once you've identified the container, use the following command to restart it:
+
+   ```
+   docker start shardeum-dashboard
+   ```
+
+   This command reactivates the previously stopped container. Replace `shardeum-dashboard` with the actual container ID if necessary.
+
+3. **Verify Restart**: Ensure the container has restarted successfully by checking the list of running containers:
+   ```
+   docker ps
+   ```
+   The `shardeum-dashboard` container should appear in this list with a status indicating it is running.
+
+#### Accessing the Validator CLI
+
+After restarting the container, you can access the validator CLI:
+
+1. **Navigate to Validator Directory**: Change to the Shardeum validator directory (default is `~/.shardeum/`):
+
+   ```
+   cd ~/.shardeum/
+   ```
+
+2. **Enter the CLI**: Launch the CLI environment by executing:
+   ```
+   ./shell.sh
+   ```
+   This will open the CLI, allowing you to manage your Shardeum validator node.
+
+:::tip
+Following these steps ensures your validator node is quickly operational after a shutdown or restart, avoiding the need to reinstall or reconfigure the validator software.
+:::
+
+Remember, regular maintenance and monitoring of your node are crucial for optimal performance and security within the Shardeum network. Stay updated with the latest versions and participate actively in the community for a seamless validating experience.
+
+:::caution
+Always ensure your firewall and router settings are appropriately configured, especially after a restart, to maintain network connectivity and validator node functionality.
+:::
+
 ### Version
 
 :::warning
