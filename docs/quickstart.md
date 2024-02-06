@@ -90,7 +90,7 @@ Since Shardeum is EVM compatible, you can use the following frameworks to deploy
 
 [Hardhat](/smart-contracts/deploy/hardhat)
 
-[Truffle](/smart-contracts/deploy/truffle)
+
 
 To deploy contracts at the same address cross chain:
 

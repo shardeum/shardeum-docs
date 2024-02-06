@@ -72,7 +72,7 @@ const FeatureList = [
                 Build scalable dapps on Shardeum
             </>
         ),
-        alink:'/network/endpoints',
+        alink:'/smart-contracts/deploy/remix',
     },
 ];
 function BigFeature({ title,icon, description,alink}) {
