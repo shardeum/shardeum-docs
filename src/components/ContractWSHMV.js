@@ -7,7 +7,7 @@ export default function ContractComponent() {
   const tokenImage = 'https://www.redwolf.in/image/catalog/marketplace/shardeum/shardeum-artist-image.png'; 
   const chainId = '0x1f92'; 
   const rpcURL = 'https://sphinx.shardeum.org/'; 
-  const chainName = 'Shardeum Validator Sphinx 1.X'; 
+  const chainName = 'Shardeum Sphinx 1.X';
   const nativeCurrencyName = 'SHM'; 
   const nativeCurrencySymbol = 'SHM';
   const addToken = async () => {
