@@ -42,6 +42,24 @@ webkitallowfullscreen="webkitallowfullscreen"
 frameBorder="0">
 </iframe>
 
+## Shardeum Telegram Faucet
+
+1. Join the Shardeum Telegram Community:
+
+[Invitation to Shardeum Telegram](https://t.me/shardians)
+
+2. To claim testnet $SHM use the following command: `/claim <your ERC-20 wallet address>`
+
+**Example:**
+
+`/claim 0x000000000000000000`
+
+3. Once you use this command, it will take few seconds and the bot will transfer 12 SHM to your wallet.
+
+![telegram 1](/img/telegram/telegram1.png)
+
+**Note:** You can only request faucet from Telegram once in 12 hours.
+
 ## Chaindrop Faucet Website
 
 1. Visit the Chaindrop faucet and select shardeum network:
