@@ -19,10 +19,6 @@ https://www.paradigm.xyz/2021/12/introducing-the-foundry-ethereum-development-to
 
 1. Install
 
-```
-foundryup
-```
-
 with the Foundry toolchain installer:
 
 <Tabs>
