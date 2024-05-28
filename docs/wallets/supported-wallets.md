@@ -39,8 +39,14 @@ Buy, send, store, and swap assets cross chain.
 
 https://brave.com/wallet/
 
+## Koala Wallet 
+Koala Wallet is a non-custodial, multi-chain wallet available as both a mobile app and browser extension. With Koala Wallet, you can easily buy, swap, manage, and store your favorite crypto assets cross chain. Discover new blockchains and securely explore Web3 dApps with confidence. 
+
+https://koalawallet.io/download
+
 ## Are other wallets supported?
 
 Wallets that follow the Metamask RPC API specification are supported as well:
 
 https://docs.metamask.io/guide/rpc-api.html#table-of-contents
+
