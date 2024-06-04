@@ -42,7 +42,7 @@ Before you begin the setup process for your Shardeum RPC node, ensure you meet t
 - **Administrative Privileges**: Sudo or root access on the server is required to install software, change configurations, and manage services.
 - **Git**: A recent version of Git installed on your server is necessary for cloning the "json-rpc-server" repository. We recommend using Git version 2.20 or later to ensure compatibility and security.
 - **Node.js**: The "json-rpc-server" relies on Node.js for its runtime environment. Please ensure you have Node.js version 18 or newer installed. This version supports the necessary features and ensures stability for your RPC node.
-- Access to the "json-rpc-server" repository URL: https://gitlab.com/shardeum/json-rpc-server
+- Access to the "json-rpc-server" repository URL: https://github.com/shardeum/json-rpc-server
 
 ### Knowledge Requirements
 

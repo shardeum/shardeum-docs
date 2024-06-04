@@ -47,7 +47,7 @@ As per item 12.e in the license document, we have used an address belonging to t
 
 As per item 12.g in the license document, we have included a PDF version of the license file in our software distribution repository. This can be verified here:
 
-[https://gitlab.com/shardeum/server/-/blob/main/SHARDUS_SOFTWARE_LICENSE_2023-02-02.pdf](https://gitlab.com/shardeum/server/-/blob/main/SHARDUS_SOFTWARE_LICENSE_2023-02-02.pdf)                                                         	|
+[https://gitlab.com/shardeum/server/-/blob/main/SHARDUS_SOFTWARE_LICENSE_2023-02-02.pdf](https://github.com/shardeum/shardeum/blob/dev/SHARDUS_SOFTWARE_LICENSE_2023-02-02.pdf)                                                         	|
 
 
 
