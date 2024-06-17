@@ -10,27 +10,36 @@ slug: /quickstart
 ## Shardeum Overview
 
 
-Shardeum is an EVM Compatible L1 blockchain that uses dynamic state sharding to keep transaction fees low forever.
+Shardeum is a layer 1 distributed ledger technology (DLT) that is compatible with the Ethereum Virtual Machine (EVM). Shardeum is designed to keep transaction fees low forever uing one of Shardeum’s core 
+innovations called [dynamic state sharding](https://docs.shardeum.org/introduction/dynamicstatesharding). Please read the Shardeum whitepaper [here](https://docs.shardeum.org/whitepaper/).
 
 ### Why Shardeum?
 
-**EVM Compatibility:** Shardeum is tailor-made for those familiar with Ethereum's virtual machine, ensuring a smooth transition and user-friendly experience.
+**EVM Compatibility:** Shardeum uses the Ethereum Virtual Machine (EVM), enabling a smooth transition to Shardeum for pre-existing developers and users familiar with Ethereum.
 
-**Low Gas Fees:** Experience minimal transaction costs, making decentralized applications more accessible and cost-effective.
+**Low Transaction Fees For All Users:** Shardeum has minimal fees and maximum efficiency. All decentralization applications (dApps) benefit from lower transaction expenses, enhancing the accessibility 
+and cost-efficiency of decentralized applications. The true scalability revolution has begun. 
 
-**True Decentralization:** Shardeum stands firm on its commitment to decentralization, ensuring a platform where everyone has a voice.
+**True Decentralization:** Shardeum has been designed with decentralization at its core. Shardeum delivers a genuinely decentralized platform by design; with its architecture, tokenomics, node design, 
+scalability solutions and governance, ensuring that there’s no centralization or single points of failure.
 
-**Robust Security:** With token slashing implemented in Quorum, malicious activities by validators are deterred, ensuring a trustworthy network.
+**Multi-layered Security:** Shardeum takes a multi-layered approach to security using cryptography, slashing, node ejection, verifier nodes and other methods to deter and penalize attackers, 
+raising the bar for solid and robust security.
 
-**Dynamic State Sharding:** Shardeum's use of dynamic state sharding ensures unparalleled scalability, processing more transactions per second than many competitors.
+**Dynamic State Sharding:** Shardeum’s innovatiove dynamic state sharding enables true linear scaling, autoscaling, and horizontal scaling without a ceiling to transactions per second (TPS), 
+facilitating unprecedented scalability.
 
-**Proof of Quorum:** A unique consensus mechanism that combines the best of proof of stake and proof of Quorum, ensuring faster and more secure transactions.
+**Proof of Quorum:** A groundbreaking consensus mechanism that is a core innovation on Shardeum, enabling horizontal scaling and first-come, first-served transaction processing. 
+Its blockless and leaderless structure prevents any single validator from censoring or prioritizing transactions unfairly. Due to these features, miner extractable value (MEV) is eliminated, 
+enhancing transaction security and fairness.
 
-**Seamless Transition:** Developers can effortlessly deploy their Ethereum-based smart contracts to Shardeum, expanding their reach and impact.
+**Instantly Portable dApps:** Developers can seamlessly transition their Ethereum-based smart contracts and dApps to Shardeum, utilizing familiar languages such as Solidity and Vyper 
+with instant smart contract portability. This ease of migration between Ethereum and Shardeum extends applications' reach and impact. Additionally, Shardeum's consistently low fees 
+ensure that dApp users are not forced to switch networks due to congestion or exorbitant costs.
 
-**Wallet Support:** No need for additional downloads; Shardeum supports wallets based on EVM by default, streamlining user experience.
+**Wallet Compatibility:** Shardeum natively supports EVM-based wallets, eliminating the need for additional downloads and simplifying the user experience.
 
-**Community-Centric:** Built and developed by a global community of developers and shardians, Shardeum is more than a platform; it's a movement.
+**Community-Centric:** Shardeum is forged by a global community of developers and Shardians, transforming it from a platform to a global movement.
 
 
 ## Cross Shard Composability with Linear Scaling
