@@ -1,0 +1,53 @@
+---
+title: Types of Node
+description: Types of nodes in Shardeum Network
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="For Testnet" type="info">
+It is recommended to stake just 10 SHM per Validator node, 
+since rewards will be the same with 10 SHM or more staked for a Validator. 
+</Callout>
+
+## Validator Nodes
+
+### Active
+
+These nodes validate the transactions in the network by participating in the consensus. They will have to stake SHM to be able to participate. Shardeum will reward them with SHM for participating (network rewards will come from predefined SHM emissions, and the transaction fees earned). Validator nodes don't store the whole history, so they are lightweight. The active validator network size grows and shrinks based on transactions pending that need validation consensus from validators.
+
+### Standby
+
+<Callout title="Note" type="warn">
+Standby validators require staked SHM to become active.
+</Callout>
+
+These are validator nodes standing by in the network and not currently participating in consensus. Standby nodes help scale the Shardeum network quicker when more transactions are pending. At the end of every cycle, the oldest active validators in the network are rotated out for standby validators.
+
+## RPC Nodes
+
+These nodes are able to access the EVM Based JSON RPC interface that is used to read and write data on the Shardeum blockchain.
+Wallets must be connected to an RPC URL to interact with blockchains for example. 
+
+Public Shardeum RPC URL endpoints:
+
+<Cards>
+  <Card
+    href="https://docs.shardeum.org/network/endpoints"
+    title="Shardeum RPC URL Public endpoints"
+    description="Checkout Shardeum's RPC URL"
+  />
+</Cards>
+
+Read RPC method example:
+
+<Cards>
+  <Card
+    href="https://www.quicknode.com/docs/ethereum/eth_chainId"
+    title="eth_chainId"
+    description="Checkout the specification of eth_chainId - a common EVM rpc call"
+  />
+</Cards>
+## Archive Nodes
+
+Archive nodes maintain the entire transaction history. Archive nodes may or may not have to stake SHM, but they will earn a portion of the network reward to motivate and incentivize for storing historical data.
