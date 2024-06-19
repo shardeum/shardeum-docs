@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@headlessui/react": "^2.0.4",
+    "@heroicons/react": "^2.1.4",
     "@nextui-org/react": "^2.4.2",
     "framer-motion": "^11.2.10",
     "fumadocs-core": "12.1.2",
