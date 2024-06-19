@@ -30,7 +30,7 @@ Shardeum employs a unique consensus mechanism that integrates Proof of Stake (Po
 * **Communication Efficiency:** The PoQ model minimizes the need for extensive communication among validators. Instead of all validators communicating with each other, which can become a bottleneck, the PoQ approach streamlines this process, significantly enhancing scalability. In previous consensus models, each validator in the execution group would make a vote and share it with all other nodes, which became impractical as the number of validators increased. PoQ reduces this communication overhead by limiting the interactions to a subset of validators, thus maintaining efficiency even with a large number of nodes.
 * **Dynamic Adjustment:** The PoQ system dynamically adjusts to the number of validators, maintaining efficiency even as the network grows. This flexibility is crucial for ensuring that the network remains scalable and performant as it evolves. The consensus mechanism adapts to changes in the network, such as nodes joining or leaving. This dynamic adjustment ensures that the network continues to function efficiently without requiring significant manual intervention or reconfiguration.
 
-<!-- ![Consensus](/img/new/consensus.png) -->
+![Consensus](/img/new/consensus.png)
 
 
 <iframe width="800" height="480" src="https://www.youtube.com/embed/uFX6TY55XwM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>

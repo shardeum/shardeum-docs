@@ -4,7 +4,6 @@ sidebar_position: 2
 image: /img/new/i61.jpg
 ---
 
-
 # APIs and Interfaces
 
 ### 1. **API Endpoints**
