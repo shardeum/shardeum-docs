@@ -1,26 +1,16 @@
-# shardeum-new-docs
+<p align="center"> <img src="https://github.com/shardeum/.github/raw/dev/shardeum-white-bg.png" alt="Shardeum Logo" width="70%"> </p>
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+# Shardeum Documentation
 
-Run development server:
+<p align="center">
+<b>Shardeum is the EVM based autoscaling blockchain</b>
+</p>
 
-```bash
-npm run dev
-# or
-pnpm dev
-# or
-yarn dev
-```
+Welcome to the Layer 1 blockchain where the community runs the nodes, and auto-scalability means exponential growth.
 
-Open http://localhost:3000 with your browser to see the result.
+## Local Development
 
-## Learn More
-
-To learn more about Next.js and Fumadocs, take a look at the following
-resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Fumadocs](https://fumadocs.vercel.app) - learn about Fumadocs
+- Clone this repository 
+- npm install the project dependencies
+- npm run dev to start the local development server
+- Open http://localhost:3000 with your browser to see the result.
