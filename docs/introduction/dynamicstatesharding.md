@@ -26,3 +26,9 @@ In a dynamic state sharding system like Shardeum, shards can adapt to changes in
 In Shardeum, each validator covers a unique range of addresses and only needs to execute transactions assigned to it and store respective state changes. Although each validator covers a unique range of addresses, some validators cover the same addresses in the sense of overlap, thus adding redundancy. Ensuring every address in Shardeum has the required redundancy of at least 128 validators.
 
 Compared to Static State Sharding, Dynamic State Sharding allows the number of shards and their composition to change dynamically based on network conditions. This adaptability enables Dynamic State Sharding to optimize the system's performance and resource allocation with increased efficiency.
+
+* Shardeum employs dynamic sharding to distribute data and computational tasks across multiple nodes efficiently. This system adjusts the shard allocation based on the network's needs, optimizing both storage and processing resources.
+* Shards are managed so that no single node has a complete set of data, enhancing security and performance. The network's sharding mechanism is designed to adapt to changes in node count and transaction volume, allowing for scalable and responsive network operations.
+* These combined mechanisms enable Shardeum to manage a large network of nodes, handle high transaction volumes, and maintain security and consistency across the distributed ledger.
+
+

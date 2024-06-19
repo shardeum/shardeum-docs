@@ -1,6 +1,6 @@
 ---
 title: Technology
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 ## Will Shardeum maintain atomic composability across different shards?

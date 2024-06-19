@@ -1,6 +1,6 @@
 ---
 title: Validator
-sidebar_position: 3
+sidebar_position: 6
 ---
 
 ## Does the network give any priorities for selecting validator nodes?

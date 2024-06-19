@@ -8,7 +8,7 @@ sidebar_position: 2
 
 Sharding is a network architecture that enables parallel processing to achieve increased transaction throughput and performance. It involves breaking the network into smaller, more manageable pieces called "shards." Each shard processes a portion of the network's transactions independently, thus allowing for parallel processing and increasing the network's overall capacity.
 
-Sharding helps mitigate the performance challenges that unsharded blockchain networks face as they become popular.
+Sharding helps mitigate the performance challenges that unsharded blockchain networks face as the network demand increases.
 
 # Types of Sharding
 
@@ -29,6 +29,7 @@ Sharding helps mitigate the performance challenges that unsharded blockchain net
 4. **State Sharding:** State sharding involves dividing the blockchain's state (account balances, smart contract data, etc.) into separate segments, with each shard maintaining a portion of the overall state. This helps reduce storage and computational requirements for individual nodes, making it easier for them to participate in the network.
 
 Shardeum implements a 3-dimensional sharding approach - State, Network, and Transactions. Shardeum’s auto-scaling feature allows the network to adjust the number and size of shards based on the current workload. This allows the system to optimize performance and maintain high levels of scalability as it grows and evolves.
+
 
 
 <iframe width="800" height="480" src="https://www.youtube.com/embed/SZpjvWMfgDA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
