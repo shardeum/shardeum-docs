@@ -223,7 +223,7 @@ Run:
   <TabItem value="shell" label="Shell" default>
 
 ```shell
-curl -O https://gitlab.com/shardeum/validator/dashboard/-/raw/main/installer.sh && chmod +x installer.sh && ./installer.sh
+curl -O https://raw.githubusercontent.com/shardeum/validator-dashboard/main/installer.sh && chmod +x installer.sh && ./installer.sh
 ```
 
   </TabItem>
@@ -301,9 +301,6 @@ More info on router port forwarding:
 
 https://www.noip.com/support/knowledgebase/general-port-forwarding-guide/
 
-Reference:
-
-https://gitlab.com/shardeum/validator/dashboard/
 :::
 
 ## Step 3: Open validator CLI
