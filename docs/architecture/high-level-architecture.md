@@ -17,7 +17,7 @@ image: /img/new/coreframe1.png
 
 ### 2. **DApps and their interaction with Shardus Core Protocol**
 
-* **Connecting through APIs:** Dapps on Shardeum, especially those that work like Ethereum Dapps, talk to the core protocol using a specific set of commands known as an API. This lets the Dapps use important features like agreement and data accuracy, while they can still do their own thing for their specific needs. [Here you can see all of them.](../protocol/apis-and-interfaces.md)
+* **Connecting through APIs:** Dapps on Shardeum, especially those that work like Ethereum Dapps, talk to the core protocol using a specific set of commands known as an API. This lets the Dapps use important features like agreement and data accuracy, while they can still do their own thing for their specific needs. [Here you can see all of them.](./apis-and-interfaces.md)
 * **DApps keep their own rules:** Each dapp on Shardeum has its own set of rules and logic that fit what the dapp is designed to do. This setup means that even if dapps change or update, they don’t mess with the core protocol. This makes it easier to add new features to dapps without complicating things.
 
 ### 3. **Benefits of Shardeum’s design**:
@@ -29,4 +29,4 @@ image: /img/new/coreframe1.png
 ### **4. More about how it works**:
 
 * **Handling data:** The core protocol takes care of the big picture stuff like making sure all parts of the network are working together. It doesn’t store or deal with specific dapp data; dapps handle their own data and only talk to the core protocol for making sure everyone agrees.
-* **Managing nodes:** The rules about how nodes (the individual parts of the network) operate are detailed in the protocol's documentation. [The core protocol manages whether nodes are active or on standby](../protocol/node-lifecycle.md), but it doesn’t get involved in the specific data that nodes deal with for dapps.
+* **Managing nodes:** The rules about how nodes (the individual parts of the network) operate are detailed in the protocol's documentation. [The core protocol manages whether nodes are active or on standby](./node-lifecycle.md), but it doesn’t get involved in the specific data that nodes deal with for dapps.

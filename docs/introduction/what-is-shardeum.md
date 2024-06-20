@@ -81,7 +81,7 @@ const shardusSetup = (): void => {
 ```
 
 
-* **API interaction:** DApps interact with the Shardus Core Protocol through a [defined API](../protocol/apis-and-interfaces.md). This abstraction ensures that the core protocol does not directly access or manipulate application data, maintaining a clear boundary between the protocol and the applications.
+* **API interaction:** DApps interact with the Shardus Core Protocol through a [defined API](../architecture/apis-and-interfaces.md). This abstraction ensures that the core protocol does not directly access or manipulate application data, maintaining a clear boundary between the protocol and the applications.
 
 ![EVM Frame](/img/new/evmframe1.jpg)
 
