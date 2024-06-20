@@ -35,6 +35,13 @@ const callsToAction = [
     { name: 'Contact sales', href: 'mailto:hi@shardeum.org', icon: DocumentIcon },
 ]
 
+const navItems = [
+    { name: 'Connect to Shardeum', href: '#' },
+    { name: 'Report Bugs', href: '#' },
+    { name: 'Open Source', href: '#' },
+    { name: 'Claim Testnet SHM', href: '#' },
+]
+
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
 }
@@ -64,7 +71,7 @@ export default function Header() {
                 </div>
                 <PopoverGroup className="hidden lg:flex lg:gap-x-12">
                     <Popover className="relative">
-                        <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
+                        <PopoverButton className="flex items-center gap-x-1 text-md font-semibold leading-6 text-gray-900">
                             Resources
                             <ChevronDownIcon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
                         </PopoverButton>
@@ -113,24 +120,18 @@ export default function Header() {
                         </Transition>
                     </Popover>
 
-                    <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-                        Connect Shardeum
-                    </a>
-                    <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-                        Report Bugs
-                    </a>
-                    <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-                        Shardeum OSS
-                    </a>
-                    <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-                        Claim Testnet SHM
-                    </a>
+                    {navItems.map((item) => (
+                        <a key={item.name} href={item.href} className="text-md font-semibold leading-6 text-gray-900">
+                            {item.name}
+                        </a>
+                    ))}
+
                 </PopoverGroup>
-                <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                {/* <div className="hidden lg:flex lg:flex-1 lg:justify-end">
                     <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
                         Search...
                     </a>
-                </div>
+                </div> */}
             </nav>
             <Dialog className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
                 <div className="fixed inset-0 z-10" />
@@ -181,33 +182,21 @@ export default function Header() {
                                         </>
                                     )}
                                 </Disclosure>
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                                >
-                                    Connect Shardeum
-                                </a>
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                                >
-                                    Report Bugs
-                                </a>
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                                >
-                                    Shardeum OSS
-                                </a>
+
+                                {navItems.map((item) => (
+                                    <a key={item.name} href={item.href} className="block rounded-lg py-2 pl-3 pr-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
+                                        {item.name}
+                                    </a>
+                                ))}
                             </div>
-                            <div className="py-6">
+                            {/* <div className="py-6">
                                 <a
                                     href="#"
                                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                                 >
                                     Search...
                                 </a>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </DialogPanel>
