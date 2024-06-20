@@ -1,0 +1,193 @@
+---
+title: APIs and Interfaces
+description: Learn about various Shardeum APIs and interfaces
+---
+
+### 1. **API Endpoints**
+
+![API](/img/new/i61.png)
+
+Shardeum provides a variety of API endpoints designed to facilitate network interaction. These endpoints can be categorized into several main types:
+
+**Node Management APIs:**
+
+* **Node Registration:** APIs for registering new nodes to join the network. This includes providing necessary credentials and passing authentication checks.
+* **Node Status:** APIs to check the status of nodes, including whether they are active, in standby, or undergoing synchronization.
+* **Node Configuration:** Endpoints to configure node parameters and operational settings.
+
+**Transaction APIs:**
+
+* **Submit Transaction:** APIs for submitting transactions to the network. These handle various transaction types, including coin transfers and smart contract executions.
+* **Transaction Status:** APIs to query the status of submitted transactions, including pending, confirmed, or failed states.
+* **Transaction History:** Endpoints to retrieve the historical data of transactions associated with specific accounts.
+
+**Consensus and Validation APIs:**
+
+* **Submit Vote:** APIs for validators to submit their votes during the consensus process.
+* **Consensus Status:** Endpoints to retrieve the current status of the consensus process and quorum details.
+* **Slashing Events:** APIs to report and query slashing events, detailing penalized nodes and the reasons for penalties.
+
+**Smart Contract APIs:**
+
+* **Deploy Contract:** Endpoints for deploying smart contracts to the Shardeum network.
+* **Invoke Contract:** APIs to call functions on deployed smart contracts, allowing interaction with dApps.
+* **Query Contract:** APIs for querying data from smart contracts without executing state-changing operations.
+
+### **2. Interaction Models**
+
+![Models](/img/new/i62.png)
+
+Shardeum supports several interaction models to cater to different types of network participants, from developers and dApp users to validators and node operators.
+
+[**JSON-RPC APIs**](https://github.com/shardeum/json-rpc-server)
+
+    For Ethereum-compatible interactions, Shardeum offers JSON-RPC endpoints, allowing developers to use familiar tools and libraries to interact with the network. The Shardeum JSON-RPC Server repository enables developers to interact with the Shardeum blockchain network using JSON-RPC over HTTP.
+
+    **API and Routes**
+
+    * `src/api.ts`: Defines the methods available for the JSON-RPC server. (Content not retrieved, but typically contains the core RPC methods.)
+    * `src/routes/authenticate.ts`: Handles authentication routes, allowing users to authenticate using a passphrase and JWT tokens.
+    * `src/routes/log.ts`: Manages logging endpoints for capturing and retrieving various logs and statistics.
+
+    **Server Setup**
+
+    * `src/server.ts`: Sets up the main server, integrating various middlewares, routes, and WebSocket connections. It handles the initialization of different services and configurations.
+    * `src/logger.ts`: Manages logging functionality, including saving interface statistics and transaction statuses.
+
+    **Middlewares**
+
+    * `src/middlewares/authorize.ts`: Middleware for authorizing requests using JWT tokens.
+    * `src/middlewares/injectIP.ts`: Middleware for injecting the IP address into specific transaction requests.
+    * `src/middlewares/rejectSubscription.ts`: Middleware to reject HTTP subscription methods, which are not allowed.
+
+    **Utilities**
+
+    * `src/utils.ts`: Contains utility functions used across the server.
+    * `package.json`: Lists dependencies and scripts for building and running the server.
+    * `tsconfig.json`: TypeScript configuration file (not retrieved, file does not exist).
+
+    **Setup Instructions**
+
+    * **Docker Setup**:
+      * To start the server using Docker: `docker compose up -d`
+      * To check logs: `docker compose logs -f`
+      * To clean up: `docker compose down`
+    * **NPM Setup**:
+      * Clone the repository and switch to the dev branch.
+      * Install dependencies: `npm install`
+      * Start the server: `npm run start`
+      * Modify configuration in `src/config.ts` for chainId and port settings.
+    *   **Debug Endpoints**
+
+        The server includes several debug endpoints, protected by authentication, for monitoring and managing the server:
+
+        * `/log/api-stats`: Retrieves API call counts and TPS.
+        * `/log/txs`: Returns transactions made through the RPC server.
+        * `/log/status`: Returns the status of logging.
+        * Additional endpoints for starting/stopping logging and cleaning tables.
+*   **RESTful APIs**
+
+    Shardeum’s primary interaction model is REST-based, offering a simple and widely compatible way to interact with the network. Each API endpoint follows REST principles, allowing for standard HTTP methods like GET, POST, PUT, and DELETE to perform various operations.
+*   **WebSocket APIs**
+
+    For real-time updates and event-driven interactions, Shardeum provides WebSocket endpoints. These are particularly useful for receiving live updates on transaction statuses, node events, and consensus activities.
+
+    **Polling**
+
+    Reading smart contract events can also be done using Shardeum cycles (we listen to blocks/bundles to do this).
+
+    **Reading events with Shardeum Cycles**
+
+    1. To get the current cycle: get the latest block, then divide by 10, and round down.
+    2.  Build the JSON URL with:
+
+        Example with ([explorer sphinx](https://explorer-sphinx.shardeum.org/api/transaction?startCycle=19020\&endCycle=19045\&address=0x245E2395712F888CeD1033C924115105dC32e388)):
+
+        ```
+        startCycle = endCycle = 49
+        address = 0x23FF65f07cAbAd1643440a0114d71260F2Bb6352
+        ```
+    3. Filter for transactions per page \[note, 10 transactions per page] ([ge=1](https://explorer-sphinx.shardeum.org/api/transaction?startCycle=19020\&endCycle=19045\&address=0x245E2395712F888CeD1033C924115105dC32e388\&page=1)
+
+    **JSON URL Filter Variables**
+
+    ```
+    ?startCycle=lastestCycle
+    &endCycle=lastestCycle
+    &address=addressToListenTo
+    &page=1
+    ```
+*   **GraphQL APIs**
+
+    Shardeum also supports GraphQL, providing a flexible and efficient way to query the network. This is particularly useful for complex queries where clients can specify exactly what data they need, reducing the amount of data transferred and processed.
+
+### 3. Network Endpoints
+
+Shardeum offers several network endpoints for connecting and interacting with its blockchain.
+
+**Network Details for Shardeum Sphinx 1.X**
+
+* **Network Name:** Shardeum Sphinx 1.X
+* **New RPC URL:** [https://sphinx.shardeum.org/](https://sphinx.shardeum.org/)
+* **Chain ID:** 8082
+* **Currency Symbol:** SHM
+* **Block Explorer URL:** [https://explorer-sphinx.shardeum.org/](https://explorer-sphinx.shardeum.org/)
+
+These endpoints facilitate node management, transaction processing, consensus, and smart contract interactions within the Shardeum network.
+
+#### Shardeum Explorer Server
+
+The Shardeum Explorer Server allows users to interact with the Shardeum blockchain network through a set of RESTful APIs. This server provides endpoints to query blockchain data, such as blocks, transactions, and account information.
+
+#### Installation and Setup
+
+1.  **Clone the Repository:** To get started, you need to clone the repository to your local machine using the following command:
+
+    ```bash
+    git clone <https://github.com/shardeum/explorer-server.git>
+    ```
+2.  **Navigate to the Project Directory:**
+
+    ```bash
+    cd explorer-server
+    ```
+3.  **Install Dependencies:** Use npm to install the necessary dependencies.
+
+    ```bash
+    npm install
+    ```
+4. **Configuration:** Configure the server by setting environment variables. You will need to specify details such as the network you are connecting to, the port the server will run on, and other relevant configurations.
+5.  **Run the Server:** Start the server using npm.
+
+    ```bash
+    npm start
+    ```
+
+#### API Endpoints
+
+The Explorer Server provides several API endpoints categorized into different groups:
+
+* **Blocks:**
+  * Retrieve information about blocks.
+* **Transactions:**
+  * Fetch details about specific transactions.
+* **Accounts:**
+  * Query information related to specific accounts on the blockchain.
+
+#### Example API Usage
+
+ **Get Block Information:** To retrieve information about a specific block, you can use the endpoint:
+
+    ```
+    GET /api/block/:blockNumber
+    ```
+ **Get Transaction Details:** To get details about a specific transaction:
+
+    ```
+    GET /api/transaction/:transactionHash
+    ```
+ **Get Account Information:** For account details, use:
+
+    ```
+    GET /api/account/:address
+    ```

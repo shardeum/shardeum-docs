@@ -3,34 +3,35 @@ title: Validator
 description: Steps to run a Shardeum Validator
 ---
 
+
 <Cards>
   <Card
-    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    href="#download-and-install-validator"
     title="Install a validator"
     description="Install a Shardeum Validator from scratch"
   />
     <Card
-    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    href="#update"
     title="Update Exisiting Validator"
     description="Update your validator to the latest version"
   />
     <Card
-    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    href="#open-validator-gui"
     title="Validator Dashboard"
     description="Setup your Validator Dashboard"
   />
     <Card
-    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    href="#cli"
     title="Validator CLI commands"
     description="Learn more about Validator CLI commands"
   />
     <Card
-    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    href="#step-8-get-shm-from-betanet-faucet"
     title="Get Testnet SHM"
     description="Get Testnet SHM to add stake to your validator"
   />
     <Card
-    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    href="#uninstall-validator"
     title="Uninstall Validator"
     description="Uninstall your Shardeum Validator"
   />
@@ -51,4 +52,525 @@ Earn SHM for securing the network. Contribute to the security, scalability and d
 Access the terminal interface for Shell CLI commands:
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
  
+<Tabs items={["Linux", "MacOS"]}>
+ 
+```ts tab="Linux"
+(Press at the same time)
+Ctrl + Alt + T
+```
+ 
+```ts tab="MacOS"
+(Press at the same time)
+Command + Space bar
+(Type)
+Terminal
+```
+ 
+</Tabs>
+
+### Install package managers
+We will use curl in this tutorial to download files:
+
+ 
+<Tabs items={["Linux", "MacOS"]}>
+```ts tab="Linux"
+sudo apt-get install curl
+```
+ 
+```ts tab="MacOS"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+``` 
+</Tabs>
+add Homebrew to your PATH:
+
+```
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+### Update package managers
+<Tabs items={["Linux", "MacOS"]}>
+```ts tab="Linux"
+sudo apt update
+```
+ 
+```ts tab="MacOS"
+brew update
+``` 
+</Tabs>
+
+### Install docker and docker.io 
+<Tabs items={["Linux", "MacOS"]}>
+```ts tab="Linux"
+sudo apt install docker.io
+```
+ 
+```ts tab="MacOS"
+brew install docker
+``` 
+</Tabs>
+
+Check that docker is working with (should return version 20.10.12 or higher):
+
+```
+docker --version
+```
+
+### Install docker-compose
+
+<Tabs items={["Linux", "MacOS"]}>
+```ts tab="Linux"
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+```
+ 
+```ts tab="MacOS"
+brew install docker-compose
+``` 
+</Tabs>
+
+Setup permissions for docker-compose:
+
+```
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+Check that docker-compose is working with (should return version 1.29.2 or higher):
+```
+docker-compose --version
+```
+
+
+## Download and Install Validator
+
+Run the following command:
+
+```
+curl -O https://raw.githubusercontent.com/shardeum/validator-dashboard/main/installer.sh && chmod +x installer.sh && ./installer.sh
+```
+
+The terminal will ask questions about your setup settings.
+
+Give permission to collect validator data for bug reporting:
+
+```shell
+By running this installer, you agree to allow the Shardeum team to collect this data. (y/n)?:
+```
+
+Enter y to setup the web based dashboard:
+
+```shell
+Do you want to run the web based Dashboard? (y/n):
+```
+
+Set a password for dashboard access:
+
+```shell
+Set the password to access the Dashboard:
+```
+
+Add a custom session port for the web based dashboard or hit enter for port 8080:
+
+```shell
+Enter the port (1025-65536) to access the web based Dashboard (default 8080):
+```
+
+Add a custom external IP address or use an automatically detected IP address:
+
+```shell
+If you wish to set an explicit external IP, enter an IPv4 address (default=auto):
+```
+
+Add a custom internal IP address or use an automatically detected IP address:
+
+```shell
+If you wish to set an explicit internal IP, enter an IPv4 address (default=auto):
+```
+
+Set the first p2p port (default 9001):
+
+```shell
+To run a validator on the Sphinx Validator 1.X network, you will need to open two ports in your firewall.
+This allows p2p communication between nodes.
+Enter the first port (1025-65536) for p2p communication (default 9001):
+```
+
+Set the second p2p port (default 10001):
+
+```shell
+Enter the second port (1025-65536) for p2p communication (default 10001):
+```
+
+Add a custom path or install to root:
+
+```shell
+What base directory should the node use (defaults to ~/.shardeum):
+```
+
+Wait for the installation process to complete.
+
+<Callout title="Port Forwarding" type="warn">
+
+If you are behind a router and you are using ports 9001 and 10001 for p2p communication,
+make sure ports 9001 and 10001, are forwarded (be careful doing this since it will modify your firewall).
+
+Router port forwarding example with AT&T:
+
+https://www.att.com/support/article/u-verse-high-speed-internet/KM1010280/
+
+More info on router port forwarding:
+
+https://www.noip.com/support/knowledgebase/general-port-forwarding-guide/
+</Callout>
+
+## Open validator CLI
+
+Make sure you are in the root directory by running:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+cd .shardeum
+```
+</Tabs>
+
+Start the CLI by running the following shell script:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+./shell.sh
+```
+</Tabs>
+
+
+
+<Callout title="Docker Errors" type="warn">
+If you see docker permission error:
+
+```shell
+Got permission denied while trying to connect to the Docker daemon socket at
+unix:///var/run/docker.sock:
+Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/shardeum-dashboard/json":
+dial unix /var/run/docker.sock:
+connect:
+permission denied
+```
+
+run:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+sudo usermod -a -G docker $USER && newgrp docker
+```
+</Tabs>
+
+if that does not work, also try:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+
+sudo service docker start
+```
+</Tabs>
+then try to start the shell script again.
+</Callout>
+
+
+## Open validator GUI
+
+Go to your web browser and go to:
+
+<Tabs items={["Shell", "Server"]}>
+```shell tab="Shell"
+https://localhost:8080/
+```
+
+```shell tab="Server"
+https://<server_ip>:8080/
+```
+</Tabs>
+
+<Callout title="" type="info">
+
+You might see a warning page when trying to access this address in your web browser. Ignore this warning and continue to the validator dashboard. Another way to work around this warning:
+
+</Callout>
+
+
+Enter the password you set during the installation process.
+
+![loginPage.jpg](/img/node/run/validator/loginPage.jpg)
+
+You should now see the “Overview” page for the Shardeum Validator Dashboard in your web browser:
+
+![overviewBetanet.jpg](/img/node/run/validator/overviewBetanet.jpg)
+
+
+## Start validator
+
+Go to the “Maintenance” page, then click the “Start Node” button in the top left white box:
+
+![startBetanet.jpg](/img/node/run/validator/startBetanet.jpg)
+
+if that does not work, you can also try running the following command on cli:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli start
+```
+</Tabs>
+
+
+## Monitor validator
+
+Go to “Performance” to see your node’s hardware performance here:
+
+![performanceBetanet.jpg](/img/node/run/validator/performanceBetanet.jpg)
+
+For more details about your node status run the following inside the CLI:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli status
+```
+</Tabs>
+
+
+## Connect Wallet to Shardeum Testnet
+
+[Connect to Shardeum Validator with your wallet by clicking the button linked here](ADD details)
+
+## Step 8: Get SHM from Betanet Faucet
+
+[Shardeum Discord SHM Faucet for Sphinx 1.X](https://discord.com/channels/933959587462254612/1070780355931541514)
+
+## Stake SHM to validator
+
+### GUI
+
+After you start the validator, go to the “Settings” page. You will be asked to connect your wallet:
+
+![connectWalletBetanet.jpg](/img/node/run/validator/connectWalletBetanet.jpg)
+
+After you connect your wallet, you should see the following:
+
+![connectedWalletOptions.jpg](/img/node/run/validator/connectedWalletOptions.jpg)
+
+When you click "Add Stake", you will see the following:
+
+![connectedWalletAddStake.jpg](/img/node/run/validator/connectedWalletAddStake.jpg)
+
+```
+-Stake Wallet Address [wallet connected]
+-Nominee Public Key [filled in automatically while validator is running]
+-Stake amount (SHM) [empty and is in units ether not wei]
+```
+
+This example has filled in 10 SHM tokens to stake.
+
+
+<Callout title="" type="info">
+
+Stake the specified minimum amount to start earning rewards.(For testnet, its 10 SHM)
+
+</Callout>
+
+
+Once all fields are filled, click the “Stake” button.
+
+Your wallet will ask you to sign the transaction stake your SHM.
+
+Once the transaction is signed and complete, you have staked your SHM tokens successfully.
+
+<Callout title="" type="info">
+If your node status is on Standby and you have 10 SHM or more staked, your validator node is setup correctly.
+
+The network will automatically add your validator to be active in the network.
+
+The time to be added as an active validator will vary based on network load and validators in the network.
+</Callout>
+
+<Callout title="" type="error">
+If you see your validator IP address as "0.0.0.0":
+
+Go into the operator dashboard docker (may be different if you customized install location:
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+cd ~/.shardeum
+./shell.sh
+```
+</Tabs>
+
+Get your node's external IP:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+curl https://ipinfo.io/ip
+```
+</Tabs>
+
+The returned IP in the format of nnn.nnn.nnn.nnn is your EXTERNAL_IP.
+
+Set the number above in place of EXTERNAL_IP:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+export APP_IP="EXTERNAL_IP"
+```
+</Tabs>
+</Callout>
+
+
+### CLI
+
+You can also stake and unstake from the Validator CLI if you are not able to access a web browser for the Validator GUI.
+
+First, set your private key in your Validator CLI:
+
+<Callout title="" type="error">
+
+Be very careful with your private keys. We recommend you use a private key which has testnet tokens only to be safe.
+
+Please note, this is not the recommended method for staking with the Shardeum validator. Mishandling of private key may result in loss of assets. Shardeum discards private key after the transaction is signed. Take precaution when extracting your private key.
+</Callout>
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+export PRIV_KEY=<private_key>
+```
+</Tabs>
+
+Make sure your private key is stored in your Validator CLI by running:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+echo $PRIV_KEY
+```
+</Tabs>
+
+Add stake with:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli stake 10
+```
+</Tabs>
+
+Check your stake amount with:
+
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli stake_info <wallet_address>
+```
+</Tabs>
+
+Remove stake with:
+
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli unstake
+```
+</Tabs>
+
+## Validator
+
+### Version
+
+<Callout title="" type="info">
+It is necessary to keep your validator updated by checking the minimum version required and your current version periodically.
+</Callout>
+
+Run:
+
+<Tabs items={["Shell", "Server"]}>
+```ts tab="Shell"
+curl localhost:9001/nodeinfo
+```
+```ts tab="Server"
+curl <server_ip>:9001/nodeinfo
+```
+</Tabs>
+
+## Update
+
+- Stop your validator before updating (you don't need to unstake though)
+- In your terminal, first exit from the container using
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+exit
+cd ..
+```
+</Tabs>
+
+
+
+- Run the following curl script
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+curl -O https://gitlab.com/shardeum/validator/dashboard/-/raw/main/installer.sh && chmod +x installer.sh && ./installer.sh
+```
+</Tabs>
+
+You might manually have to start the GUI afterwards with:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli gui start
+```
+</Tabs>
+
+
+- Check your currect version from either CLI or GUI and make sure it is the latest version.
+
+
+## CLI And GUI
+
+### Version
+
+Run:
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli version
+```
+</Tabs>
+
+
+### Update
+
+Run:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli update
+```
+</Tabs>
+
+### Commands
+
+To see all CLI commands, run:
+
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+operator-cli help
+```
+</Tabs>
+
+## Uninstall Validator
+
+Useful if your validator is outdated and you want to clean your last installation.
+
+You can delete the validator folder while in your root directory with:
+
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+rm -rf .shardeum
+```
+</Tabs>
+
