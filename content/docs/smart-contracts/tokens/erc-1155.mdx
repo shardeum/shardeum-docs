@@ -1,0 +1,119 @@
+---
+title: ERC-1155
+description: Deploy ERC-1155 on Shardeum
+---
+
+## What is an ERC-1155?
+
+A smart contract multi-token standard for:
+```
+-fungible tokens (ERC-20)  
+-NFTs (ERC-721)
+```
+https://eips.ethereum.org/EIPS/eip-1155
+
+## ERC-721 v.s. ERC-1155
+
+ERC-721 tokens are good at identifying one type of object.
+
+For example, balances are based on the entire contract for all tokenId values:
+
+```solidity
+balanceOf(address)
+```
+
+
+ERC-1155 tokens are good at identifying multiple objects.
+
+For example, balances are isolated based on unique tokenId values:
+
+```solidity
+balanceOf(address, tokenId)
+```
+
+
+## Vending Machine Analogy
+
+ERC-721:
+```
+-Example: Water Bottles
+-Each tokenId represents a unique water bottle brand
+```
+ERC-1155:
+```
+-Example: Vending Machine Items
+-Each tokenId can be a different vending machine item:
+    -water bottles
+    -snack bars
+    -tea
+    -trail mix
+```
+## ERC-1155 Batch Transfer
+
+You can bulk transfer ERC-1155 tokens based on tokenId and quantity by calling:
+
+```solidity
+safeBatchTransferFrom(address from, address to, uint256[] ids, uint256[] amounts, bytes data)
+```
+
+
+## What do ERC-721 and ERC-1155 contracts have in common?
+
+OpenZeppelin contracts:
+```
+ERC721Holder.sol
+```
+and
+```
+ERC1155Holder.sol
+```
+are safety inheritance contracts. A contract must inherit these contracts to accept tokens being transferred to them.
+
+However, ERC-20 tokens do not have a safety inheritance holder contract.
+
+When transferring tokens to contracts, call smart contract functions that have "transferFrom()" behavior.
+It is recommended to only send tokens directly to a contract on test networks, otherwise you risk accidentally burning your tokens.
+
+## ERC-1155 Example Contracts:
+
+Here is how to mint and burn ERC-1155 tokens:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.17;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+
+error invalidFruitIdNumber();
+
+contract FruitStore is ERC1155 { //ERC1155 cannot also be a ERC1155Holder for having tokens ERC1155 tokens sent to it.
+
+    uint public constant Raspberry = 0; // "constant" and "immutable" variables don't use storage slots, which saves gas.
+    uint public constant Watermelon = 1; // "constant" variables can never change.
+    uint public constant Blueberry = 2;
+    uint public constant Avacado = 3;
+    uint public constant Guava = 4;
+    uint public constant Pitaya = 5;
+    uint public constant Apple = 6;
+    uint public constant Banana = 7;
+    uint public immutable ExtraFruitId; //"immutable" can only be changed in the constructor.
+
+    constructor(uint extraFruitIdPick) ERC1155("https://en.wikipedia.org/wiki/{name}") { //When using safeTransferFrom, have data as 0x00.
+        if(extraFruitIdPick > 7) { revert invalidFruitIdNumber(); } //Don't check for negative since uint must be 0 or positive.
+        ExtraFruitId = extraFruitIdPick; //"immutable" can only be changed in the constructor.
+        _mint(msg.sender, Raspberry,    100*(1 ether), "");  //To send tokens from wallet to wallet, send the following Tx to this contract: "setApprovalForAll(walletToSendTo,true)".
+        _mint(msg.sender, Watermelon,   100*(1 ether), "");  //Then you can transfer tokens with: "safeTransferFrom(fromAddress,toAddress,id,amount,0x00)".
+        _mint(msg.sender, Blueberry,    100*(1 ether), "");  //Smart contracts must inherit "ERC1155Holder.sol" to receive ERC1155 tokens.
+        _mint(msg.sender, Avacado,      100*(1 ether), "");
+        _mint(msg.sender, Guava,        100*(1 ether), "");
+        _mint(msg.sender, Pitaya,       100*(1 ether), "");
+        _mint(msg.sender, Apple,        100*(1 ether), "");
+        _mint(msg.sender, Banana,       100*(1 ether), "");
+        _mint(msg.sender, ExtraFruitId, 100*(1 ether), "");
+    }
+
+}
+
+contract BurnTokensERC1155 is ERC1155Holder {} //Tokens sent to this contract will be lost forever.
+```

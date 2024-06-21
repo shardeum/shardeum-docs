@@ -1,0 +1,76 @@
+---
+title: Shardeum Dapp Boilerplate
+description: Learn how to use Shardeum Dapp Boilerplate
+---
+The Shardeum Dapp Boilerplate is your gateway to developing decentralized applications (Dapps) on the Shardeum blockchain. It provides a comprehensive starting point for learning blockchain fundamentals, participating in hackathons, and experimenting with Shardeum's features.
+
+<Cards>
+  <Card
+    href="https://github.com/shardeum/shardeum-dapp-boilerplate"
+    title="Shardeum Dapp Boilerplate on Github"
+    description="Rapidly prototype dapps on Shardeum"
+  />
+</Cards>
+
+
+## Why Shardeum Dapp Boilerplate?
+
+This boilerplate is tailored for:
+
+- ✅ Learning Blockchain Fundamentals
+- ✅ Hackathon Projects
+- ✅ Experimenting with Shardeum's Capabilities
+
+##  Getting Started
+
+### Option 1: Using NPM Library
+
+To quickly set up the Shardeum dApp Boilerplate, you can use our npm library. This will clone the repository, install all dependencies, and create a project named `test-project` with the boilerplate inside it.
+
+Run the following command in your terminal:
+
+```bash
+npx create-shardeum-dapp@latest --name test-project
+```
+
+After the process completes, navigate to your new project and start the development server:
+
+```bash
+cd test-project
+npm run dev
+```
+
+Your boilerplate is now ready and running on your local machine!
+
+### Option 2: Manual Setup
+
+Alternatively, you can manually set up the boilerplate by cloning the repository and installing the necessary dependencies:
+
+```
+git clone https://github.com/Shardeum/shardeum-dapp-boilerplate
+
+cd shardeum-dapp-boilerplate
+
+npm install
+
+npm run dev
+```
+##  Usecases
+There are three primary modules in the boilerplate:
+
+- **RPC:** This module demonstrates the functionality of an Shardeum RPC. Be in reading useful data from the blockchain or sending transactions, rpcs serve as a gateway to the blockchain.
+
+- **NFT Minting:** This module demonstrates a basic NFT minting page which let's user mint NFTs for a fixed mint price.
+
+- **DeFi:** This module demonstrate the use of Uniswap V2 to swap between two tokens.
+
+## Layout
+
+- **Header**: An easily configurable header with wallet connect functionality along with displaying user address and balance.
+
+- **Pages**: Individual pages for demonstrating functionality for 3 major verticals in web3 - RPC, NFT and Defi.
+
+- **Smart Contracts**: All primary smart contracts used in the application can be found in the '**contracts**' directory and the appropriate scripts in the '**scripts**' directory.
+
+##  Contributing Guidelines
+We warmly welcome contributions to the Shardeum Dapp Boilerplate! Whether you're fixing bugs, adding new features, or improving documentation, your help makes a big difference.

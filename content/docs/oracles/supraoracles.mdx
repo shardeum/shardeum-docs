@@ -1,0 +1,230 @@
+---
+title: SupraOracles
+description: SupraOracles on Shardeum
+---
+
+
+SupraOracles is a novel, high-throughput Oracle & IntraLayer: A vertically integrated toolkit of cross-chain solutions (data oracles, asset bridges, automation network, and more) that interlink all blockchains, public (L1s and L2s) or private (enterprises).
+
+## How to use SupraOracles' Price Feeds
+
+
+Integrating with SupraOracles' Price Feeds is quick and easy. To see all of the networks SupraOracles is on, please visit   [SupraOracles' Networks](https://supraoracles.com/docs/get-started/networks)!
+
+To get started, you will want to visit   [SupraOracles' docs site](https://supraoracles.com/docs/get-started/) and review the documentation or continue to follow this guide for a quick start.
+
+### Step 1: Create The S-Value Interface
+
+
+Add the following code to the solidity smart contract that you wish to retrieve an S-Value.
+
+
+```solidity
+interface ISupraSValueFeed {
+
+    function getSvalue(uint64 _pairIndex) external view returns (bytes32, bool);
+
+    function getSvalues(uint64[] memory _pairIndexes) external view returns (bytes32[] memory, bool[] memory);
+
+}
+```
+
+This creates the interface that you will later apply in order to fetch a price from SupraOracles.
+
+### Step 2: Configure The S-Value Feed Address
+
+
+To fetch the S-Value from a SupraOracles smart contract, you must first find the S-Value Feed Address for the chain of your choice.
+
+Now, let's create an instance of the S-Value Feed using the interface we previously defined for Shardeum Sphinx Dapp testnet:
+
+```solidity
+contract ISupraSValueFeedExample {
+    ISupraSValueFeed internal sValueFeed;
+
+    constructor() {
+        sValueFeed = ISupraSValueFeed(0xc85F07Dc3BEcBEAccB53CC82D32423f4EAD59311);
+    }
+}
+```
+
+### Step 3: Add unpack function to decode response for S-Value feed 
+```solidity
+// Some codefunction unpack(bytes32 data) internal pure returns(uint256[4] memory) {
+        uint256[4] memory info;
+
+        info[0] = bytesToUint256(abi.encodePacked(data >> 192));       // round
+        info[1] = bytesToUint256(abi.encodePacked(data << 64 >> 248)); // decimal
+        info[2] = bytesToUint256(abi.encodePacked(data << 72 >> 192)); // timestamp
+        info[3] = bytesToUint256(abi.encodePacked(data << 136 >> 160)); // price
+
+        return info;
+    }
+
+    function bytesToUint256(bytes memory _bs) internal pure returns (uint256 value) {
+        require(_bs.length == 32, "bytes length is not 32.");
+        assembly {
+            value := mload(add(_bs, 0x20))
+        }
+    }
+```
+
+
+### Step 4: Get The S-Value Crypto Price
+
+
+Now you can simply access the S-Value Crypto Price of our supported market pairs. In this step, we'll get the price of ETH/USDT (eth_usdt) by applying the following code to our Smart Contract.
+
+```solidity
+function getPrice(uint64 _priceIndex) external view returns (uint256[4] memory) {
+
+        (bytes32 val,)= sValueFeed.getSvalue(_priceIndex);
+
+        uint256[4] memory decoded = unpack(val);
+
+        return decoded;
+}
+
+function getPriceForMultiplePair(uint64[] memory _pairIndexes) external view returns (uint256[4][] memory) {
+
+        (bytes32[] memory val, ) = sValueFeed.getSvalues(_pairIndexes);
+
+        uint256[4][] memory decodedArray = new uint256[4][](val.length);
+
+        for(uint i=0; i< val.length; i++){
+
+            uint256[4] memory decoded = unpack(val[i]);
+            decodedArray[i] = decoded;
+        }
+
+        return decodedArray;
+}
+```
+
+Here's an example of what your implementation should look like
+
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
+
+
+interface ISupraSValueFeed {
+    function getSvalue(uint64 _pairIndex) external view returns (bytes32, bool);
+    function getSvalues(uint64[] memory _pairIndexes) external view returns (bytes32[] memory, bool[] memory);
+}
+
+contract SupraSValueFeedExample {
+   
+    ISupraSValueFeed internal sValueFeed;
+
+    constructor() {
+sValueFeed = ISupraSValueFeed(0xc85F07Dc3BEcBEAccB53CC82D32423f4EAD59311);
+}
+
+
+    function unpack(bytes32 data) internal pure returns(uint256[4] memory) {
+        uint256[4] memory info;
+
+        info[0] = bytesToUint256(abi.encodePacked(data >> 192));       // round
+        info[1] = bytesToUint256(abi.encodePacked(data << 64 >> 248)); // decimal
+        info[2] = bytesToUint256(abi.encodePacked(data << 72 >> 192)); // timestamp
+        info[3] = bytesToUint256(abi.encodePacked(data << 136 >> 160)); // price
+
+        return info;
+    }
+
+
+    function bytesToUint256(bytes memory _bs) internal pure returns (uint256 value) {
+        require(_bs.length == 32, "bytes length is not 32.");
+        assembly {
+            value := mload(add(_bs, 0x20))
+        }
+    }
+
+    function getPrice(uint64 _priceIndex) external view returns (uint256[4] memory) {
+
+        (bytes32 val,)= sValueFeed.getSvalue(_priceIndex);
+
+        uint256[4] memory decoded = unpack(val);
+
+        return decoded;
+    }
+
+    function getPriceForMultiplePair(uint64[] memory _pairIndexes) external view returns (uint256[4][] memory) {
+
+        (bytes32[] memory val, ) = sValueFeed.getSvalues(_pairIndexes);
+
+        uint256[4][] memory decodedArray = new uint256[4][](val.length);
+
+        for(uint i=0; i< val.length; i++){
+
+            uint256[4] memory decoded = unpack(val[i]);
+            decodedArray[i] = decoded;
+        }
+
+        return decodedArray;
+    }
+
+}
+```
+
+
+Tada! You now have everything setup to call the [Trade Pairs](https://supraoracles.com/docs/price-feeds/trading-pairs) using their respective index numbers.
+
+### Extra: S-Value Feeds with ethers.js
+
+
+```js
+const ethers = require('ethers');
+
+// Connect to the provider
+let provider = new ethers.providers.JsonRpcProvider('https://dapps.shardeum.org');
+
+// Contract ABI
+let abi =[INSERT ABI]
+
+// Contract address
+let contractAddress = '0xc85F07Dc3BEcBEAccB53CC82D32423f4EAD59311';
+
+// Instantiate the contract
+let contract = new ethers.Contract(contractAddress, abi, provider);
+
+// Call getPrice method
+async function getPrice(priceIndex) {
+    let result = await contract.getPrice(priceIndex);
+    console.log(result);
+}
+
+getPrice(1); // Replace 1 with your desired priceIndex
+
+// Call getPriceForMultiplePair method
+async function getPriceForMultiplePairs(pairIndexes) {
+    let result = await contract.getPriceForMultiplePair(pairIndexes);
+    console.log(result);
+}
+
+getPriceForMultiplePairs([1, 2, 3]); // Replace [1, 2, 3] with your desired pairIndexes
+
+```
+
+## Going Further with SupraOracles
+
+
+If you want to take the next step, consider registering for the  [Supra Network Activate Program (SNAP)](https://join.supraoracles.com/network-activate-program).
+
+The Supra Network Activate Program (SNAP) offers companies discounted oracle credits, technical documentation, and customer support to embed much-needed oracles and VRF/RNG. SNAP supports Web3 scaling and growth to buffer costs which could typically inhibit a company’s success.
+
+The SNAP program is partnered with some of Web3's most prolific names who are helping with project selection and qualification.
+
+## Connect with SupraOracles!
+
+
+Still looking for answers? We got them! Check out all the ways you can reach them:
+
+* Visit us at [supraoracles.com](https://supraoracles.com)
+* Read our [Docs](https://supraoracles.com/docs/overview)
+* Chat with us on [Telegram](https://t.me/SupraOracles)
+* Follow us on [Twitter](https://twitter.com/SupraOracles)
+* Join our [Discord](https://discord.gg/supraoracles)
+* Check us out on [Youtube](https://www.youtube.com/SupraOfficial)

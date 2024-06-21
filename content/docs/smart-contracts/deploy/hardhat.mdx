@@ -1,0 +1,231 @@
+---
+title: Hardhat
+description: Learn how to deploy on Shardeum with hardhat
+---
+
+Hardhat is a development environment to compile, deploy, test, and debug your Ethereum software. It helps developers manage and automate the recurring tasks inherent to the process of building smart contracts and dApps and easily introduces more functionality around this workflow. This means compiling, running and testing smart contracts at the very core.
+
+## Environment Setup
+
+There are a few technical requirements for developers to start using Hardhat. Install the following dependencies:
+
+- NodeJS v12 or later ([available here](https://nodejs.org/en/))
+- Npm/Yarn Package Installer (included with Node)
+- Windows, Linux or Mac OS X
+
+## Installing Hardhat
+
+:::caution Hardhat Version
+Hardhat Version 2.9.1 or higher is recommended with Shardeum to avoid gas errors for testing and deployment.
+:::
+
+Once the above dependencies are installed successfully, you need to setup a fresh new empty project by using the below commands.
+
+
+```shell
+mkdir testToken
+cd testToken
+npm init --yes
+npm install --save-dev hardhat
+```
+
+
+:::tip Tip
+
+Installing Hardhat will install some Ethereum JavaScript dependencies, so be patient.
+
+:::
+
+This tutorial will use the Ethers.js and Waffle plugins. They'll allow interaction with Shardeum to test contracts.
+
+```shell
+npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers ethers
+```
+
+## Creating a Hardhat Project
+
+In the same directory where you installed Hardhat run:
+
+
+```shell
+npx hardhat
+```
+
+In the terminal output, select "Create a basic sample project":
+
+```
+888    888                      888 888               888
+888    888                      888 888               888
+888    888                      888 888               888
+8888888888  8888b.  888d888 .d88888 88888b.   8888b.  888888
+888    888     "88b 888P"  d88" 888 888 "88b     "88b 888
+888    888 .d888888 888    888  888 888  888 .d888888 888
+888    888 888  888 888    Y88b 888 888  888 888  888 Y88b.
+888    888 "Y888888 888     "Y88888 888  888 "Y888888  "Y888
+
+👷 Welcome to Hardhat v2.9.3 👷‍
+
+? What do you want to do? …
+❯ Create a basic sample project
+  Create an advanced sample project
+  Create an advanced sample project that uses TypeScript
+  Create an empty hardhat.config.js
+  Quit
+```
+
+Once this operation is complete, you'll now have a project structure with the following items:
+
+```
+1. contracts/: Directory for Solidity contracts
+2. scripts/: Directory for scriptable deployment files
+3. test/: Directory for test files for testing your application and contracts
+4. hardhat-config.js:Hardhat configuration file
+5. artifacts(visible after compile): Compiled Solidity contracts with bytecode and ABI
+```
+
+## Create Contract
+
+You can write your own smart contract, or use open-source openzeppellin standard contracts and build on top of them.
+
+We are using openzeppelin for our testToken, which requires a dependency.
+
+```shell
+npm install @openzeppelin/contracts
+```
+
+Create a file named "testToken.sol" in the contract directory.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract testToken is ERC20 {
+
+  constructor(uint256 initialSupply) ERC20("shardeumTestToken", "STT") {
+      _mint(msg.sender, initialSupply);
+  }
+
+}
+```
+
+## Configuring Hardhat For Shardeum Sphinx
+
+- Go to hardhat-config.js (located in root directory)
+- Update with Shardeum Sphinx details ([available here](/network/endpoints))
+
+```js
+require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-ethers");
+const { privateKeys } = require("./secrets.json");
+
+// This is a sample Hardhat task. To learn how to create your own go to
+// https://hardhat.org/guides/create-task.html
+task("accounts", "Prints the list of accounts", async () => {
+  const accounts = await ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+});
+
+// You need to export an object to set up your config
+// Go to https://hardhat.org/config/ to learn more
+
+/**
+ * @type import('hardhat/config').HardhatUserConfig
+ */
+module.exports = {
+  defaultNetwork: "sphinx",
+  networks: {
+    hardhat: {},
+    sphinx: {
+      url: "https://sphinx.shardeum.org/",
+      chainId: 8082,
+      accounts: [privateKeys],
+    },
+  },
+  solidity: {
+    //configure solidity version for compilation
+    version: "0.8.0",
+    settings: {
+      optimizer: {
+        enabled: true,
+      },
+    },
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
+  mocha: {
+    timeout: 20000,
+  },
+};
+```
+
+**Note:** Make sure to add your mnemonic or private key and add it to a separate file named "secrets.json" (make sure never to upload this file to GitHub or GitLab).
+
+## Compile Contract
+
+To compile a Hardhat project, change to the root directory (in our case testToken directory) and run the command in the terminal.
+
+
+```shell
+npx hardhat compile
+```
+
+## Coding Deployment Scripts
+
+Create a file in scripts folder named "deploy.js".
+
+
+```js
+// Runtime Environment's members available in the global scope.
+const hre = require("hardhat");
+
+async function main() {
+  // Hardhat always runs the compile task when running scripts with its command
+  // line interface.
+  //
+  // If this script is run directly using `node` you may want to call compile
+  // manually to make sure everything is compiled
+  // await hre.run('compile');
+
+  // We get the contract to deploy
+  const TestToken = await hre.ethers.getContractFactory("testToken");
+  const testToken = await TestToken.deploy("100000000000000000000");
+
+  await testToken.deployed();
+  console.log("testToken deployed to:", testToken.address);
+}
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+
+## Deploying on Shardeum Sphinx
+
+To deploy the testToken contract run this command in testToken directory.
+
+```shell
+npx hardhat run scripts/deploy.js --network sphinx
+```
+
+The contract will be deployed on Shardeum Sphinx.
+
+```
+testToken deployed to: 0x2f4cBD1a614E1F3760b06Dad3868994591e140d3
+```
+
+Congratulations! You have successfully deployed ERC20 Smart Contract. Now you can interact with the Smart Contract by building a dApp.

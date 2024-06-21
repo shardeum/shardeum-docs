@@ -1,0 +1,602 @@
+---
+title: Multicall Contract
+sidebar_position: 1
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+## What is EIP-2930?
+
+EIP-2930 allows users to define addresses and storage slots for a transaction.
+
+https://eips.ethereum.org/EIPS/eip-2930
+
+## Why is EIP-2930 important?
+
+Sphinx 1.X has automated the accessList for Shardeum RPC nodes to route shards.
+
+Therefore, you no longer need to specify the accessList for these networks with automated accessList generation. 
+
+This document is useful for: 
+
+-educational purposes  
+-situations where the automated accessList fails and you need to specify the accessList directly
+
+
+## Where is EIP-2930 data located for a transaction?
+
+The accessList transaction parameter is where the EIP-2930 address and storage slot data goes.
+
+## How do I define an accessList for an EIP-2930 transaction?
+
+Based on the EIP-2930 specification, the general syntax should be:
+
+  -the address [20 bytes]
+
+  -then the storage slots being accessed at that address [32 bytes]
+
+Example:
+
+```python
+    [
+        [
+            "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
+            [
+                "0x0000000000000000000000000000000000000000000000000000000000000003",
+                "0x0000000000000000000000000000000000000000000000000000000000000007"
+            ]
+        ],
+        [
+            "0xbb9bc244d798123fde783fcc1c72d3bb8c189413",
+            []
+        ]
+    ]
+```
+
+## EIP-2930 Optional:
+
+## Transfer SHM on Shardeum Between Wallets:
+
+Send an EIP-2930 transaction with an accessList address that has no storage:
+
+<Tabs>
+  <TabItem value="javascript" label="Javascript" default>
+
+```js
+const Web3 = require('web3')
+const ethers = require("ethers")
+
+const rpcURL = "https://sphinx.shardeum.org/"
+const web3 = new Web3(rpcURL)
+
+const provider = new ethers.providers.JsonRpcProvider(rpcURL)
+const signer = new ethers.Wallet(Buffer.from(process.env.devTestnetPrivateKey, 'hex'), provider);
+console.log("User wallet address: " + signer.address)
+
+const transferToWallet = new ethers.Wallet(Buffer.from(process.env.devTestnetPrivateKeyTwo, 'hex'), provider);
+console.log("transferToWallet address: " + transferToWallet.address)
+
+createAndSendTx();
+
+async function createAndSendTx() {
+
+    const chainIdConnected = await web3.eth.getChainId();
+    console.log("chainIdConnected: "+ chainIdConnected)
+
+    const oneEtherInWeiSHM = "1000000000000000000"
+    console.log("oneEtherInWeiSHM: " + oneEtherInWeiSHM)
+
+    const userBalance = await provider.getBalance(signer.address);
+    console.log("User Balance [Shardeum SHM]" )
+    console.log(ethers.utils.formatEther(userBalance))
+
+    const receiverBalance = await provider.getBalance(transferToWallet.address);
+    console.log("Receiver Balance [Shardeum SHM]" )
+    console.log(ethers.utils.formatEther(receiverBalance))
+
+    const txCount = await provider.getTransactionCount(signer.address);
+
+    const tx = signer.sendTransaction({
+          chainId: chainIdConnected,
+          to: transferToWallet.address,
+          nonce:    web3.utils.toHex(txCount),
+          gasLimit: web3.utils.toHex(300000), // Raise the gas limit to a much higher amount
+          gasPrice: web3.utils.toHex(web3.utils.toWei('30', 'gwei')),
+          value: oneEtherInWeiSHM,
+          type: 1,
+          accessList: [
+            {
+              address: transferToWallet.address,
+              storageKeys: []
+            }
+          ]
+
+    });
+
+    console.log("WAIT FOR TX RECEIPT: ")
+    await tx
+    console.log("TX RECEIPT: ")
+    console.log(tx)
+
+}
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python" default>
+
+```python
+from web3 import Web3
+import json
+import os
+import time
+
+ShardeumConnectionHTTPS = "https://sphinx.shardeum.org/";
+web3 = Web3(Web3.HTTPProvider(ShardeumConnectionHTTPS))
+
+chainIdConnected = web3.eth.chain_id
+print("chainIdConnected: " + str(chainIdConnected))
+
+devTestnetPrivateKey = str(os.environ['devTestnetPrivateKey']);
+
+userWallet = (web3.eth.account.from_key(devTestnetPrivateKey)).address
+print("User Wallet Address: " + userWallet)
+
+devTestnetPrivateKeyTwo = str(os.environ['devTestnetPrivateKeyTwo']);
+
+transferToWallet = (web3.eth.account.from_key(devTestnetPrivateKeyTwo)).address
+print("transferToWallet address: " + transferToWallet)
+
+oneEtherInWeiSHM = "1000000000000000000"
+print("weiMsgValueToSend: " + oneEtherInWeiSHM)
+
+userBalance =  web3.eth.getBalance(userWallet);
+print("User Balance [Shardeum SHM]" )
+print(web3.fromWei(userBalance, "ether"))
+
+receiverBalance =  web3.eth.getBalance(transferToWallet);
+print("Receiver Balance [Shardeum SHM]" )
+print(web3.fromWei(receiverBalance, "ether"))
+
+transferTx = {
+    'chainId' : chainIdConnected,
+    'nonce':  web3.eth.getTransactionCount(userWallet)       ,
+    'to': transferToWallet, #WORKS WITH REGULAR WALLETS BUT CANNOT SEND TO CONTRACT FOR SOME REASON?
+    'gas': 2100000, #WORKS WITH 1000000. If not try : Remix > deploy and run transactions
+    'gasPrice': web3.toWei('30', 'gwei'), # https://etherscan.io/gastracker
+    'value': int(oneEtherInWeiSHM),
+    'accessList' :
+                [
+                    {
+                        "address" : transferToWallet,
+                        "storageKeys": []
+                    }
+                ]
+}
+
+signed_tx = web3.eth.account.signTransaction(transferTx, devTestnetPrivateKey)
+tx_hash = web3.toHex(web3.eth.sendRawTransaction(signed_tx.rawTransaction))
+print("TX HASH: " + tx_hash)
+
+time.sleep(15)
+
+receipt = web3.eth.getTransactionReceipt(tx_hash)
+print("TX RECEIPT: " + str(receipt) )
+```
+
+  </TabItem>
+
+</Tabs>
+
+
+## Contracts contractToCall and Multicall:
+
+<Tabs>
+  <TabItem value="solidity" label="Solidity" default>
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.17;
+
+contract contractToCall {
+
+    uint public slot0; //uint is 32 bytes and fills a 32 byte slot. //Do not set 0 manually it wastes gas!
+
+    function set(uint x) public {
+        slot0 = x;
+    }
+
+}
+
+contract Multicall {
+
+    contractToCall public callContractToCall;
+
+    constructor(address setCallOne) {
+        callContractToCall = contractToCall(setCallOne);
+    }
+
+    function multiCallRead() public view returns(uint) {
+        return callContractToCall.slot0();
+    }
+
+    function multiCallWrite(uint x) public {
+        callContractToCall.set(x);
+    }
+
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## contractToCall (Single Address):
+
+Send an EIP-2930 transaction with a accessList. The accessList contains the contract's address and accessed storage slot (or slots).
+In this case, it will be storage slot0, because it is a single uint storage variable (uint = 256 bits = 32 bytes) which is modified when we call "set(uint)".
+
+<Tabs>
+  <TabItem value="javascript" label="Javascript" default>
+
+```js
+const Web3 = require('web3')
+const ethers = require("ethers")
+
+const rpcURL = "https://sphinx.shardeum.org/"
+const web3 = new Web3(rpcURL)
+
+const provider = new ethers.providers.JsonRpcProvider(rpcURL)
+const signer = new ethers.Wallet(Buffer.from(process.env.devTestnetPrivateKey, 'hex'), provider);
+console.log("User wallet address: " + signer.address)
+
+const simpleStorageAddress = '0xE8eb488bEe284ed5b9657D5fc928f90F40BC2d57'
+const simpleStorageABI = [{"inputs":[{"internalType":"uint256","name":"x","type":"uint256"}],"name":"set","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"slot0","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]
+
+const simpleStorageDeployed = new web3.eth.Contract(simpleStorageABI, simpleStorageAddress)
+
+createAndSendTx();
+
+async function createAndSendTx() {
+
+    const chainIdConnected = await web3.eth.getChainId();
+    console.log("chainIdConnected: "+ chainIdConnected)
+
+    const slot0 = await simpleStorageDeployed.methods.slot0().call()
+    console.log("slot0: "+ slot0)
+
+    const unixTime = Date.now();
+    console.log("UNIX TIME: " + unixTime)
+
+    const txCount = await provider.getTransactionCount(signer.address);
+
+    const tx = signer.sendTransaction({
+          chainId: chainIdConnected,
+          to: simpleStorageAddress,
+          nonce:    web3.utils.toHex(txCount),
+          gasLimit: web3.utils.toHex(300000), // Raise the gas limit to a much higher amount
+          gasPrice: web3.utils.toHex(web3.utils.toWei('30', 'gwei')),
+          data: simpleStorageDeployed.methods.set(unixTime).encodeABI(),
+          type: 1,
+          accessList: [
+            {
+              address: simpleStorageAddress,
+              storageKeys: [
+                "0x0000000000000000000000000000000000000000000000000000000000000000",
+              ]
+            }
+          ]
+
+    });
+
+    console.log("WAIT FOR TX RECEIPT: ")
+    await tx
+    console.log("TX RECEIPT: ")
+    console.log(tx)
+
+}
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python" default>
+
+```python
+from web3 import Web3
+import json
+import os
+import math
+import time
+
+ShardeumConnectionHTTPS = "https://sphinx.shardeum.org/";
+web3 = Web3(Web3.HTTPProvider(ShardeumConnectionHTTPS))
+
+chainIdConnected = web3.eth.chain_id
+print("chainIdConnected: " + str(chainIdConnected))
+
+devTestnetPrivateKey = str(os.environ['devTestnetPrivateKey']);
+
+userWallet = (web3.eth.account.from_key(devTestnetPrivateKey)).address
+print("User Wallet Address: " + userWallet)
+
+Contract_At_Address= web3.toChecksumAddress("0xE8eb488bEe284ed5b9657D5fc928f90F40BC2d57");
+abi_Contract = json.loads('[{"inputs":[{"internalType":"uint256","name":"x","type":"uint256"}],"name":"set","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"slot0","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]')
+contract_Call = web3.eth.contract(address = Contract_At_Address , abi = abi_Contract);
+
+print(contract_Call.functions.slot0().call());
+
+unixTime = int(math.floor( time.time()*(10**3)) )
+print("UNIX TIME: " + str(unixTime) )
+
+EIP_2930_tx = {
+    'chainId' : chainIdConnected,
+    'nonce':  web3.eth.getTransactionCount(userWallet)       ,
+    'to': Contract_At_Address, #WORKS WITH REGULAR WALLETS BUT CANNOT SEND TO CONTRACT FOR SOME REASON?
+    'gas': 2100000, #WORKS WITH 1000000. If not try : Remix > deploy and run transactions
+    'gasPrice': web3.toWei('30', 'gwei'), # https://etherscan.io/gastracker
+    'data' : contract_Call.encodeABI(fn_name='set', args=[unixTime]) ,
+    'accessList' :
+                [
+                    {
+                        "address" : Contract_At_Address,
+                        "storageKeys": [
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                        ]
+                    }
+                ]
+}
+
+signed_tx = web3.eth.account.signTransaction(EIP_2930_tx, devTestnetPrivateKey)
+tx_hash = web3.toHex(web3.eth.sendRawTransaction(signed_tx.rawTransaction))
+print("TX HASH: " + tx_hash)
+
+time.sleep(15)
+
+receipt = web3.eth.getTransactionReceipt(tx_hash)
+print("TX RECEIPT: " + str(receipt) )
+```
+
+  </TabItem>
+</Tabs>
+
+## Multicall Storage Read:
+
+Reading contract states cross shard does not need an accessList.
+
+For example, ERC-20 multicall:
+
+<Tabs>
+  <TabItem value="solidity" label="Solidity" default>
+
+```solidity
+tokenObject.totalSupply()
+```
+
+  </TabItem>
+</Tabs>
+
+
+will work with no accessList cross shard.
+
+## EIP-2930 Required:
+
+## Multicall Storage Write:
+
+Writing contract states cross shard requires an accessList.
+
+For example, ERC-20 multicall:
+
+<Tabs>
+  <TabItem value="solidity" label="Solidity" default>
+
+```solidity
+tokenObject.transfer(recipient, amount)
+```
+
+  </TabItem>
+</Tabs>
+
+will require an accessList to work cross shard.
+
+Contract Multicall can change states in other contracts (in this case contractToCall).
+For sharded Shardeum networks, we need to specify the addresses and storage slots being called outside "from" and "to" in the transaction.
+
+## Sphinx 1.X Address codeHash in storage slots:
+
+Sphinx 1.X will not need the codeHash in storage slots for each corresponding externally called address.
+
+In Solidity, you can get an address codeHash from a deployed contract on the matching network [along with checking if an address is a contract].
+You can also get an address codeHash with the ethers library.
+
+## Solidity codeHash example:
+
+<Tabs>
+  <TabItem value="solidity" label="Solidity" default>
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.17;
+
+contract addressCodeHash { //From https://soliditydeveloper.com/extcodehash
+
+    function getCodeHash(address account) public view returns (bytes32) {
+
+        bytes32 codeHash;    
+        assembly { codeHash := extcodehash(account) }
+
+        return (codeHash);
+    }
+
+    function isContractBasedOnHash(address account) public view returns (bool) {
+        bytes32 accountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
+
+        bytes32 codeHash;    
+        assembly { codeHash := extcodehash(account) }
+
+        return (codeHash != accountHash && codeHash != 0x0);
+    }
+
+    function isContractBasedOnSize(address addr) public view returns (bool) {
+        uint size;
+        assembly { size := extcodesize(addr) }
+        return size > 0;
+    }
+
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## EIP-2930 accessList transactions for Multicall contract to modify slot0 in contractToCall:
+
+<Tabs>
+<TabItem value="javascript" label="Javascript" default>
+
+```js
+const Web3 = require('web3')
+const ethers = require("ethers")
+
+const rpcURL = "https://sphinx.shardeum.org/"
+const web3 = new Web3(rpcURL)
+
+const provider = new ethers.providers.JsonRpcProvider(rpcURL)
+const signer = new ethers.Wallet(Buffer.from(process.env.devTestnetPrivateKey, 'hex'), provider);
+console.log("User wallet address: " + signer.address)
+
+const contractAddress_JS = '0xb1fEf690f84241738b188eF8b88e52B2cc59AbD2'
+const contractABI_JS = [{"inputs":[{"internalType":"uint256","name":"x","type":"uint256"}],"name":"multiCallWrite","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"setCallOne","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"callContractToCall","outputs":[{"internalType":"contractcontractToCall","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"multiCallRead","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]
+
+const contractDefined_JS = new web3.eth.Contract(contractABI_JS, contractAddress_JS)
+
+createAndSendTx();
+
+async function createAndSendTx() {
+
+    const chainIdConnected = await web3.eth.getChainId();
+    console.log("chainIdConnected: "+ chainIdConnected)
+
+    const slot0 = await contractDefined_JS.methods.multiCallRead().call()
+    console.log("slot0: "+ slot0)
+
+    const contractOneAddress = await contractDefined_JS.methods.callContractToCall().call()
+    console.log("contractOneAddress: "+ contractOneAddress)
+
+    const codeHash = await provider.getCode(contractOneAddress)
+    console.log("contractOneAddress codeHash: " + codeHash)
+
+    const unixTime = Date.now();
+    console.log("UNIX TIME: " + unixTime)
+
+    const txCount = await provider.getTransactionCount(signer.address);
+
+    const tx = signer.sendTransaction({
+        chainId: chainIdConnected,
+        to: contractAddress_JS,
+        nonce:    web3.utils.toHex(txCount),
+        gasLimit: web3.utils.toHex(2100000), // Raise the gas limit to a much higher amount
+        gasPrice: web3.utils.toHex(web3.utils.toWei('30', 'gwei')),
+        data: contractDefined_JS.methods.multiCallWrite(unixTime).encodeABI(),
+        type: 1,
+        accessList: [
+          {
+            address: contractOneAddress, //Contract address we are calling from the "to" contract at some point.
+            storageKeys: [
+              "0x0000000000000000000000000000000000000000000000000000000000000000",
+              codeHash, //Code hash from EXTCODEHASH https://blog.finxter.com/how-to-find-out-if-an-ethereum-address-is-a-contract/
+            ]
+          }
+        ]
+
+    });
+
+    console.log("WAIT FOR TX RECEIPT: ")
+    await tx
+    console.log("TX RECEIPT: ")
+    console.log(tx)
+
+}
+```
+
+</TabItem>
+  <TabItem value="python" label="Python" default>
+
+```python
+from web3 import Web3
+import json
+import os
+import time
+import math
+
+ShardeumConnectionHTTPS = "https://sphinx.shardeum.org/";
+web3 = Web3(Web3.HTTPProvider(ShardeumConnectionHTTPS))
+
+chainIdConnected = web3.eth.chain_id
+print("chainIdConnected: " + str(chainIdConnected))
+
+devTestnetPrivateKey = str(os.environ['devTestnetPrivateKey']);
+
+userWallet = (web3.eth.account.from_key(devTestnetPrivateKey)).address
+print("User Wallet Address: " + userWallet)
+
+multicallContractAddress= web3.toChecksumAddress("0xb1fEf690f84241738b188eF8b88e52B2cc59AbD2");
+multicallContractABI = json.loads('[{"inputs":[{"internalType":"uint256","name":"x","type":"uint256"}],"name":"multiCallWrite","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"setCallOne","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"callContractToCall","outputs":[{"internalType":"contractcontractToCall","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"multiCallRead","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]')
+multicallContractDeployed = web3.eth.contract(address = multicallContractAddress , abi = multicallContractABI);
+
+contractOneAddress = multicallContractDeployed.functions.callContractToCall().call()
+print("contractOneAddress: "+contractOneAddress)
+
+slot0 = multicallContractDeployed.functions.multiCallRead().call()
+print("slot0: "+ str(slot0) )
+
+codeHashBytes32 =  (web3.eth.get_code(contractOneAddress))
+codeHashString = codeHashBytes32.hex()
+print("contractOneAddress codeHash: " + codeHashString )
+
+unixTime = int(math.floor( time.time()*(10**3)) )
+print("UNIX TIME: " + str(unixTime) )
+
+EIP_2930_tx = {
+  'chainId' : chainIdConnected,
+  'to': multicallContractAddress, #WORKS WITH REGULAR WALLETS BUT CANNOT SEND TO CONTRACT FOR SOME REASON?
+  'nonce':  web3.eth.getTransactionCount(userWallet)       ,
+  'gas': 2100000, #WORKS WITH 1000000. If not try : Remix > deploy and run transactions
+  'gasPrice': web3.toWei('30', 'gwei'), # https://etherscan.io/gastracker
+  'data' : multicallContractDeployed.encodeABI(fn_name='multiCallWrite', args=[unixTime]) ,
+  'type' : 1,
+  'accessList' :
+              [
+                  {
+                      "address" : contractOneAddress,
+                      "storageKeys": [
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          codeHashString  ##Code hash from EXTCODEHASH https://blog.finxter.com/how-to-find-out-if-an-ethereum-address-is-a-contract/
+                      ]
+                  }
+              ]
+}
+
+signed_tx = web3.eth.account.signTransaction(EIP_2930_tx, devTestnetPrivateKey)
+tx_hash = web3.toHex(web3.eth.sendRawTransaction(signed_tx.rawTransaction))
+print("TX HASH: " + tx_hash)
+
+time.sleep(15)
+
+receipt = web3.eth.getTransactionReceipt(tx_hash)
+print("TX RECEIPT: " + str(receipt) )
+```
+</TabItem>
+
+</Tabs>
+
+
+## How can I create an EIP-2930 accessList easily?
+
+## EIP-2930 accessList simulator
+
+Tool generates accessList with 91% accuracy:
+
+https://github.com/alexchenzl/predict-al
+
+EIP-2930 accessList generation for swap transactions can be found in this GitHub repository:
+
+https://github.com/shardeum-globalswap/interface/tree/support-eip2930
