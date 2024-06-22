@@ -7,13 +7,13 @@ sidebar_position: 4
 
 ## Links
 
-**Shardeum Sphinx:**
-
-https://explorer-sphinx.shardeum.org/
-
 **Shardeum Atomium:**
 
 https://explorer-atomium.shardeum.org/
+
+**Shardeum Sphinx:**
+
+https://explorer-sphinx.shardeum.org/
 
 ## Overview
 

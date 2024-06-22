@@ -18,7 +18,11 @@ image: /img/claim/SHM_testnet_preview.jpg
 
 3. Go to the faucet channel in Shardeum discord.
 
-Sphinx 1.X:
+Atomium:
+
+https://discord.com/channels/933959587462254612/1253938152775749673
+-------------------------------------------------------------------------------------
+Sphinx:
 
 https://discord.com/channels/933959587462254612/1070780355931541514
 
@@ -41,86 +45,3 @@ oallowfullscreen="oallowfullscreen"
 webkitallowfullscreen="webkitallowfullscreen"
 frameBorder="0">
 </iframe>
-
-## Shardeum Telegram Faucet
-
-1. Join the Shardeum Telegram Community:
-
-[Invitation to Shardeum Telegram](https://t.me/shardians)
-
-2. To claim testnet $SHM use the following command: `/claim <your ERC-20 wallet address>`
-
-**Example:**
-
-`/claim 0x000000000000000000`
-
-3. Once you use this command, it will take few seconds and the bot will transfer 12 SHM to your wallet.
-
-![telegram 1](/img/telegram/telegram1.png)
-
-**Note:** You can only request faucet from Telegram once in 12 hours.
-
-## Chaindrop Faucet Website
-
-1. Visit the Chaindrop faucet and select shardeum network:
-
-Sphinx 1.X:
-
-https://chaindrop.org/?chainid=8082&token=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-
-
-![chaindrop_2](/img/chaindrop/chaindrop_2.jpg)
-
-2. Enter a valid wallet address and complete the captcha and click send to receive tokens.
-
-![chaindrop_3](/img/chaindrop/chaindrop_3.jpg)
-
-## DotShm Faucet Website
-
-1. Visit the faucet:
-
-https://dotshm.me/faucet
-
-2. Connect your wallet to the network.
-
-3. Click on "Tweet to Claim" & make a tweet.
-
-4. Claim SHM on the following networks: Sphinx 1.1 or Liberty 2.1
-
-Video tutorial on using DotShm Faucet:
-<iframe id="ytplayer" type="text/html"
-class="video"
-src="https://www.youtube.com/embed/-2BAurstQ_Y"
-allowFullScreen="allowFullScreen"
-mozallowfullscreen="mozallowfullscreen"
-msallowfullscreen="msallowfullscreen"
-oallowfullscreen="oallowfullscreen"
-webkitallowfullscreen="webkitallowfullscreen"
-frameBorder="0">
-</iframe>
-
-## Faucetme Discord Faucet
-
-[Faucetme](https://shardeum.faucetme.pro/) quick and safe way to claim SHM for validators. Just connect your discord and get 5 SHM once a day
-
-
-
-
-1. [Login to Faucetme Discord](https://discord.com/invite/stakeme)
-
-2. Paste your wallet address into the text box
-   ![faucetme](/img/faucet/fauctme.png)
-
-3. Click the send me button to request for tokens.
-
-
-4. SHM will be sent to your wallet after a few seconds.
-
-#### Remarks
-Issuance of tokens depends on the role at the discord STAKEME channel. The more important your role is on the server, the more tokens you will receive from FAUCETME.
-
-If you want to get more tokens, you can get special roles in the STAKEME discord team. Just do a few simple tasks, subscribe to the Shardium project's social networks and you will get more tokens.
-
-Also, a higher priority roles gives you the right to use automatic token issuance in our faucet.
-
-
