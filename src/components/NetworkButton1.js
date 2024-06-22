@@ -4,7 +4,7 @@ export default function connectToSphinx() {
 
   const chainId = '0x1f92';
   const rpcURL = 'https://sphinx.shardeum.org/';
-  const networkName = 'Shardeum Sphinx 1.X ';
+  const networkName = 'Shardeum Sphinx';
   const currencyName = 'SHM';
   const currencySymbol = 'SHM';
   const explorerURL = 'https://explorer-sphinx.shardeum.org/';

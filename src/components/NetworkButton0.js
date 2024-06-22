@@ -1,22 +1,23 @@
 import React, {useState} from 'react';
 
-export default function connectToLiberty0() {
+export default function connectToSphinx() {
 
-  const chainId = '0x1f91';
-  const rpcURL = 'https://dapps.shardeum.org';
-  const networkName = ' Shardeum Dapp Sphinx 1.X ';
+  const chainId = '0x1f92';
+  const rpcURL = 'https://atomium.shardeum.org/';
+  const networkName = 'Shardeum Atomium ';
   const currencyName = 'SHM';
   const currencySymbol = 'SHM';
-  const explorerURL = 'https://explorer-dapps.shardeum.org';
-  const logo='https://ipfs.io/ipfs/QmRVnDJue9wyEq8zBhvm24W1sLUcdGqLhTMpso6GoJVkzf';
+  const explorerURL = 'https://explorer-atomium.shardeum.org/';
+  const iconUrls='https://ipfs.io/ipfs/QmRVnDJue9wyEq8zBhvm24W1sLUcdGqLhTMpso6GoJVkzf';
+
 
   const addNetwork = async () => {
     if (!window.ethereum) {
       alert("Metamask not detected! Install Metamask then try again.")
       return;
     }
-    if (window.ethereum.networkVersion == 8081) {
-      alert("You are already connected to Sphinx Dapp 1.X (chainId 8081).", )
+    if (window.ethereum.networkVersion == 8082) {
+      alert("You are already connected to Shardeum Atomium(chainId 8082).", )
       return;
     }
     try{
@@ -28,10 +29,10 @@ export default function connectToLiberty0() {
             chainName: networkName,
             rpcUrls: [rpcURL],
             blockExplorerUrls: [explorerURL],
-            iconUrls: [logo],
+            iconUrls: [iconUrls],
             nativeCurrency: {
               name: currencyName,
-              symbol: currencySymbol, // 2-6 characters long
+              symbol: currencySymbol,
               decimals: 18,
             },
           },
@@ -44,7 +45,7 @@ export default function connectToLiberty0() {
   };
 
   return (
-    <button className="button buttonHighContrast" onClick={addNetwork}>Click to Connect to Dapp Network</button>
+      <button className="button buttonHighContrast" onClick={addNetwork}>Connect to Shardeum Atomium </button>
   );
 
 }
