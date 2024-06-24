@@ -19,13 +19,13 @@ const features = [
     name: 'Network Setup',
     description: 'Easily add the Shardeum Sphinx 1.X network to your setup with just a few clicks. ',
     icon: CubeTransparentIcon,
-    link: '/docs/network'
+    link: '/docs/network/endpoints'
   },
   {
     name: 'Faucet',
     description: 'Access testnet SHM tokens for Shardeum Sphinx 1.X with our simple faucet service. ',
     icon: CurrencyDollarIcon,
-    link: '/docs/faucet'
+    link: '/docs/faucet/claim'
   },
   {
     name: 'Deploy Smart Contracts',

@@ -38,7 +38,7 @@ const callsToAction = [
 const navItems = [
     { name: 'Connect to Shardeum', href: '/docs/network/endpoints' },
     { name: 'Report Bugs', href: 'https://github.com/shardeum/bug-reporting' },
-    { name: 'Open Source', href: '#' },
+    { name: 'Github', href: 'https://github.com/shardeum' },
     { name: 'Claim Testnet SHM', href: '/docs/faucet/claim' },
     { name: 'Join Shardeum Discord', href: 'https://github.com/shardeum/bug-reporting' },
 
@@ -53,7 +53,7 @@ export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     return (
-        <header className="bg-white">
+        <header className="bg-white sticky top-0 z-50">
             <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
                 <div className="flex lg:flex-1">
                     <a href="/" className="-m-1.5 p-1.5">
