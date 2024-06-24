@@ -39,7 +39,7 @@ const navItems = [
     { name: 'Connect to Shardeum', href: '/docs/network/endpoints' },
     { name: 'Report Bugs', href: 'https://github.com/shardeum/bug-reporting' },
     { name: 'Open Source', href: '#' },
-    { name: 'Claim Testnet SHM', href: '/docs/faucet' },
+    { name: 'Claim Testnet SHM', href: '/docs/faucet/claim' },
 ]
 
 function classNames(...classes: string[]) {

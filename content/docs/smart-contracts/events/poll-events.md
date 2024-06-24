@@ -1,10 +1,7 @@
 ---
 title: Polling Cycles
-sidebar_position: 6
+description: Learn about Shardeum's polling cycles
 ---
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 ## What are smart contract events?
 
@@ -68,8 +65,6 @@ https://explorer-sphinx.shardeum.org/api/transaction?startCycle=19020&endCycle=1
 
 Reading transaction events from the null address (address(0)) from cycle 0 to 1000:
 
-<Tabs>
-<TabItem value="javascript" label="Javascript" default>
 
 ```js
 const axios = require('axios');
@@ -110,9 +105,6 @@ async function getTransactionsToAddressCycleRange(baseUrl) {
 }
 ```
 
-  </TabItem>
-  <TabItem value="python" label="Python" default>
-
 ```python
 import requests
 import json
@@ -139,9 +131,6 @@ while totalTransactions > 0:
     totalTransactions -= 10
     pageIndex += 1
 ```
-
-  </TabItem>
-  <TabItem value="go" label="Go" default>
 
 ```go
 package main
@@ -233,9 +222,6 @@ func readJsonLoop(totalTransactions int, baseUrl string) {
 }
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust" default>
-
 ```rust
 use serde_json;
 
@@ -310,14 +296,8 @@ async fn read_json_loop(cycle_number: u64, base_url: String, total_transactions:
 }
 ```
 
-  </TabItem>
-
-</Tabs>
 
 Listening for the latest cycle, which might contain transaction events from an address:
-
-<Tabs>
-<TabItem value="javascript" label="Javascript" default>
 
 ```js
 const axios = require('axios');
@@ -378,9 +358,6 @@ async function readJSONLoopLatestCycle(totalTransactions,baseUrl) {
 }
 ```
 
-  </TabItem>
-  <TabItem value="python" label="Python" default>
-
 ```python
 from web3 import Web3
 import time
@@ -427,8 +404,6 @@ while True:
     time.sleep(60)   
 ```
 
-  </TabItem>
-  <TabItem value="go" label="Go" default>
 
 ```go
 package main
@@ -562,9 +537,6 @@ func clientSetup(wssConnectionURL string) (client *ethclient.Client, chainID *bi
 }
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust" default>
-
 ```rust
 use serde_json;
 use ethers_providers::{Middleware, Provider, Http};
@@ -662,7 +634,3 @@ async fn read_json_loop(cycle_number: u64, base_url: String, total_transactions:
 }
 ```
 
-  </TabItem>
-
-
-</Tabs>
