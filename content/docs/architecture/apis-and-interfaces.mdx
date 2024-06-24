@@ -68,34 +68,38 @@ Shardeum supports several interaction models to cater to different types of netw
 
     **Setup Instructions**
 
-    * **Docker Setup**:
-      * To start the server using Docker: `docker compose up -d`
-      * To check logs: `docker compose logs -f`
-      * To clean up: `docker compose down`
-    * **NPM Setup**:
-      * Clone the repository and switch to the dev branch.
-      * Install dependencies: `npm install`
-      * Start the server: `npm run start`
-      * Modify configuration in `src/config.ts` for chainId and port settings.
-    *   **Debug Endpoints**
+Setup Instructions
 
-        The server includes several debug endpoints, protected by authentication, for monitoring and managing the server:
+Docker Setup:
 
-        * `/log/api-stats`: Retrieves API call counts and TPS.
-        * `/log/txs`: Returns transactions made through the RPC server.
-        * `/log/status`: Returns the status of logging.
-        * Additional endpoints for starting/stopping logging and cleaning tables.
-*   **RESTful APIs**
+To start the server using Docker: docker compose up -d
+To check logs: docker compose logs -f
+To clean up: docker compose down
+NPM Setup:
 
-    Shardeum’s primary interaction model is REST-based, offering a simple and widely compatible way to interact with the network. Each API endpoint follows REST principles, allowing for standard HTTP methods like GET, POST, PUT, and DELETE to perform various operations.
-*   **WebSocket APIs**
+- Clone the repository and switch to the dev branch.
+- Install dependencies: npm install
+- Start the server: npm run start
+- Modify configuration in src/config.ts for chainId and port settings.
+- Debug Endpoints
 
-    For real-time updates and event-driven interactions, Shardeum provides WebSocket endpoints. These are particularly useful for receiving live updates on transaction statuses, node events, and consensus activities.
+The server includes several debug endpoints, protected by authentication, for monitoring and managing the server:
 
-    **Polling**
+- /log/api-stats: Retrieves API call counts and TPS.
+- /log/txs: Returns transactions made through the RPC server.
+- /log/status: Returns the status of logging.
+- Additional endpoints for starting/stopping logging and cleaning tables.
+- RESTful APIs
 
-    Reading smart contract events can also be done using Shardeum cycles (we listen to blocks/bundles to do this).
+Shardeum’s primary interaction model is REST-based, offering a simple and widely compatible way to interact with the network. Each API endpoint follows REST principles, allowing for standard HTTP methods like GET, POST, PUT, and DELETE to perform various operations.
 
+WebSocket APIs
+
+For real-time updates and event-driven interactions, Shardeum provides WebSocket endpoints. These are particularly useful for receiving live updates on transaction statuses, node events, and consensus activities.
+
+Polling
+
+Reading smart contract events can also be done using Shardeum cycles (we listen to blocks/bundles to do this).
     **Reading events with Shardeum Cycles**
 
     1. To get the current cycle: get the latest block, then divide by 10, and round down.
@@ -117,23 +121,12 @@ Shardeum supports several interaction models to cater to different types of netw
     &address=addressToListenTo
     &page=1
     ```
-*   **GraphQL APIs**
+**GraphQL APIs**
 
     Shardeum also supports GraphQL, providing a flexible and efficient way to query the network. This is particularly useful for complex queries where clients can specify exactly what data they need, reducing the amount of data transferred and processed.
 
-### 3. Network Endpoints
+### 3. Network:
 
-Shardeum offers several network endpoints for connecting and interacting with its blockchain.
-
-**Network Details for Shardeum Sphinx 1.X**
-
-* **Network Name:** Shardeum Sphinx 1.X
-* **New RPC URL:** [https://sphinx.shardeum.org/](https://sphinx.shardeum.org/)
-* **Chain ID:** 8082
-* **Currency Symbol:** SHM
-* **Block Explorer URL:** [https://explorer-sphinx.shardeum.org/](https://explorer-sphinx.shardeum.org/)
-
-These endpoints facilitate node management, transaction processing, consensus, and smart contract interactions within the Shardeum network.
 
 #### Shardeum Explorer Server
 
