@@ -36,10 +36,10 @@ const callsToAction = [
 ]
 
 const navItems = [
-    { name: 'Connect to Shardeum', href: '#' },
-    { name: 'Report Bugs', href: '#' },
+    { name: 'Connect to Shardeum', href: '/docs/network/endpoints' },
+    { name: 'Report Bugs', href: 'https://github.com/shardeum/bug-reporting' },
     { name: 'Open Source', href: '#' },
-    { name: 'Claim Testnet SHM', href: '#' },
+    { name: 'Claim Testnet SHM', href: '/docs/faucet' },
 ]
 
 function classNames(...classes: string[]) {
