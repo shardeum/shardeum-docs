@@ -1,5 +1,5 @@
 import Footer from '@/components/Footer/page';
-import { ArrowUpRightIcon, CubeTransparentIcon, CurrencyDollarIcon, ViewfinderCircleIcon, RocketLaunchIcon } from '@heroicons/react/24/outline'
+import { ArrowUpRightIcon, CubeTransparentIcon, CurrencyDollarIcon, ViewfinderCircleIcon, RocketLaunchIcon, NewspaperIcon } from '@heroicons/react/24/outline'
 
 const features = [
   {
@@ -33,19 +33,25 @@ const features = [
     icon: ArrowUpRightIcon,
     link: '/docs/smart-contracts/deploy/foundry'
   },
+  {
+    name: 'Shardeum Whitepaper',
+    description: 'Dive into Shardeum Whitepaper to learn more about the Project',
+    icon: NewspaperIcon,
+    link: '/docs/whitepaper'
+  },
 
 ];
 
 export default function Home() {
   return (
-    <div className="bg-white py-24 sm:py-32">
+    <div className="bg-white py-14 sm:py-18"> 
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
           <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Shardeum Documentation
           </p>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Shardeum is a scalable, secure, and efficient blockchain platform that enables developers to build and deploy decentralized applications. Dive into our documentation to learn more about Shardeum and how to get started with the platform.
+          <p className="mt-4 text-lg leading-8 text-gray-600"> 
+            Shardeum is a scalable, secure, and efficient blockchain platform that enables developers to build and deploy decentralized applications. Dive into our documentation to learn more about Shardeum and how to get started with the network.
           </p>
         </div>
         <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
@@ -55,7 +61,7 @@ export default function Home() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#3042FB] mb-4">
                   <feature.icon className="h-6 w-6 text-white" aria-hidden="true" />
                 </div>
-                <dt className="text-base font-semibold leading-7">
+                <dt className="text-base font-semibold leading-7 text-black">
                   {feature.name}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-gray-600">{feature.description}</dd>
@@ -68,5 +74,3 @@ export default function Home() {
     </div>
   )
 }
-
-

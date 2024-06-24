@@ -1,7 +1,5 @@
 import { type BaseLayoutProps } from 'fumadocs-ui/layout';
 
-
-// basic configuration here
 export const baseOptions: BaseLayoutProps = {
   
   nav: {
@@ -10,8 +8,8 @@ export const baseOptions: BaseLayoutProps = {
   
   links: [
     {
-      text: 'Documentation',
-      url: '/docs',
+      text: 'Shardeum Documentation',
+      url: '/',
       active: 'nested-url',
     },
   ],

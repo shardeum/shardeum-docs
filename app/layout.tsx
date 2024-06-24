@@ -13,10 +13,14 @@ const inter = Inter({
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/img/favicon.ico" />
+      </head>
       <body>
         <RootProvider>
           <Header />
           {children}
+          <Footer />
         </RootProvider>
       </body>
     </html>
