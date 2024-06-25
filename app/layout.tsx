@@ -17,7 +17,11 @@ export default function Layout({ children }: { children: ReactNode }) {
         <link rel="icon" href="/img/favicon.ico" />
       </head>
       <body>
-        <RootProvider>
+      <RootProvider
+        theme={{
+          enabled: true,
+        }}
+>
           <Header />
           {children}
           <Footer />
