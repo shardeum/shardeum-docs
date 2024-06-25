@@ -66,11 +66,13 @@ export default function Header({ isDarkMode, setIsDarkMode }: HeaderProps) {
         <div className="flex items-center flex-1">
           <a href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Shardeum</span>
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcSet="/shardeum_documentation_dark.png" />
-              <source media="(prefers-color-scheme: light)" srcSet="/shardeum_documentation_light.png" />
-              <img alt="Shardeum Logo" src={isDarkMode ? "/shardeum_documentation_dark.png" : "/shardeum_documentation_light.png"} width="175" height="35" style={{ maxWidth: '100%' }} />
-            </picture>
+            <img
+              alt="Shardeum Logo"
+              src={isDarkMode ? "/shardeum_documentation_light.png" : "/shardeum_documentation_dark.png"}
+              width="175"
+              height="35"
+              style={{ maxWidth: '100%' }}
+            />
           </a>
         </div>
         <div className="flex lg:hidden">
@@ -165,11 +167,13 @@ export default function Header({ isDarkMode, setIsDarkMode }: HeaderProps) {
           <div className="flex items-center justify-between">
             <a href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Shardeum</span>
-              <picture>
-                <source media="(prefers-color-scheme: dark)" srcSet="/shardeum_documentation_dark.png" />
-                <source media="(prefers-color-scheme: light)" srcSet="/shardeum_documentation_light.png" />
-                <img alt="Shardeum Logo" src={isDarkMode ? "/shardeum_documentation_dark.png" : "/shardeum_documentation_light.png"} width="175" height="35" style={{ maxWidth: '100%' }} />
-              </picture>
+              <img
+                alt="Shardeum Logo"
+                src={isDarkMode ? "/shardeum_documentation_dark.png" : "/shardeum_documentation_light.png"}
+                width="175"
+                height="35"
+                style={{ maxWidth: '100%' }}
+              />
             </a>
             <button
               type="button"
