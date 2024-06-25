@@ -1,11 +1,7 @@
 ---
 title: Multicall Contract
-sidebar_position: 1
+desctiption: Multicall Contarct in Shardeum
 ---
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 
 ## What is EIP-2930?
 
@@ -21,8 +17,8 @@ Therefore, you no longer need to specify the accessList for these networks with 
 
 This document is useful for: 
 
--educational purposes  
--situations where the automated accessList fails and you need to specify the accessList directly
+- educational purposes  
+- situations where the automated accessList fails and you need to specify the accessList directly
 
 
 ## Where is EIP-2930 data located for a transaction?
@@ -60,9 +56,6 @@ Example:
 ## Transfer SHM on Shardeum Between Wallets:
 
 Send an EIP-2930 transaction with an accessList address that has no storage:
-
-<Tabs>
-  <TabItem value="javascript" label="Javascript" default>
 
 ```js
 const Web3 = require('web3')
@@ -123,9 +116,6 @@ async function createAndSendTx() {
 }
 ```
 
-  </TabItem>
-  <TabItem value="python" label="Python" default>
-
 ```python
 from web3 import Web3
 import json
@@ -185,15 +175,7 @@ receipt = web3.eth.getTransactionReceipt(tx_hash)
 print("TX RECEIPT: " + str(receipt) )
 ```
 
-  </TabItem>
-
-</Tabs>
-
-
 ## Contracts contractToCall and Multicall:
-
-<Tabs>
-  <TabItem value="solidity" label="Solidity" default>
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -228,16 +210,10 @@ contract Multicall {
 }
 ```
 
-  </TabItem>
-</Tabs>
-
 ## contractToCall (Single Address):
 
 Send an EIP-2930 transaction with a accessList. The accessList contains the contract's address and accessed storage slot (or slots).
 In this case, it will be storage slot0, because it is a single uint storage variable (uint = 256 bits = 32 bytes) which is modified when we call "set(uint)".
-
-<Tabs>
-  <TabItem value="javascript" label="Javascript" default>
 
 ```js
 const Web3 = require('web3')
@@ -297,9 +273,6 @@ async function createAndSendTx() {
 }
 ```
 
-  </TabItem>
-  <TabItem value="python" label="Python" default>
-
 ```python
 from web3 import Web3
 import json
@@ -355,8 +328,6 @@ receipt = web3.eth.getTransactionReceipt(tx_hash)
 print("TX RECEIPT: " + str(receipt) )
 ```
 
-  </TabItem>
-</Tabs>
 
 ## Multicall Storage Read:
 
@@ -364,15 +335,10 @@ Reading contract states cross shard does not need an accessList.
 
 For example, ERC-20 multicall:
 
-<Tabs>
-  <TabItem value="solidity" label="Solidity" default>
 
 ```solidity
 tokenObject.totalSupply()
 ```
-
-  </TabItem>
-</Tabs>
 
 
 will work with no accessList cross shard.
@@ -385,15 +351,9 @@ Writing contract states cross shard requires an accessList.
 
 For example, ERC-20 multicall:
 
-<Tabs>
-  <TabItem value="solidity" label="Solidity" default>
-
 ```solidity
 tokenObject.transfer(recipient, amount)
 ```
-
-  </TabItem>
-</Tabs>
 
 will require an accessList to work cross shard.
 
@@ -408,9 +368,6 @@ In Solidity, you can get an address codeHash from a deployed contract on the mat
 You can also get an address codeHash with the ethers library.
 
 ## Solidity codeHash example:
-
-<Tabs>
-  <TabItem value="solidity" label="Solidity" default>
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -444,13 +401,9 @@ contract addressCodeHash { //From https://soliditydeveloper.com/extcodehash
 }
 ```
 
-  </TabItem>
-</Tabs>
+
 
 ## EIP-2930 accessList transactions for Multicall contract to modify slot0 in contractToCall:
-
-<Tabs>
-<TabItem value="javascript" label="Javascript" default>
 
 ```js
 const Web3 = require('web3')
@@ -517,9 +470,6 @@ async function createAndSendTx() {
 }
 ```
 
-</TabItem>
-  <TabItem value="python" label="Python" default>
-
 ```python
 from web3 import Web3
 import json
@@ -584,9 +534,6 @@ time.sleep(15)
 receipt = web3.eth.getTransactionReceipt(tx_hash)
 print("TX RECEIPT: " + str(receipt) )
 ```
-</TabItem>
-
-</Tabs>
 
 
 ## How can I create an EIP-2930 accessList easily?

@@ -1,15 +1,13 @@
 ---
 title: Solidity Interfaces
-sidebar_position: 2
+description: Solidity Interfaces example
 ---
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 ## Multicall Contracts
 
-:::tip Automated Access List
-
+import { Callout } from 'fumadocs-ui/components/callout';
+ 
+<Callout title="Automated Access List" type="info">
 Sphinx 1.X has automated the accessList for Shardeum RPC nodes to route shards.
 
 Therefore, you no longer need to specify the accessList for these networks with automated accessList generation. 
@@ -19,7 +17,7 @@ This document is useful for:
 -educational purposes  
 -situations where the automated accessList fails and you need to specify the accessList directly
 
-:::
+</Callout>
 
 ## What are Solidity interfaces?
 
@@ -56,9 +54,6 @@ Withdraw (Unwrap): WSHM => SHM.
 Using a WSHM interface, we can create a Solidity 0.8.0 contract that can interact with WSHM (Solidity 0.4.0).
 
 ## WSHM Solidity 0.4.0
-
-<Tabs>
-  <TabItem value="solidity" label="Solidity" default>
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -126,13 +121,8 @@ contract WSHM {
 }
 ```
 
-  </TabItem>
-</Tabs>
 
 ## WSHM interface Solidity 0.8.0 With Multicall Contract 
-
-<Tabs>
-  <TabItem value="solidity" label="Solidity" default>
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -175,7 +165,4 @@ contract multicallWSHM {
 
 }
 ```
-
-  </TabItem>
-</Tabs>
 

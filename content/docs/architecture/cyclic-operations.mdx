@@ -9,9 +9,9 @@ Cyclic operations are a crucial component of the Shardeum blockchain network, en
 
 ### 2. Node List and Cycle Chain
 
-In Shardeum, maintaining an up-to-date and consistent node list is fundamental. Each node keeps a list of every other node, known as the **node list**, and a history of all changes made to this list, referred to as the **cycle chain**. Nodes suggest changes to the node list through signed messages called **updates**. These updates are collected and processed within the cycles.
+In Shardeum, maintaining an up-to-date and consistent node list is fundamental. Each node keeps a list of every other node, known as the **node list**, and a history of changes made to this list, referred to as the **cycle chain**. Nodes suggest changes to the node list through signed messages called updates. These updates are collected and processed within the cycles.
 
-The cycle chain records the progression and history of all cycles from the network's inception. Nodes must synchronize with the node list and cycle chain to participate in the network, suggesting updates and processing cycles collaboratively.
+However, nodes only keep a limited history of cycle records at the validator level. When a node syncs with the network, it first receives a snapshot of each list. Following this, it uses the cycle process to update the list. Nodes do not maintain a full history because the sync-to-snapshot process suffices.
 
 ### 3. Cycle Creator Process Summary
 
@@ -68,5 +68,4 @@ This process ensures the network remains consistent and synchronized, handling t
     * Nodes prune the cycle chain to keep it within a manageable size, typically retaining a set number of recent cycles.
 
 ![Cycle](/img/new/i8.jpg)
-
 

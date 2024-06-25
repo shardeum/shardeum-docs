@@ -20,19 +20,28 @@ Validators in the Shardeum network play a pivotal role in maintaining the blockc
 ![Validator Operations](/img/new/i10.jpg)
 
 #### 2.1 Account Storage
+Basic Structure:
 
-* **Basic Structure:** In the EVM, user accounts include externally owned accounts (EOAs) that hold balances and nonces. These accounts enable users to send transactions and manage their holdings.
-* **Merkle Patricia Trees:** The EVM uses Merkle Patricia Trees to organize and manage account storage. This structure enables efficient verification of the data integrity and state transitions by providing cryptographic proofs for account balances and nonces.
-    * **Example:** When a user sends a transaction, the state changes (like balance updates) are recorded in the Merkle Patricia Tree. This ensures that the entire state can be efficiently verified and the history of state changes can be traced back cryptographically.
+- In Shardeum, user accounts include externally owned accounts (EOAs) that hold balances and nonces.
+- These accounts enable users to send transactions and manage their holdings.
+Sharded Hash Trie:
+- The EVM uses Merkle Patricia Trees to organize and manage account storage.
+- This structure enables efficient verification of data integrity and state transitions by providing cryptographic proofs for account balances and nonces.
+- Unlike Merkle Patricia Trees (MPT), which are not compatible with a dynamically sharded network, Shardeum employs the Sharded Hash Trie structure.
+- This allows validators to patch the state efficiently within a sharded environment.
 
+Example:
+
+When a user sends a transaction, the state changes (like balance updates) are recorded in the Sharded Hash Trie.
+This ensures that the entire state can be efficiently verified and the history of state changes can be traced back cryptographically.
 #### 2.2 Contract Storage
 
-* **Smart Contract Accounts:** Smart contracts have specific storage requirements. A smart contract account holds the balance and nonce, and includes a pointer to the code bytes. The code bytes contain the actual machine code of the smart contract.
-* **Code Bytes:** The code for smart contracts is stored in a type of account called Code Bytes. This is essentially the compiled Solidity code in the form of EVM bytecode. Thus, it’s the heaviest one.
-* **Contract Storage:** Smart contracts also maintain storage, which holds key-value pairs. Each key and value is 256 bits in size, and this storage is used to maintain the state specific to the smart contract.
-* **Merkle Patricia Trees in Contract Storage:** Similar to account storage, contract storage uses Merkle Patricia Trees to organize data efficiently. This ensures that every storage operation can be traced and verified.
-    * **Example:** If a smart contract manages a token balance, each user's balance is stored as a key-value pair in the contract storage. The key is the user's address, and the value is their token balance. Changes to these balances are recorded in the Merkle Patricia Tree, allowing for efficient verification of the entire contract state.
-* **Complex Data Structures:** For more complex data structures, such as arrays or long strings, the compiler breaks down the data into 256-bit segments. These segments are then stored across multiple contract storage accounts.
+- Smart Contract Accounts:** Smart contracts have specific storage requirements. A smart contract account holds the balance and nonce, and includes a pointer to the code bytes. The code bytes contain the actual machine code of the smart contract.
+- Code Bytes:** The code for smart contracts is stored in a type of account called Code Bytes. This is essentially the compiled Solidity code in the form of EVM bytecode. Thus it’s the heaviest one.
+- Contract Storage:** Smart contracts also maintain storage, which holds key-value pairs. Each key and value is 256 bits in size, and this storage is used to maintain the state specific to the smart contract.
+- Sharded Hash Trie in Contract Storage:** Similar to account storage, contract storage uses the Sharded Hash Trie structure to organize data efficiently.
+Example: If a smart contract manages a token balance, each user's balance is stored as a key-value pair in the contract storage. The key is the user's address, and the value is their token balance. Changes to these balances are recorded in the SHT, allowing for efficient verification of the entire contract state.
+- Complex Data Structures:** For more complex data structures, such as arrays or long strings, the compiler breaks down the data into 256-bit segments. These segments are then stored across multiple contract storage accounts.
 
 ![Contract Storage](/img/new/i11.jpg)
 
@@ -69,7 +78,7 @@ Validators in the Shardeum network play a pivotal role in maintaining the blockc
 ### 5. Staking and Rewards
 
 * **Staking Process:** Staking in Shardeum involves users locking up their tokens to become validators and participate in the network's operations. The staking process is facilitated through transactions signed via a private key.
-* **Rewards Calculation:** Validators earn rewards based on their participation and performance in the network. Rewards are calculated and tallied periodically. When a validator node goes active, completes its cycle, and eventually rotates out, the network calculates the rewards earned during its active period.
+* **Rewards Calculation:** Validators earn rewards based on their participation and performance in the network. When a validator node goes active, completes its cycle, and eventually rotates out, the network calculates the rewards earned during its active period.
 * **Claiming Rewards:** To claim rewards, users must initiate an unstaking transaction, which transfers the rewards to their account balance after verifying that all conditions are met (e.g., the node is not currently active).
 
 ![Staking](/img/new/v3551.jpg)
@@ -84,3 +93,5 @@ Validators in the Shardeum network play a pivotal role in maintaining the blockc
 * **Slashing Process:** Slashing involves submitting a transaction to the network, detailing the offense and the proposed penalty. Other validators then vote on this transaction to form a consensus. If agreed upon, the penalty is enforced, and the validator's stake is reduced accordingly. This process ensures that all changes to the state are recorded through consensus, maintaining the integrity of the distributed ledger.
 
 ![Slashing Mechanisms](/img/new/validator1.jpg)
+
+

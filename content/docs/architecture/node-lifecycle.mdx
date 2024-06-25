@@ -16,9 +16,8 @@ In the network, nodes exist in two primary states:
 
 ### 3. Node Registration and Rotation
 
-* **Staking and Joining**: To enter the standby list, nodes must first stake and submit a join request. This process involves creating a staking transaction, which is validated and recorded on the blockchain. The staking information is stored in specific data structures designed for this purpose. Each staking transaction is associated with a unique address and includes a JSON blob containing the staking instructions, encoded in base 64. This allows the system to easily recognize and validate staking transactions without processing them through the EVM. Once validated, the user's balance is updated, and a staking record is created.\` This process is secured by requiring nodes to present signed certificates, ensuring that only verified nodes can enter the queue. The request to join the standby list can be seen at [`addStandbyJoinRequests()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Join/v2/index.ts#L107).
-* **Rotation:** Nodes are periodically rotated out of active duty as a measure of security and efficiency. This rotation follows a deterministic schedule, where typically one node is rotated out per cycle after completing its duties, and another is brought in from the standby list. The expired and removed nodes are returned from [`getExpiredRemoved()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Rotation.ts#L118).
-
+* **Staking and Joining**: To enter the standby list, nodes must first stake and submit a join request. This process involves creating a staking transaction, which is validated and recorded on the blockchain. The staking information is stored in the node and the operator account. Each staking transaction is associated with a unique address and includes a JSON blob containing the staking instructions, encoded in base 64. This allows the system to easily recognize and validate staking transactions without processing them through the EVM. Once validated, the user's balance is updated, and node and operator accounts are updated. This process is secured by requiring nodes to present signed certificates, ensuring that only verified nodes can enter the queue. The request to join the standby list can be seen at [`addStandbyJoinRequests()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Join/v2/index.ts#L107).
+* **Rotation:** Nodes are periodically rotated out of active duty as a measure of security and efficiency. The network chooses which nodes to rotate based on their age (expired nodes). The number of nodes that will be replaced with ones from the standby list is a configurable parameter. The expired and removed nodes are returned from [`getExpiredRemoved()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Rotation.ts#L118).
 ![Cycle](/img/new/i8.jpg)
 
 ### 4. Node Selection and Activation
@@ -36,7 +35,7 @@ The lost node detection system kicks into action when a node (Node A) attempts t
 #### 5.1 Initial Detection
 
 * **Communication Attempt**: When Node A sends a message to Node B and gets no response, it tentatively classifies Node B as potentially lost. The node is reported as ‘lost’ via the [`reportLost()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Lost.ts#L705C10-L705C20) function.
-* **Waiting Period**: Node A waits a specified amount of time, typically until the next cycle, to allow for temporary issues at Node B to resolve themselves.
+* **Waiting Period**: Node A waits for a configurable number of cycles to allow temporary issues at Node B to resolve themselves.
 
 #### 5.2 Verification Process
 
@@ -46,7 +45,7 @@ The lost node detection system kicks into action when a node (Node A) attempts t
 #### 5.3 Reporting and Consensus
 
 * **Response Analysis**: If Node B is indeed down or unresponsive, it will fail to respond to the stealth checks. The verifiers report their findings back to Node A. The report is checked in the [`checkReport()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Lost.ts#L1008).
-* **Partial Consensus**: Unlike traditional Byzantine fault tolerance mechanisms that require a full consensus, this system only needs a simple majority (e.g., two out of four verifiers) to classify Node B as lost. The majority of the logic about marking a node officially as lost is handled by [`lostReportHandler()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Lost.ts#L861).
+* **Partial Consensus**: Unlike traditional Byzantine fault tolerance mechanisms that require a full consensus, this system only needs a simple majority to classify Node B as lost. The majority of the logic about marking a node officially as lost is handled by [`lostReportHandler()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Lost.ts#L861).
 
 #### 5.4 Record and Refutation
 
@@ -60,4 +59,6 @@ The lost node detection system kicks into action when a node (Node A) attempts t
 #### 5.5 Prevention of Abuse
 
 * **Slashing for False Positives**: To discourage nodes from repeatedly going offline and coming back, the network implements a slashing mechanism. Nodes that frequently fail and then refute their lost status may face penalties.
-* **Complexity of Deception**: The system is designed so that maintaining a facade of activity (for nodes attempting to appear active without performing their duties) is as labor-intensive as actually participating in the network. This discourages fraud and promotes genuine participation.
+
+
+
