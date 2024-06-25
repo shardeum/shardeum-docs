@@ -2,7 +2,7 @@ import { createPreset } from 'fumadocs-ui/tailwind-plugin';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // Enable dark mode with class strategy
+  darkMode: 'class',
   content: [
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
