@@ -36,12 +36,12 @@ When a user sends a transaction, the state changes (like balance updates) are re
 This ensures that the entire state can be efficiently verified and the history of state changes can be traced back cryptographically.
 #### 2.2 Contract Storage
 
-- Smart Contract Accounts:** Smart contracts have specific storage requirements. A smart contract account holds the balance and nonce, and includes a pointer to the code bytes. The code bytes contain the actual machine code of the smart contract.
-- Code Bytes:** The code for smart contracts is stored in a type of account called Code Bytes. This is essentially the compiled Solidity code in the form of EVM bytecode. Thus it’s the heaviest one.
-- Contract Storage:** Smart contracts also maintain storage, which holds key-value pairs. Each key and value is 256 bits in size, and this storage is used to maintain the state specific to the smart contract.
-- Sharded Hash Trie in Contract Storage:** Similar to account storage, contract storage uses the Sharded Hash Trie structure to organize data efficiently.
+- Smart Contract Accounts: Smart contracts have specific storage requirements. A smart contract account holds the balance and nonce, and includes a pointer to the code bytes. The code bytes contain the actual machine code of the smart contract.
+- Code Bytes: The code for smart contracts is stored in a type of account called Code Bytes. This is essentially the compiled Solidity code in the form of EVM bytecode. Thus it’s the heaviest one.
+- Contract Storage: Smart contracts also maintain storage, which holds key-value pairs. Each key and value is 256 bits in size, and this storage is used to maintain the state specific to the smart contract.
+- Sharded Hash Trie in Contract Storage: Similar to account storage, contract storage uses the Sharded Hash Trie structure to organize data efficiently.
 Example: If a smart contract manages a token balance, each user's balance is stored as a key-value pair in the contract storage. The key is the user's address, and the value is their token balance. Changes to these balances are recorded in the SHT, allowing for efficient verification of the entire contract state.
-- Complex Data Structures:** For more complex data structures, such as arrays or long strings, the compiler breaks down the data into 256-bit segments. These segments are then stored across multiple contract storage accounts.
+- Complex Data Structures: For more complex data structures, such as arrays or long strings, the compiler breaks down the data into 256-bit segments. These segments are then stored across multiple contract storage accounts.
 
 ![Contract Storage](/img/new/i11.jpg)
 
