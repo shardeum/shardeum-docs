@@ -2,6 +2,8 @@
 title: Hardhat
 description: Learn how to deploy on Shardeum with hardhat
 ---
+import { Callout } from 'fumadocs-ui/components/callout';
+
 
 Hardhat is a development environment to compile, deploy, test, and debug your Ethereum software. It helps developers manage and automate the recurring tasks inherent to the process of building smart contracts and dApps and easily introduces more functionality around this workflow. This means compiling, running and testing smart contracts at the very core.
 
@@ -30,11 +32,11 @@ npm install --save-dev hardhat
 ```
 
 
-:::tip Tip
+<Callout title="Hardhat Version" type="info">
 
 Installing Hardhat will install some Ethereum JavaScript dependencies, so be patient.
 
-:::
+</Callout>
 
 This tutorial will use the Ethers.js and Waffle plugins. They'll allow interaction with Shardeum to test contracts.
 

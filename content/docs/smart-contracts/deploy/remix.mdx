@@ -1,19 +1,22 @@
 ---
 title: Remix IDE
-sidebar_position: 1
+description: Deploy on Shardeum using Remix
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
 
 Remix IDE is an open source web and desktop application. It fosters a fast development cycle and has a rich set of plugins with intuitive GUIs. Remix is used for the entire journey of contract development as well as act as a playground for learning and teaching Ethereum.
 
-1, Visit https://remix.ethereum.org/
+1. Visit https://remix.ethereum.org/
 
 ## Writing your smart contract
 
-2, Create a "New File" under contracts with name HelloWorld.sol.
+2. Create a "New File" under contracts with name HelloWorld.sol.
 
 ![remix_1](/img/remix/remix_1.jpg)
 
-3, Copy and paste the code below to HelloWorld.sol file.
+3. Copy and paste the code below to HelloWorld.sol file.
 
 
 ```solidity
@@ -38,42 +41,43 @@ contract HelloWorld { // Defines a contract named `HelloWorld`
 
 ## Compiling
 
-4, Compile HelloWorld.sol.
+4. Compile HelloWorld.sol.
 
 ![remix_2](/img/remix/remix_2.jpg)
 
 ## Deploying to Shardeum
 
-5, Select Injected Web3 for deploying to Shardeum.
+5. Select Injected Web3 for deploying to Shardeum.
 
-:::caution
+
+<Callout title="Injected Web3" type="warn">
 If Injected Web3 cannot detect the network, refresh the Remix IDE page, and then switch between networks in MetaMask.
-:::
+</Callout>
 
 ![remix_3](/img/remix/remix_3.jpg)
 
-6, Deploy the compiler contract.
+6. Deploy the compiler contract.
 
 ![remix_4](/img/remix/remix_4.jpg)
 
-7, Confirm the deploy transaction in MetaMask.
+7. Confirm the deploy transaction in MetaMask.
 
 ![remix_5](/img/remix/remix_5.jpg)
 
-8, Find the deployed contract address in Remix.
+8. Find the deployed contract address in Remix.
 
 ![remix_6](/img/remix/remix_6.jpg)
 
 ## Interacting
 
-9, Update the contract by interacting with the contract.
+9. Update the contract by interacting with the contract.
 
 ![remix_7](/img/remix/remix_7.jpg)
 
-10, Confirm the deploy transaction in MetaMask.
+10. Confirm the deploy transaction in MetaMask.
 
 ![remix_8](/img/remix/remix_8.jpg)
 
-11, Check the contract has been updated.
+11. Check the contract has been updated.
 
 ![remix_9](/img/remix/remix_9.jpg)

@@ -3,6 +3,9 @@ title: Foundry
 description: Learn how to deploy on Shardeum using Foundry
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
 Foundry is a fast testing and deployment tool for developing EVM smart contracts.
 Tests are written in Solidity to keep the workflow consistent with smart contract development and testing before deployments.
 
@@ -41,7 +44,14 @@ foundryup
 If this installation method does not work,
 or you would like to install Foundry a different way, see other installation methods in Foundry's README:
 
-https://github.com/foundry-rs/foundry#installation
+<Cards>
+  <Card
+    href="https://github.com/foundry-rs/foundry#installation"
+    title="Foundry's ReadMe"
+    description="Learn more about foundry, how to install, etc."
+  />
+</Cards>
+
 
 
 ## Creating a Foundry Project
@@ -218,9 +228,9 @@ forge test
 
 If you want a detailed overview of how a specific test failed or passed, add a match test add verbosity flag.
 
-:::tip
+<Callout title="Verbose" type="info">
 The more v characters you add to the verbosity flag, the more detailed the test report will be.
-:::
+</Callout>
 
 The example below has level 4 verbosity for the match test contract function ```testDonateToOwnerValidPath```:
 
@@ -257,9 +267,9 @@ However, some contract applications integrate with contracts already deployed to
 If you want to test contracts deployed to specific networks and know your code coverage, run the following command with a RPC URL endpoint
 for the ```--fork-url``` flag:
 
-:::tip
+<Callout title="Local Unit Testing" type="info">
 Do local unit testing first before forking a network to speed up testing time.
-:::
+</Callout>
 
 ```shell
 forge coverage --fork-url $mainnetHTTPS_InfuraAPIKey --report lcov && genhtml lcov.info -o report --branch-coverage
@@ -293,7 +303,8 @@ $devTestnetPrivateKey
 $etherscanApiKey
 ```
 
-:::tip
+
+<Callout title="EIP-1559" type="info">
 Using
 
 ```
@@ -301,8 +312,7 @@ forge create
 ```
 
 will use EIP-1559 for the deployment transaction by default.
-
-:::
+</Callout>
 
 
 ```shell
@@ -314,7 +324,9 @@ forge create --rpc-url $goerliHTTPS_InfuraAPIKey --etherscan-api-key $etherscanA
 
 If the following Goerli deployment worked, the following Shardeum deployment should work as well.
 
-:::danger[WARNING]
+
+<Callout title="Legacy flag" type="warn">
+
 The
 
 ```
@@ -329,13 +341,12 @@ Otherwise, you will see the following error when attempting to deploy to Shardeu
 EIP-1559 not activated
 ```
 
-:::
+</Callout>
 
-
-:::danger[WARNING]
+<Callout title="Deployment Info" type="warn">
 The terminal might not notify you if the contract deployment worked.
 Check the Shardeum Explorer after a transaction cycle to see if the contract deployed from the signer address from the private key used.
-:::
+</Callout>
 
 
 ```shell
