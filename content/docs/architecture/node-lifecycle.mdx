@@ -18,7 +18,8 @@ In the network, nodes exist in two primary states:
 
 * **Staking and Joining**: To enter the standby list, nodes must first stake and submit a join request. This process involves creating a staking transaction, which is validated and recorded on the blockchain. The staking information is stored in the node and the operator account. Each staking transaction is associated with a unique address and includes a JSON blob containing the staking instructions, encoded in base 64. This allows the system to easily recognize and validate staking transactions without processing them through the EVM. Once validated, the user's balance is updated, and node and operator accounts are updated. This process is secured by requiring nodes to present signed certificates, ensuring that only verified nodes can enter the queue. The request to join the standby list can be seen at [`addStandbyJoinRequests()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Join/v2/index.ts#L107).
 * **Rotation:** Nodes are periodically rotated out of active duty as a measure of security and efficiency. The network chooses which nodes to rotate based on their age (expired nodes). The number of nodes that will be replaced with ones from the standby list is a configurable parameter. The expired and removed nodes are returned from [`getExpiredRemoved()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Rotation.ts#L118).
-![Cycle](/img/new/i8.jpg)
+
+![Cycle](/img/new/iframe2000.jpg)
 
 ### 4. Node Selection and Activation
 
@@ -26,7 +27,7 @@ In the network, nodes exist in two primary states:
 * **Syncing Process:** When a node is selected to become active, it first enters a syncing mode to prevent disruptions in case it is chosen but turns off unexpectedly, stalling the process. The node begins by syncing cycle data from the network, followed by syncing account data relevant to it from other nodes. After completing this process, the node notifies the network that it has finished syncing. If a node fails to complete syncing within a specified threshold (typically double the median sync time of active nodes), it is subject to slashing and removal from the network. The syncing process can be examined in [`sync()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Sync.ts#L97).
 * **Activation Process:** Once syncing is complete, nodes do not immediately become active due to the complexities involved in sharding calculations. These calculations could significantly disrupt the address space, creating conflicts over which nodes possess the necessary data. To maintain a steady rate of activation, only a certain number of nodes are allowed to go active in each cycle. This helps to smooth out potential waves and inconsistencies. The data synced from the queued nodes is discarded, as the likelihood of a node being assigned to the same shard in the next cycle is very low. Additionally, the time it might take for this node to be randomly selected again could be substantial. The activation process can be seen in [`updateRecord()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Active.ts#L146).
 
-
+![Cycle](/img/new/lifecycle2.jpg)
 
 ### 5. Handling Node Failures and Loss Detection
 
@@ -54,7 +55,7 @@ The lost node detection system kicks into action when a node (Node A) attempts t
 * **Finality of Status**: If Node B fails to refute its status, it is permanently removed from the active node list, ensuring that only functional and honest nodes participate in network activities.
 * The status of the node is updated in [`updateRecord()`](https://github.com/shardeum/shardus-core/blob/8e69984a098c8ed387ca8f0684b313a75f85aec4/src/p2p/Lost.ts#L429).
 
-![Cycle](/img/new/i31.jpg)
+![Cycle](/img/new/lifecycle1.jpg)
 
 #### 5.5 Prevention of Abuse
 
