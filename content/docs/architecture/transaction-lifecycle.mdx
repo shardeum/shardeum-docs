@@ -3,7 +3,6 @@ title: Transaction Lifcycle
 description: Learn Shardeum's transaction lifecycle
 ---
 
-
 ### 1. Overview
 
 The transaction lifecycle in the network encompasses both protocol-level transactions, which maintain network cycles and handle consensus, and user transactions, which include coin transfers and smart contract interactions. User transactions are particularly significant for measuring transactions per second (TPS), as these are the interactions that most users care about. Unlike some other networks that count internal transactions towards TPS, this network only counts user transactions to provide an honest metric.
@@ -26,7 +25,7 @@ The transaction lifecycle in the network encompasses both protocol-level transac
 * **Validator Network**: The transaction is initially sent to one active validator. Then, this transaction is distributed to validators in the transaction group using the gossip protocol. Each validator in the group holds a part of the transaction data necessary for processing. For example, if a transaction requires access to account data for accounts A, B, and C, then each of these accounts will have its own consensus group. Let's say there is a consensus group for account A, a consensus group for account B, and a consensus group for account C. Together, these three consensus groups form a transaction group. Each validator within these consensus groups collaborates to process the transaction. These consensus groups can be perfectly or partially overlapped, ensuring flexibility and efficiency in transaction processing. The forwarding of a transaction is executed by the gossip protocol with the [`spread_tx_to_group`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/state-manager/TransactionQueue.ts#L2238) message.
 * **Execution Group Selection**: Before placing the transaction in a queue, an execution group is selected. The developers have determined that 2/3 of the shard size is enough to determine the value of a transaction. However, the shard executing the transaction may not have all necessary information for accounts B and C. The function that enqueues and choses the execution group is [`routeAndQueueAcceptedTransaction()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/state-manager/TransactionQueue.ts#L1810).
 
-![Transaction Submission](/img/new/i5.jpg)
+![Transaction Submission](/img/new/iframe3540.jpg)
 
 * **Transaction Group Dynamics**: Validators use a "corresponding tell" process to efficiently share data needed for transaction processing. For instance, if Account B's data is required by an execution group, nodes in Account B's consensus group will forward this data to the nodes in the execution group. This process is designed to be efficient and secure, preventing any single node from unduly influencing the transaction by ensuring data is only forwarded to a specific node as defined by sharding math. The sending of this message is done in [`tellCorrespondingNodes()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/state-manager/TransactionQueue.ts#L3930).
 * **Consensus Formation**: Validators execute the transaction, apply it to their local state, and form a consensus on the transaction’s result. The process begins with execution group validators waiting to receive all necessary data for a given transaction, sometimes from non-execution group nodes. Note that no data can be sent or loaded while there are upstream transactions that could modify the state.\
@@ -44,7 +43,7 @@ The transaction lifecycle in the network encompasses both protocol-level transac
   There are two variations of gossip algorithms used in the network: "Burst" and "Linear." These algorithms differ in their deterministic calculations of how many messages are sent out at each level of gossip. "Burst" sends more messages and is typically used for gossiping to large groups, such as all nodes. In most cases, "Linear" gossip is preferred, note that while it also includes a burst aspect, it is less pronounced compared to the "Burst" algorithm.
 * The main function the processes transactions is [`processTransactions()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/state-manager/TransactionQueue.ts#L4623).
 
-![Validator Stages](/img/new/i6.jpg)
+![Validator Stages](/img/new/iframe3541.jpg)
 
 ### 5. Data Distribution and State Updates
 

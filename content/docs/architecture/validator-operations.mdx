@@ -87,9 +87,8 @@ Example: If a smart contract manages a token balance, each user's balance is sto
 
 * **Purpose of Slashing:** Slashing serves as a penalty for validators that exhibit malicious or undesirable behavior. This includes actions such as leaving the network prematurely or attempting to double vote on transactions. When such behavior is detected, the network imposes a penalty, reducing the validator's stake.
 * **Examples of Slashing Conditions:**
-  * **Early Exit:** Validators that leave the network before completing their assigned duty cycle are penalized to discourage instability.
-  * **Double Voting:** Validators attempting to double vote on a transaction are penalized, as this behavior can undermine the consensus process.
-  * **Lazy Nodes:** Validators that fail to participate actively or meet their responsibilities can be penalized to ensure network efficiency and reliability.
+* **Early Exit:** Validators that leave the network before completing their assigned duty cycle are penalized to discourage instability.
+* **Double Voting:** Validators attempting to double vote on a transaction are penalized, as this behavior can undermine the consensus process.  * **Lazy Nodes:** Validators that fail to participate actively or meet their responsibilities can be penalized to ensure network efficiency and reliability.
 * **Slashing Process:** Slashing involves submitting a transaction to the network, detailing the offense and the proposed penalty. Other validators then vote on this transaction to form a consensus. If agreed upon, the penalty is enforced, and the validator's stake is reduced accordingly. This process ensures that all changes to the state are recorded through consensus, maintaining the integrity of the distributed ledger.
 
 ![Slashing Mechanisms](/img/new/validator1.jpg)
