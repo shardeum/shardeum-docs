@@ -17,11 +17,11 @@ With LD-RPC, the Archiver gets info from the validators and serves that to a dis
 
 ## Components of LD-RPC
 
-**Distributor Service**: The Archivers run a Distributor server that makes the collected data available to subscribers. The Distributor service provides APIs to allow Collectors to subscribe and establishes a socket connection with the collector to stream the data.
+**[Distributor Service](https://github.com/shardeum/relayer-distributor)**: The Archivers run a Distributor server that makes the collected data available to subscribers. The Distributor service provides APIs to allow Collectors to subscribe and establishes a socket connection with the collector to stream the data.
 
-**Collector Service**: Collector service subscribes to Distributors and collects data from them in real-time, stores this data in a local SQLite3 DB, and provides API endpoints to serve this data to further downstream services.
+**[Collector Service](https://github.com/shardeum/relayer-collector.git)**: Collector service subscribes to Distributors and collects data from them in real-time, stores this data in a local SQLite3 DB, and provides API endpoints to serve this data to further downstream services.
 
-**Service Validator**: A special type of Shardeum validator which does not join the network or make network calls to the active components in a running network like the active validators or the archivers and always relies on the local account DB for all its data needs.
+**[Service Validator](https://github.com/shardeum/shardeum.git)**: A special type of Shardeum validator which does not join the network or make network calls to the active components in a running network like the active validators or the archivers and always relies on the local account DB for all its data needs.
 
 ## System Requirements
 Here are the recommended system requirements for running a LD-RPC:
@@ -136,12 +136,12 @@ npm install
  }
 ```
 
-- Update src/config/index.ts
+- Update [src/config/index.ts](https://github.com/shardeum/relayer-collector/blob/dev/src/config/index.ts)
 
 Update the following parameters in the index.ts file
 
 <Callout title="Note" type="info">
-Value of shardeumIndexerSqlitePath depends on where you set up the service validator. Please check below how to set one up and accordingly update the value here.
+Value of `shardeumIndexerSqlitePath` depends on where you set up the service validator. Please check below how to set one up and accordingly update the value here.
 </Callout>
 ```bash
 enableShardeumIndexer: true,
@@ -152,7 +152,7 @@ shardeumIndexerSqlitePath: '<Path-To-Service-Validator-Code>/db/shardeum.sqlite'
 
 We will start the collectorservice after setting up Service validator in the next step.
 
-## Collector setup
+## Service Validator setup
 
 - Clone the service-validator codebase using below command:
 
@@ -180,7 +180,7 @@ eg:
 ]
 ```
 
-- Update src/shardeum/shardeumFlags.ts
+- Update [src/shardeum/shardeumFlags.ts](https://github.com/shardeum/shardeum/blob/dev/src/shardeum/shardeumFlags.ts)
 
 ```bash
 - startInServiceMode: true
