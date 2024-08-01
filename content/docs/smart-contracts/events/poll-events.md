@@ -27,7 +27,8 @@ Chainlink oracle nodes also depend on smart contract events to know when to comm
 
 ## Websockets
 
-Shardeum supports standard EVM-specific Websockets features. Websockets details can be found [here](https://docs.shardeum.org/network/endpoints).
+Shardeum supports standard EVM-specific Websockets features. Websockets details can be found [here](https://docs.shardeum.org/docs/
+network/endpoints).
 
 ## Polling
 

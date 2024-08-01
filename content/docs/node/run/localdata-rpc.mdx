@@ -1,0 +1,360 @@
+---
+title: Local Data RPC (LD-RPC)
+description: Steps to run a Shardeum Local Data RPC
+---
+
+### What is a LD-RPC?
+LD-RPC (Local Data RPC) is a general RPC capable of storing data locally and serving it from there. The regular RPC server used to initially query a lot of components for information. It used to query Archiver and explorer services to get the data for each request, increasing the load on the network and leading to slower response times.
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="Note" type="info">
+LD-RPCs are primarily expected to be run by seasoned Infrastructure providers who want to provide RPC services on Shardeum. General public is not expected to run RPCs and running a RPC has no direct rewards unlike a Validator.
+</Callout>
+
+
+With LD-RPC, the Archiver gets info from the validators and serves that to a distributor. A collector subscribes to the distributor and is set up as a server to be used by the RPC server. These streaming services help the RPC server to have the data locally, eliminating the need for constant calls to the Shardeum's explorer, archiver, or validator services.
+
+## Components of LD-RPC
+
+**[Distributor Service](https://github.com/shardeum/relayer-distributor)**: The Archivers run a Distributor server that makes the collected data available to subscribers. The Distributor service provides APIs to allow Collectors to subscribe and establishes a socket connection with the collector to stream the data.
+
+**[Collector Service](https://github.com/shardeum/relayer-collector.git)**: Collector service subscribes to Distributors and collects data from them in real-time, stores this data in a local SQLite3 DB, and provides API endpoints to serve this data to further downstream services.
+
+**[Service Validator](https://github.com/shardeum/shardeum.git)**: A special type of Shardeum validator which does not join the network or make network calls to the active components in a running network like the active validators or the archivers and always relies on the local account DB for all its data needs.
+
+## System Requirements
+Here are the recommended system requirements for running a LD-RPC:
+
+- 16 cores CPU
+- 32 GB RAM
+- 500 GB SSD (Expected to grow overtime)
+- Linux-based OS 
+
+
+## Install dependencies
+
+- Build essentials
+
+```bash
+apt-get update
+apt install build-essential
+```
+
+- NVM
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc 
+```
+
+- Node
+
+Install and set Node 18.16.1 (Other versions may bot be compatible)
+
+```bash
+nvm install 18.16.1
+nvm use 18.16.1
+nvm alias default 18.16.1
+```
+
+- Node gyp & Python
+
+```bash
+npm i -g node-gyp
+npm config set python `which python3`
+npm config list
+```
+
+If you don’t have python3 installed, please follow [docs](https://docs.python.org/3.12/using/unix.html) and install it.
+
+```bash
+which python3
+npm config edit
+
+# set the python path
+python=<your/path/to/python3>
+```
+Then confirm your python setting
+
+```bash
+npm config get python
+/usr/bin/python3  # or similar
+```
+
+- Install pm2
+
+```bash
+npm install pm2 -g
+```
+
+- Install Rust
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.74.1
+source ~/.bashrc
+```
+
+Rust version and Cargo version should match below:
+
+```bash
+rustc --version
+rustc 1.74.1 (a28077b28 2023-12-04)
+
+cargo --version
+cargo 1.74.1 (cfd3bbd8f 2023-06-08)
+```
+That's it! All the dependencies are now installed. Let's setup the inidividual services now.
+
+
+## Collector setup
+
+- Clone the collector codebase using below command:
+
+```bash
+git clone -b dev https://github.com/shardeum/relayer-collector.git collector
+cd collector
+npm install
+```
+
+- Update the **config.json** file with correct **distributorInfo** and **collectorInfo**:
+
+<Callout title="Whitelisting keys" type="error">
+    You can request distributor and collector info from the Shardeum team or else you can generate a key-pair of your own and request the administrator to whitelist your keys on the one of the running distributors. (For steps on how to create a key-pair for collector server refer to the steps mentioned at the bottom of this document). In future, you will be able to setup your own distributor.
+</Callout>
+
+```bash
+"distributorInfo": {
+	"ip": "<distributor-server-ip>",        //eg: 127.0.0.1
+	"port": "<distributor-server-port>", //eg: 6100
+	"publicKey": "distributor-server-public-key"
+},
+
+"collectorInfo": {
+	 "publicKey": "<collector-pub-key>",
+	"secretKey": "<collector-secret-key>"
+ }
+```
+
+- Update [src/config/index.ts](https://github.com/shardeum/relayer-collector/blob/dev/src/config/index.ts)
+
+Update the following parameters in the index.ts file
+
+<Callout title="Note" type="info">
+Value of `shardeumIndexerSqlitePath` depends on where you set up the service validator. Please check below how to set one up and accordingly update the value here.
+</Callout>
+```bash
+enableShardeumIndexer: true,
+blockIndexing.enabled: true,
+enableCollectorSocketServer: true,
+shardeumIndexerSqlitePath: '<Path-To-Service-Validator-Code>/db/shardeum.sqlite'  //eg: /home/user/code/service-validator/db/shardeum.sqlite
+```
+
+We will start the collectorservice after setting up Service validator in the next step.
+
+## Service Validator setup
+
+- Clone the service-validator codebase using below command:
+
+```bash
+git clone -b dev https://github.com/shardeum/shardeum.git service-validator
+cd service-validator
+npm install
+mkdir db
+```
+
+- Update **config.json** file
+```bash
+- server.ip.externalPort: 7001
+- server.ip.internalPort: 11001,
+// You can change the port values if you would like to run the service-validator on any other port.
+- Add archiver info to server.p2p.existingArchivers
+It should be a list of archivers:
+eg:
+[
+        {
+          "ip": "<archiver-ip>",
+          "port":<archiver-port>,
+          "publicKey": "<archiver-pub-key>"
+        }
+]
+```
+
+- Update [src/shardeum/shardeumFlags.ts](https://github.com/shardeum/shardeum/blob/dev/src/shardeum/shardeumFlags.ts)
+
+```bash
+- startInServiceMode: true
+```
+
+## Start all the services
+
+- Start Collector services
+
+Change directory to Collector & compile the code
+```bash
+cd ../collector
+npm run prepare 
+```
+
+- Start the main data collector
+```bash
+cd ../collector
+pm2 start --name collector-data-server --node-args="--max_old_space_size=16000" npm -- run collector
+```
+
+- Start the collector API server
+```bash
+pm2 start --name collector-api-server01  npm -- run server 6001
+```
+- Start the collector LOG server
+```bash
+pm2 start --name collector-log-server01  npm -- run log_server 4446
+```
+
+You can use the following endpoint to check the status of data. Be sure that some data quantity is shown instead of all 0.
+
+```bash
+curl `http://<collector-ip>:<collector-port>/totalData`
+# eg: when running on a local network http://127.0.0.1:6001/totalData
+```
+- Check status of services
+```bash
+pm2 list
+```
+
+- Check logs to confirm collector has successfully started
+```bash
+pm2 logs -f <pm2-process-id>
+# pm2 id of collector log
+```
+
+
+- Start the service-validator service using below command:
+```bash
+cd ../service-validator
+npm run prepare
+pm2 start dist/src/index.js --name service-validator
+```
+
+- Check if service validator has started
+```bash
+pm2 list
+```
+
+## Start the JSON-RPC setup
+
+- Clone the json-rpc codebase using below command:
+
+```bash
+cd ..
+git clone -b dev https://github.com/shardeum/json-rpc-server.git json-rpc-server 
+cd json-rpc-server
+npm install
+```
+
+- Update src/config.ts file
+
+```bash
+- collectorSourcing.enabled: true
+- collectorSourcing.collectorApiServerUrl: 'http://<collector-server-ip>:<collector-server-port>' // eg: for local-network set this to http://127.0.0.1:6001, if you had used different port while setting up collector server, please use that one
+- serviceValidatorSourcing.enabled: true
+- serviceValidatorSourcing.serviceValidatorUrl: 'http://<service-validator-ip>:<service-validator-port>' // eg: for local-network set this to http://127.0.0.1:7001, if you had used different port while setting up service validator, please use that one
+- websocket.enabled: true
+- queryFromValidator: false
+```
+
+- Update archiverConfig.json with correct Archiver info
+
+Update archiverConfig.json
+```bash
+{
+  "archivers": [
+    {
+      "ip": "<archiver-ip>",
+      "port":<archiver-port>,
+      "publicKey": "<archiver-pub-key>"
+    }
+  ]
+}
+```
+
+- Start the json-rpc service using below command
+```bash
+npm run compile
+node pm2.js <X> 
+# for X RPC servers, starting port 8080
+```
+Check status of json-rpc services
+```bash
+Use command: pm2 list
+```
+![ldrpc1.png](/img/ldrpc1.png)
+
+
+## How to validate if RPC server is working?
+Once your RPC server is running, you can test it by making some read calls. 
+
+By default RPC is set at port 8080. So your RPC will be something like 
+```bash
+http://<json_rpc-server-ip>:<json-rpc-server-port>
+```
+```bash
+curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' http://<json_rpc-server-ip>:<json-rpc-server-port>
+```
+<Callout title="Note" type="info">
+It is advised that you give the node at least 10 minutes to sync after spinning it up to avoid issues.
+</Callout>
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+ 
+<Accordions>
+<Accordion title="How to Debug?">
+To get a list of all the pm2 processes:
+```bash
+pm2 list
+```
+To check logs of each inividual services:
+```bash
+pm2 logs -f <pm2-process-id>
+```
+
+</Accordion>
+<Accordion title="Configuration Definitions">
+Collector-Server Configs:
+**distributorInfo**: JSON object, specifies the configs related to the distributor server from which the collector will fetch the data.
+
+**collectorInfo**:  JSON object, specifies the configs related to the collector server, such as the private and public key pair which the collector server will use to authenticate itself to the distributor.
+
+**blockIndexing.enabled**: Boolean, flag to enable or disable block indexing. If disabled collector service will not produce blocks, this should be enabled in order to use collector service in LDRPC mode.
+
+**shardeumIndexerSqlitePath**: String, path to the database file of Service-Validator service.
+
+Service-Validator Configs:
+
+**server.ip.externalPort**: Number, external port of service-validator service
+**server.ip.internalPort**:  Number, internal port of service-validator service
+
+JSON-RPC configs:
+
+**collectorSourcing.enabled**: Boolean, specifies whether JSON-RPC server should fetch data from collector (LDRPC mode) or from Archiver (non-LDRPC mode)
+
+**collectorSourcing.collectorApiServerUrl**: String, specifies the URL of the collector server to use
+
+**serviceValidatorSourcing.enabled**: Boolean, specified whether JSON-RPC server should fetch data from service validator or not.
+
+**serviceValidatorSourcing.serviceValidatorUrl**: String, specifies the URL of the service-validator server, applicable only if serviceValidatorSourcing is enabled.
+
+**Websocket.enabled**: Boolean, to enable or disable websocket connection.
+
+**queryFromValidator**: Boolean, specifies whether LDRPC should fall back to querying data from the validator in case the collector server fails. It should be set to false in order to run RPC strictly in LDRPC mode
+</Accordion>
+<Accordion title="Generate key-pair for Collector">
+```bash
+cd <path-to-service-validator-code>
+node scripts/generateDevKeys.js
+```
+
+</Accordion>
+
+</Accordions>
+
