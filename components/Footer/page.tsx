@@ -15,7 +15,6 @@ const navigation = {
     { name: 'GitHub', href: 'https://github.com/shardeum' },
   ],
   resources: [
-    { name: 'Litepaper', href: 'https://shardeum.org/Shardeum-Litepaper.pdf?_ga=2.188029032.1190065319.1718715038-861615761.1714149845&_gl=1*159aats*_gcl_au*MjIzMTgxOTA2LjE3MTQ0ODE5MDQ.*_ga*ODYxNjE1NzYxLjE3MTQxNDk4NDU.*_ga_2VJLR99VYW*MTcxODgxMDgzMC40NC4xLjE3MTg4MTI3NzAuMS4wLjA.' },
     { name: 'Whitepaper', href: 'https://shardeum.org/Shardeum_Whitepaper.pdf' },
     { name: 'FAQs', href: 'https://shardeum.org/explore/faqs/general' },
     { name: 'Brand Assets', href: 'https://drive.google.com/drive/folders/1jdjJNMajHG_QDu_uAXTRrqpXW3AUuiJu' },
