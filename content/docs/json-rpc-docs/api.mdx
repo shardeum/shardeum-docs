@@ -1,0 +1,244 @@
+---
+title: JSON-RPC API Methods
+description: JSON-RPC API Methods
+---
+
+## web3_clientVersion
+
+Returns the current client version.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result` - The current client version
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"web3_clientVersion","id":1,"jsonrpc":"2.0"}'
+```
+
+## web3_sha3
+
+Returns Keccak-256 (_not_ the standardized SHA3-256) of the given data.
+
+**Parameters**
+
+data - The data in hexadecimal form to convert into a SHA3 hash
+
+**Returns**
+
+`result` - The SHA3 result of the given string.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","method":"web3_sha3","params":["data"],"id":1}'
+```
+
+## net_version
+
+Returns the current network id.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result` - The current network id.
+
+The full list of current network IDs is available at [chainlist.org](https://chainlist.org). Some common ones are:
+
+- `1`: Ethereum Mainnet
+- `5`: Goerli testnet
+- `11155111`: Sepolia testnet
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"net_version","id":1,"jsonrpc":"2.0"}'
+```
+
+## net_listening
+
+Returns `true` if client is actively listening for network connections.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result` - `true` when listening, otherwise `false`.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"net_listening","id":1,"jsonrpc":"2.0"}'
+```
+
+## net_peerCount
+
+Returns number of peers currently connected to the client.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result` - An integer of the number of connected peers.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"net_peerCount","id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_chainId
+
+Returns the chain ID used for signing replay-protected transactions.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result` - `chainId`, hexadecimal value as a string representing the integer of the current chain id.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_chainId","id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_gasPrice
+
+Returns an estimate of the current price per gas in wei.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result` - An integer of the current gas price in wei.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_gasPrice","id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_accounts
+
+Returns a list of addresses owned by client.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result`- An array of data (20 Bytes) - addresses owned by the client.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_accounts","id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_blockNumber
+
+Returns the latest block number.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`result` - An integer of the latest block number encoded as hexadecimal.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_blockNumber","id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getBalance
+
+Returns the balance of the account of given address.
+
+**Parameters**
+
+1. `address` - The address to check for balance.
+2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`result` - An integer of the current balance in wei.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getBalance","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getStorageAt
+
+Returns the value from a storage position at a given address.
+
+**Parameters**
+
+1. `address` - The address to check for the storage.
+2. `QUANTITY` - An integer of the position in the storage.
+3. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`result` - The value at this storage position.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getStorageAt","params":["address", "0x0", "latest"],"id":1,"jsonrpc":"2.0"}'
+```
