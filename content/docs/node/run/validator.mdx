@@ -53,6 +53,7 @@ Access the terminal interface for Shell CLI commands:
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
  
 <Tabs items={["Linux", "MacOS"]}>
@@ -148,7 +149,7 @@ docker-compose --version
 Run the following command:
 
 ```
-curl -O https://raw.githubusercontent.com/shardeum/validator-dashboard/main/installer.sh && chmod +x installer.sh && ./installer.sh
+curl -O https://raw.githubusercontent.com/shardeum/validator-dashboard/dev/installer.sh && chmod +x installer.sh && ./installer.sh
 ```
 
 The terminal will ask questions about your setup settings.
@@ -192,7 +193,7 @@ If you wish to set an explicit internal IP, enter an IPv4 address (default=auto)
 Set the first p2p port (default 9001):
 
 ```shell
-To run a validator on the Sphinx Validator 1.X network, you will need to open two ports in your firewall.
+To run a validator on the Sphinx Atomium network, you will need to open two ports in your firewall.
 This allows p2p communication between nodes.
 Enter the first port (1025-65536) for p2p communication (default 9001):
 ```
@@ -211,7 +212,9 @@ What base directory should the node use (defaults to ~/.shardeum):
 
 Wait for the installation process to complete.
 
-<Callout title="Port Forwarding" type="warn">
+<Accordions>
+<Accordion title="Port Forwarding Debugging">
+ 
 
 If you are behind a router and you are using ports 9001 and 10001 for p2p communication,
 make sure ports 9001 and 10001, are forwarded (be careful doing this since it will modify your firewall).
@@ -223,29 +226,17 @@ https://www.att.com/support/article/u-verse-high-speed-internet/KM1010280/
 More info on router port forwarding:
 
 https://www.noip.com/support/knowledgebase/general-port-forwarding-guide/
-</Callout>
 
-## Open validator CLI
 
-Make sure you are in the root directory by running:
-
-<Tabs items={["Shell"]}>
-```ts tab="Shell"
-cd .shardeum
-```
-</Tabs>
-
-Start the CLI by running the following shell script:
-
-<Tabs items={["Shell"]}>
-```ts tab="Shell"
-./shell.sh
-```
-</Tabs>
+ 
+</Accordion>
+</Accordions>
 
 
 
-<Callout title="Docker Errors" type="warn">
+<Accordions>
+<Accordion title="Docker Errors Debugging">
+ 
 If you see docker permission error:
 
 ```shell
@@ -274,7 +265,11 @@ sudo service docker start
 ```
 </Tabs>
 then try to start the shell script again.
-</Callout>
+ 
+</Accordion>
+</Accordions>
+
+
 
 
 ## Open validator GUI
@@ -339,11 +334,11 @@ operator-cli status
 
 ## Connect Wallet to Shardeum Testnet
 
-[Connect to Shardeum Validator with your wallet by clicking the button linked here](ADD details)
+Connect to Shardeum Validator with your wallet by configuring the network with the network details [here](/docs/network/endpoints).
 
-## Step 8: Get SHM from Betanet Faucet
+## Get SHM from ITN Faucet
 
-[Shardeum Discord SHM Faucet for Sphinx 1.X](https://discord.com/channels/933959587462254612/1070780355931541514)
+Claim testnet tokens from [Shardeum Discord SHM Faucet](/docs/faucet/claim).
 
 ## Stake SHM to validator
 
@@ -391,8 +386,9 @@ The network will automatically add your validator to be active in the network.
 The time to be added as an active validator will vary based on network load and validators in the network.
 </Callout>
 
-<Callout title="" type="error">
-If you see your validator IP address as "0.0.0.0":
+
+<Accordions>
+<Accordion title="If you see your validator IP address as 0.0.0.0">
 
 Go into the operator dashboard docker (may be different if you customized install location:
 <Tabs items={["Shell"]}>
@@ -419,12 +415,34 @@ Set the number above in place of EXTERNAL_IP:
 export APP_IP="EXTERNAL_IP"
 ```
 </Tabs>
-</Callout>
+ 
+</Accordion>
+</Accordions>
 
 
 ### CLI
 
 You can also stake and unstake from the Validator CLI if you are not able to access a web browser for the Validator GUI.
+
+Open validator CLI:
+
+Make sure you are in the root directory by running:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+cd .shardeum
+```
+</Tabs>
+
+Start the CLI by running the following shell script:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+./shell.sh
+```
+</Tabs>
+
+
 
 First, set your private key in your Validator CLI:
 
@@ -512,9 +530,10 @@ cd ..
 
 <Tabs items={["Shell"]}>
 ```ts tab="Shell"
-curl -O https://gitlab.com/shardeum/validator/dashboard/-/raw/main/installer.sh && chmod +x installer.sh && ./installer.sh
+curl -O https://raw.githubusercontent.com/shardeum/validator-dashboard/dev/installer.sh && chmod +x installer.sh && ./installer.sh
 ```
 </Tabs>
+
 
 You might manually have to start the GUI afterwards with:
 
@@ -538,6 +557,9 @@ Run:
 operator-cli version
 ```
 </Tabs>
+
+
+
 
 
 ### Update
