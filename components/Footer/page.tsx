@@ -15,6 +15,7 @@ const navigation = {
     { name: 'GitHub', href: 'https://github.com/shardeum' },
   ],
   resources: [
+    { name: 'Explorer', href: 'https://explorer-atomium.shardeum.org/' },
     { name: 'Whitepaper', href: 'https://shardeum.org/Shardeum_Whitepaper.pdf' },
     { name: 'FAQs', href: 'https://shardeum.org/explore/faqs/general' },
     { name: 'Brand Assets', href: 'https://drive.google.com/drive/folders/1jdjJNMajHG_QDu_uAXTRrqpXW3AUuiJu' },
