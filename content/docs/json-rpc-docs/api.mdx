@@ -242,3 +242,522 @@ curl <endpoint> \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getStorageAt","params":["address", "0x0", "latest"],"id":1,"jsonrpc":"2.0"}'
 ```
+
+## eth_getTransactionCount
+
+Returns the number of transactions sent from an address.
+
+**Parameters**
+
+1. `address` - The address to check for the transaction count.
+2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`result` - An integer of the number of transactions send from this address.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getTransactionCount","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getBlockTransactionCountByHash
+
+Returns the number of transactions in a block from a block matching the given block hash.
+
+**Parameters**
+
+1. `hash` - The hash of a block
+
+**Returns**
+
+`result` - The number of transactions associated with the specific block.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getBlockTransactionCountByHash","params":["hash"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getBlockTransactionCountByNumber
+
+Returns the number of transactions in a block matching the given block number.
+
+**Parameters**
+
+1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`result` - The number of transactions in the specific block.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getUncleCountByBlockHash
+
+Returns the number of uncles in a block from a block matching the given block hash.
+
+**Parameters**
+
+1. `hash` - The hash of a block
+
+**Returns**
+
+`result` - An integer of the number of uncles in this block.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getUncleCountByBlockNumber
+
+Returns the number of uncles in a block from a block matching the given block number.
+
+**Parameters**
+
+1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`result` - An integer of the number of uncles in this block.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getUncleCountByBlockNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getCode
+
+Returns code at a given address.
+
+**Parameters**
+
+1. `address` - The address of the smart contract from which the bytecode will be obtained.
+2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`result` - The code from the given address.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getCode","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_signTransaction
+
+Signs a transaction that can be submitted to the network at a later time using with [eth_sendRawTransaction](##eth_sendrawtransaction).
+
+**Parameters**
+
+1. `Object` - The transaction object
+
+- `from` - The address the transaction is sent from.
+- `to` - (optional when creating new contract) The address the transaction is directed to.
+- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
+- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
+- `value` - (optional) Integer of the value sent with this transaction, in Wei.
+- `data` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
+- `nonce` - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
+
+**Returns**
+
+`result` - The RLP-encoded transaction object signed by the specified account.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_signTransaction","params":[{"data":"<>","from": "<>","gas": "<>","gasPrice": "<>","to": "<>","value": "<>"}],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_sendTransaction
+
+Creates new message call transaction or a contract creation, if the data field contains code, and signs it using the account specified in from.
+
+**Parameters**
+
+1. `Object` - The transaction object
+
+- `from` - The address the transaction is sent from.
+- `to` - (optional when creating new contract) The address the transaction is directed to.
+- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
+- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
+- `value` - (optional) Integer of the value sent with this transaction, in Wei.
+- `data` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
+- `nonce` - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
+
+**Returns**
+
+`result` - The transaction hash, or the zero hash if the transaction is not yet available.
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="Note" type="info">
+Use eth_getTransactionReceipt to get the contract address, after the transaction was proposed in a block, when you created a contract.
+</Callout>
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_sendTransaction","params":[{"data":"<>","from": "<>","gas": "<>","gasPrice": "<>","to": "<>","value": "<>"}],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_sendRawTransaction
+
+Creates new message call transaction or a contract creation for signed transactions.
+
+**Parameters**
+
+1. `data` - The signed transaction data.
+
+**Returns**
+
+`result` - The transaction hash, or the zero hash if the transaction is not yet available.
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="Note" type="info">
+Use eth_getTransactionReceipt to get the contract address, after the transaction was proposed in a block, when you created a contract.
+</Callout>
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["Signed Transaction"],"id":1}'
+```
+
+## eth_call
+
+Executes a new message call immediately without creating a transaction on the block chain. Often used for executing read-only smart contract functions, for example the `balanceOf` for an ERC-20 contract.
+
+**Parameters**
+
+1. `Object` - The transaction object
+
+- `from` - (optional) The address the transaction is sent from.
+- `to` - (optional when creating new contract) The address the transaction is directed to.
+- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
+- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
+- `value` - (optional) Integer of the value sent with this transaction, in Wei.
+- `input`: (optional) Hash of the method signature and encoded parameters. For details see [Ethereum Contract ABI in the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html).
+
+2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`data` - the return value of executed contract.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_call","params":[{"from": null,"to":"<>","data":"<>"}, "latest", {"<>": {"balance": "<>"}}],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_estimateGas
+
+Returns an estimation of gas for a given transaction.
+
+**Parameters**
+
+1. `Object` - The transaction object
+
+- `from` - (optional) The address the transaction is sent from.
+- `to` - (optional when creating new contract) The address the transaction is directed to.
+- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
+- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
+- `value` - (optional) Integer of the value sent with this transaction, in Wei.
+- `input`: (optional) Hash of the method signature and encoded parameters. For details see [Ethereum Contract ABI in the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html).
+
+2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+
+**Returns**
+
+`QUANTITY` - The amount of gas used.
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_estimateGas","params":[{"from": null,"to":"<>","data":"<>"}, "latest", {"<>": {"balance": "<>"}}],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getBlockByHash
+
+Returns information about a block by hash.
+
+**Parameters**
+
+1. `hash` - Hash of a block.
+2. `Boolean` - If `true` it returns the full transaction objects, if `false` only the hashes of the transactions.
+
+**Returns**
+
+`Object` - A block object, or `null` when no block was found:
+
+- `number` - the block number. `null` when its pending block.
+- `hash` - hash of the block. `null` when its pending block.
+- `parentHash` - hash of the parent block.
+- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
+- `sha3Uncles` - SHA3 of the uncles data in the block.
+- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
+- `transactionsRoot` - the root of the transaction trie of the block.
+- `stateRoot` - the root of the final state trie of the block.
+- `receiptsRoot` - the root of the receipts trie of the block.
+- `miner` - the address of the beneficiary to whom the mining rewards were given.
+- `difficulty` - integer of the difficulty for this block.
+- `totalDifficulty` - integer of the total difficulty of the chain until this block.
+- `extraData` - the "extra data" field of this block.
+- `size` - integer the size of this block in bytes.
+- `gasLimit` - the maximum gas allowed in this block.
+- `gasUsed` - the total used gas by all transactions in this block.
+- `timestamp` - the unix timestamp for when the block was collated.
+- `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
+- `uncles` - Array of uncle hashes.
+
+**Example**
+
+```bash
+curl <endpoint> \
+-X POST \
+-H "Content-Type: application/json" \
+--data '{"method":"eth_getBlockByHash", "params":["hash",false], "id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getBlockByNumber
+
+Returns information about a block by block number.
+
+**Parameters**
+
+1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `Boolean` - If `true` it returns the full transaction objects, if `false` only the hashes of the transactions.
+
+**Returns**
+
+`Object` - A block object, or `null` when no block was found:
+
+- `number` - the block number. `null` when its pending block.
+- `hash` - hash of the block. `null` when its pending block.
+- `parentHash` - hash of the parent block.
+- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
+- `sha3Uncles` - SHA3 of the uncles data in the block.
+- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
+- `transactionsRoot` - the root of the transaction trie of the block.
+- `stateRoot` - the root of the final state trie of the block.
+- `receiptsRoot` - the root of the receipts trie of the block.
+- `miner` - the address of the beneficiary to whom the mining rewards were given.
+- `difficulty` - integer of the difficulty for this block.
+- `totalDifficulty` - integer of the total difficulty of the chain until this block.
+- `extraData` - the "extra data" field of this block.
+- `size` - integer the size of this block in bytes.
+- `gasLimit` - the maximum gas allowed in this block.
+- `gasUsed` - the total used gas by all transactions in this block.
+- `timestamp` - the unix timestamp for when the block was collated.
+- `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
+- `uncles` - Array of uncle hashes.
+
+**Example**
+
+```bash
+curl <endpoint> \
+-X POST \
+-H "Content-Type: application/json" \
+--data '{"method":"eth_getBlockByNumber", "params":["latest",false], "id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getTransactionByHash
+
+Returns the information about a transaction requested by transaction hash.
+
+**Parameters**
+
+1. `hash` - The hash of a transaction
+
+**Returns**
+
+`Object` - A transaction object, or `null` when no transaction was found:
+
+- `blockHash` - hash of the block where this transaction was in. `null` when its pending.
+- `blockNumber` - block number where this transaction was in. `null` when its pending.
+- `from` - address of the sender.
+- `gas` - gas provided by the sender.
+- `gasPrice` - gas price provided by the sender in Wei.
+- `hash` - hash of the transaction.
+- `input` - the data send along with the transaction.
+- `nonce` - the number of transactions made by the sender prior to this one.
+- `to` - address of the receiver. `null` when its a contract creation transaction.
+- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
+- `value` - value transferred in Wei.
+- `v` - ECDSA recovery id
+- `r` - ECDSA signature r
+- `s` - ECDSA signature s
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getTransactionByHash","params":["hash"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getTransactionByBlockHashAndIndex
+
+Returns information about a transaction by block hash and transaction index position.
+
+**Parameters**
+
+1. `hash`- The hash of a block.
+2. `QUANTITY` - An integer of the transaction index position.
+
+**Returns**
+
+`Object` - A transaction object, or `null` when no transaction was found:
+
+- `blockHash` - hash of the block where this transaction was in. `null` when its pending.
+- `blockNumber` - block number where this transaction was in. `null` when its pending.
+- `from` - address of the sender.
+- `gas` - gas provided by the sender.
+- `gasPrice` - gas price provided by the sender in Wei.
+- `hash` - hash of the transaction.
+- `input` - the data send along with the transaction.
+- `nonce` - the number of transactions made by the sender prior to this one.
+- `to` - address of the receiver. `null` when its a contract creation transaction.
+- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
+- `value` - value transferred in Wei.
+- `v` - ECDSA recovery id
+- `r` - ECDSA signature r
+- `s` - ECDSA signature s
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getTransactionByBlockHashAndIndex","params":["hash","0x0"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getTransactionByBlockNumberAndIndex
+
+Returns information about a transaction by block number and transaction index position.
+
+**Parameters**
+
+1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `QUANTITY` - the transaction index position.
+
+**Returns**
+
+`Object` - A transaction object, or `null` when no transaction was found:
+
+- `blockHash` - hash of the block where this transaction was in. `null` when its pending.
+- `blockNumber` - block number where this transaction was in. `null` when its pending.
+- `from` - address of the sender.
+- `gas` - gas provided by the sender.
+- `gasPrice` - gas price provided by the sender in Wei.
+- `hash` - hash of the transaction.
+- `input` - the data send along with the transaction.
+- `nonce` - the number of transactions made by the sender prior to this one.
+- `to` - address of the receiver. `null` when its a contract creation transaction.
+- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
+- `value` - value transferred in Wei.
+- `v` - ECDSA recovery id
+- `r` - ECDSA signature r
+- `s` - ECDSA signature s
+
+**Example**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getTransactionByBlockNumberAndIndex","params":["latest","0x0"],"id":1,"jsonrpc":"2.0"}'
+```
+
+## eth_getTransactionReceipt
+
+Returns the receipt of a transaction by transaction hash.
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="Note" type="info">
+Note That the receipt is not available for pending transactions.
+</Callout>
+
+**Parameters**
+
+1. `hash` - The hash of a transaction
+
+**Returns**
+
+`Object` - A transaction receipt object, or `null` when no receipt was found:
+
+- `transactionHash ` - hash of the transaction.
+- `transactionIndex` - integer of the transactions index position in the block.
+- `blockHash` - hash of the block where this transaction was in.
+- `blockNumber` - block number where this transaction was in.
+- `from` - address of the sender.
+- `to` - address of the receiver. null when its a contract creation transaction.
+- `cumulativeGasUsed` - The total amount of gas used when this transaction was executed in the block.
+- `effectiveGasPrice`  - The sum of the base fee and tip paid per unit of gas.
+- `gasUsed ` - The amount of gas used by this specific transaction alone.
+- `contractAddress ` - The contract address created, if the transaction was a contract creation, otherwise `null`.
+- `logs` - Array of log objects, which this transaction generated.
+- `logsBloom` - Bloom filter for light clients to quickly retrieve related logs.
+- `type` - integer of the transaction type, `0x0` for legacy transactions, `0x1` for access list types, `0x2` for dynamic fees.
+
+It also returns either :
+
+- `root` : `DATA` 32 bytes of post-transaction stateroot (pre Byzantium)
+- `status` either `1` (success) or `0` (failure)
+
+**Examples**
+
+```bash
+curl <endpoint> \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"eth_getTransactionReceipt","params":["hash"],"id":1,"jsonrpc":"2.0"}'
+```
