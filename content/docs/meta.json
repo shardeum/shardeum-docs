@@ -1,3 +1,3 @@
 {
-    "pages": ["index","introduction", "node", "architecture","wallets","faucet","network","smart-contracts","storage", "oracles", "json-rpc-docs", "whitepaper","faqs"]
+    "pages": ["index","introduction", "node", "architecture","wallets","faucet","network","smart-contracts","storage", "oracles", "api", "whitepaper","faqs"]
   }

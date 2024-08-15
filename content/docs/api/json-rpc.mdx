@@ -1,7 +1,9 @@
 ---
-title: JSON-RPC API Methods
-description: JSON-RPC API Methods
+title: JSON-RPC API
+description: JSON-RPC API
 ---
+
+The Shardeum JSON-RPC API enables developers to interact directly with the Shardeum network. This documentation provides a quick reference to essential methods for querying network data, managing transactions, and more.
 
 ## web3_clientVersion
 
@@ -18,7 +20,7 @@ None
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"web3_clientVersion","id":1,"jsonrpc":"2.0"}'
@@ -39,7 +41,7 @@ data - The data in hexadecimal form to convert into a SHA3 hash
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"jsonrpc":"2.0","method":"web3_sha3","params":["data"],"id":1}'
@@ -66,7 +68,7 @@ The full list of current network IDs is available at [chainlist.org](https://cha
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"net_version","id":1,"jsonrpc":"2.0"}'
@@ -87,7 +89,7 @@ None
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"net_listening","id":1,"jsonrpc":"2.0"}'
@@ -108,7 +110,7 @@ None
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"net_peerCount","id":1,"jsonrpc":"2.0"}'
@@ -129,7 +131,7 @@ None
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_chainId","id":1,"jsonrpc":"2.0"}'
@@ -150,7 +152,7 @@ None
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_gasPrice","id":1,"jsonrpc":"2.0"}'
@@ -171,7 +173,7 @@ None
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_accounts","id":1,"jsonrpc":"2.0"}'
@@ -192,7 +194,7 @@ None
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_blockNumber","id":1,"jsonrpc":"2.0"}'
@@ -214,7 +216,7 @@ Returns the balance of the account of given address.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBalance","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
@@ -237,7 +239,7 @@ Returns the value from a storage position at a given address.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getStorageAt","params":["address", "0x0", "latest"],"id":1,"jsonrpc":"2.0"}'
@@ -259,7 +261,7 @@ Returns the number of transactions sent from an address.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionCount","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
@@ -280,7 +282,7 @@ Returns the number of transactions in a block from a block matching the given bl
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBlockTransactionCountByHash","params":["hash"],"id":1,"jsonrpc":"2.0"}'
@@ -301,7 +303,7 @@ Returns the number of transactions in a block matching the given block number.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
@@ -322,7 +324,7 @@ Returns the number of uncles in a block from a block matching the given block ha
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
@@ -343,7 +345,7 @@ Returns the number of uncles in a block from a block matching the given block nu
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getUncleCountByBlockNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
@@ -365,7 +367,7 @@ Returns code at a given address.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getCode","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
@@ -394,7 +396,7 @@ Signs a transaction that can be submitted to the network at a later time using w
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_signTransaction","params":[{"data":"<>","from": "<>","gas": "<>","gasPrice": "<>","to": "<>","value": "<>"}],"id":1,"jsonrpc":"2.0"}'
@@ -429,7 +431,7 @@ Use eth_getTransactionReceipt to get the contract address, after the transaction
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_sendTransaction","params":[{"data":"<>","from": "<>","gas": "<>","gasPrice": "<>","to": "<>","value": "<>"}],"id":1,"jsonrpc":"2.0"}'
@@ -447,8 +449,6 @@ Creates new message call transaction or a contract creation for signed transacti
 
 `result` - The transaction hash, or the zero hash if the transaction is not yet available.
 
-import { Callout } from 'fumadocs-ui/components/callout';
-
 <Callout title="Note" type="info">
 Use eth_getTransactionReceipt to get the contract address, after the transaction was proposed in a block, when you created a contract.
 </Callout>
@@ -456,7 +456,7 @@ Use eth_getTransactionReceipt to get the contract address, after the transaction
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["Signed Transaction"],"id":1}'
@@ -486,7 +486,7 @@ Executes a new message call immediately without creating a transaction on the bl
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_call","params":[{"from": null,"to":"<>","data":"<>"}, "latest", {"<>": {"balance": "<>"}}],"id":1,"jsonrpc":"2.0"}'
@@ -516,7 +516,7 @@ Returns an estimation of gas for a given transaction.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_estimateGas","params":[{"from": null,"to":"<>","data":"<>"}, "latest", {"<>": {"balance": "<>"}}],"id":1,"jsonrpc":"2.0"}'
@@ -558,7 +558,7 @@ Returns information about a block by hash.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"eth_getBlockByHash", "params":["hash",false], "id":1,"jsonrpc":"2.0"}'
@@ -600,7 +600,7 @@ Returns information about a block by block number.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"eth_getBlockByNumber", "params":["latest",false], "id":1,"jsonrpc":"2.0"}'
@@ -636,7 +636,7 @@ Returns the information about a transaction requested by transaction hash.
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionByHash","params":["hash"],"id":1,"jsonrpc":"2.0"}'
@@ -673,7 +673,7 @@ Returns information about a transaction by block hash and transaction index posi
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionByBlockHashAndIndex","params":["hash","0x0"],"id":1,"jsonrpc":"2.0"}'
@@ -710,7 +710,7 @@ Returns information about a transaction by block number and transaction index po
 **Example**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionByBlockNumberAndIndex","params":["latest","0x0"],"id":1,"jsonrpc":"2.0"}'
@@ -719,8 +719,6 @@ curl <endpoint> \
 ## eth_getTransactionReceipt
 
 Returns the receipt of a transaction by transaction hash.
-
-import { Callout } from 'fumadocs-ui/components/callout';
 
 <Callout title="Note" type="info">
 Note That the receipt is not available for pending transactions.
@@ -756,7 +754,7 @@ It also returns either :
 **Examples**
 
 ```bash
-curl <endpoint> \
+curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionReceipt","params":["hash"],"id":1,"jsonrpc":"2.0"}'
