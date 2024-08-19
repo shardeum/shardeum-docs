@@ -59,12 +59,6 @@ None
 
 `result` - The current network id.
 
-The full list of current network IDs is available at [chainlist.org](https://chainlist.org). Some common ones are:
-
-- `1`: Ethereum Mainnet
-- `5`: Goerli testnet
-- `11155111`: Sepolia testnet
-
 **Example**
 
 ```bash
@@ -93,27 +87,6 @@ curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"net_listening","id":1,"jsonrpc":"2.0"}'
-```
-
-## net_peerCount
-
-Returns number of peers currently connected to the client.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`result` - An integer of the number of connected peers.
-
-**Example**
-
-```bash
-curl https://your-rpc-endpoint \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"net_peerCount","id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_chainId
@@ -309,48 +282,6 @@ curl https://your-rpc-endpoint \
   --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
 ```
 
-## eth_getUncleCountByBlockHash
-
-Returns the number of uncles in a block from a block matching the given block hash.
-
-**Parameters**
-
-1. `hash` - The hash of a block
-
-**Returns**
-
-`result` - An integer of the number of uncles in this block.
-
-**Example**
-
-```bash
-curl https://your-rpc-endpoint \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getUncleCountByBlockNumber
-
-Returns the number of uncles in a block from a block matching the given block number.
-
-**Parameters**
-
-1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
-
-**Returns**
-
-`result` - An integer of the number of uncles in this block.
-
-**Example**
-
-```bash
-curl https://your-rpc-endpoint \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getUncleCountByBlockNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
-```
-
 ## eth_getCode
 
 Returns code at a given address.
@@ -539,7 +470,6 @@ Returns information about a block by hash.
 - `hash` - hash of the block. `null` when its pending block.
 - `parentHash` - hash of the parent block.
 - `nonce` - hash of the generated proof-of-work. `null` when its pending block.
-- `sha3Uncles` - SHA3 of the uncles data in the block.
 - `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
 - `transactionsRoot` - the root of the transaction trie of the block.
 - `stateRoot` - the root of the final state trie of the block.
@@ -553,7 +483,6 @@ Returns information about a block by hash.
 - `gasUsed` - the total used gas by all transactions in this block.
 - `timestamp` - the unix timestamp for when the block was collated.
 - `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
-- `uncles` - Array of uncle hashes.
 
 **Example**
 
@@ -581,7 +510,6 @@ Returns information about a block by block number.
 - `hash` - hash of the block. `null` when its pending block.
 - `parentHash` - hash of the parent block.
 - `nonce` - hash of the generated proof-of-work. `null` when its pending block.
-- `sha3Uncles` - SHA3 of the uncles data in the block.
 - `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
 - `transactionsRoot` - the root of the transaction trie of the block.
 - `stateRoot` - the root of the final state trie of the block.
@@ -595,7 +523,6 @@ Returns information about a block by block number.
 - `gasUsed` - the total used gas by all transactions in this block.
 - `timestamp` - the unix timestamp for when the block was collated.
 - `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
-- `uncles` - Array of uncle hashes.
 
 **Example**
 
@@ -640,80 +567,6 @@ curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionByHash","params":["hash"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getTransactionByBlockHashAndIndex
-
-Returns information about a transaction by block hash and transaction index position.
-
-**Parameters**
-
-1. `hash`- The hash of a block.
-2. `QUANTITY` - An integer of the transaction index position.
-
-**Returns**
-
-`Object` - A transaction object, or `null` when no transaction was found:
-
-- `blockHash` - hash of the block where this transaction was in. `null` when its pending.
-- `blockNumber` - block number where this transaction was in. `null` when its pending.
-- `from` - address of the sender.
-- `gas` - gas provided by the sender.
-- `gasPrice` - gas price provided by the sender in Wei.
-- `hash` - hash of the transaction.
-- `input` - the data send along with the transaction.
-- `nonce` - the number of transactions made by the sender prior to this one.
-- `to` - address of the receiver. `null` when its a contract creation transaction.
-- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
-- `value` - value transferred in Wei.
-- `v` - ECDSA recovery id
-- `r` - ECDSA signature r
-- `s` - ECDSA signature s
-
-**Example**
-
-```bash
-curl https://your-rpc-endpoint \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionByBlockHashAndIndex","params":["hash","0x0"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getTransactionByBlockNumberAndIndex
-
-Returns information about a transaction by block number and transaction index position.
-
-**Parameters**
-
-1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
-2. `QUANTITY` - the transaction index position.
-
-**Returns**
-
-`Object` - A transaction object, or `null` when no transaction was found:
-
-- `blockHash` - hash of the block where this transaction was in. `null` when its pending.
-- `blockNumber` - block number where this transaction was in. `null` when its pending.
-- `from` - address of the sender.
-- `gas` - gas provided by the sender.
-- `gasPrice` - gas price provided by the sender in Wei.
-- `hash` - hash of the transaction.
-- `input` - the data send along with the transaction.
-- `nonce` - the number of transactions made by the sender prior to this one.
-- `to` - address of the receiver. `null` when its a contract creation transaction.
-- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
-- `value` - value transferred in Wei.
-- `v` - ECDSA recovery id
-- `r` - ECDSA signature r
-- `s` - ECDSA signature s
-
-**Example**
-
-```bash
-curl https://your-rpc-endpoint \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionByBlockNumberAndIndex","params":["latest","0x0"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_getTransactionReceipt
