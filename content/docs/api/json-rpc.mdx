@@ -192,7 +192,7 @@ Returns the balance of the account of given address.
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_getBalance","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_getBalance","params":["0x364cb09e7c26c6b437122d9f0163eb65fd6c9db8", "latest"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_getStorageAt
@@ -237,7 +237,7 @@ Returns the number of transactions sent from an address.
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionCount","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_getTransactionCount","params":["0x364cb09e7c26c6b437122d9f0163eb65fd6c9db8", "latest"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_getBlockTransactionCountByHash
@@ -258,7 +258,7 @@ Returns the number of transactions in a block from a block matching the given bl
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_getBlockTransactionCountByHash","params":["hash"],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_getBlockTransactionCountByHash","params":["0x0a7bab293e1cdf4e70db9d1217003b3e03dc40a85ec8b4d7c99282edcde3a3e4"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_getBlockTransactionCountByNumber
@@ -301,12 +301,12 @@ Returns code at a given address.
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_getCode","params":["address", "latest"],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_getCode","params":["your-contract-address", "latest"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_signTransaction
 
-Signs a transaction that can be submitted to the network at a later time using with [eth_sendRawTransaction](##eth_sendrawtransaction).
+Signs a transaction that can be submitted to the network at a later time using with [eth_sendRawTransaction](#eth_sendrawtransaction).
 
 **Parameters**
 
@@ -330,7 +330,7 @@ Signs a transaction that can be submitted to the network at a later time using w
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_signTransaction","params":[{"data":"<>","from": "<>","gas": "<>","gasPrice": "<>","to": "<>","value": "<>"}],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_signTransaction","params":["from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_sendTransaction
@@ -365,7 +365,7 @@ Use eth_getTransactionReceipt to get the contract address, after the transaction
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_sendTransaction","params":[{"data":"<>","from": "<>","gas": "<>","gasPrice": "<>","to": "<>","value": "<>"}],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_sendTransaction","params":[{"from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"}],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_sendRawTransaction
@@ -402,7 +402,7 @@ Executes a new message call immediately without creating a transaction on the bl
 1. `Object` - The transaction object
 
 - `from` - (optional) The address the transaction is sent from.
-- `to` - (optional when creating new contract) The address the transaction is directed to.
+- `to` - The address the transaction is directed to.
 - `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
 - `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
 - `value` - (optional) Integer of the value sent with this transaction, in Wei.
@@ -432,7 +432,7 @@ Returns an estimation of gas for a given transaction.
 1. `Object` - The transaction object
 
 - `from` - (optional) The address the transaction is sent from.
-- `to` - (optional when creating new contract) The address the transaction is directed to.
+- `to` - The address the transaction is directed to.
 - `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
 - `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
 - `value` - (optional) Integer of the value sent with this transaction, in Wei.
@@ -466,22 +466,24 @@ Returns information about a block by hash.
 
 `Object` - A block object, or `null` when no block was found:
 
-- `number` - the block number. `null` when its pending block.
-- `hash` - hash of the block. `null` when its pending block.
-- `parentHash` - hash of the parent block.
-- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
-- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
-- `transactionsRoot` - the root of the transaction trie of the block.
-- `stateRoot` - the root of the final state trie of the block.
-- `receiptsRoot` - the root of the receipts trie of the block.
-- `miner` - the address of the beneficiary to whom the mining rewards were given.
 - `difficulty` - integer of the difficulty for this block.
-- `totalDifficulty` - integer of the total difficulty of the chain until this block.
 - `extraData` - the "extra data" field of this block.
-- `size` - integer the size of this block in bytes.
 - `gasLimit` - the maximum gas allowed in this block.
 - `gasUsed` - the total used gas by all transactions in this block.
+- `hash` - hash of the block. `null` when its pending block.
+- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
+- `miner` - the address of the beneficiary to whom the mining rewards were given.
+- `mixHash`- A string of a 256-bit hash encoded as a hexadecimal
+- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
+- `number` - the block number. `null` when its pending block.
+- `parentHash` - hash of the parent block.
+- `receiptsRoot` - the root of the receipts trie of the block.
+- `sha3Uncles`- The SHA3 of the uncles data in the block.
+- `size` - integer the size of this block in bytes.
+- `stateRoot` - the root of the final state trie of the block.
 - `timestamp` - the unix timestamp for when the block was collated.
+- `transactionsRoot` - the root of the transaction trie of the block.
+- `totalDifficulty` - integer of the total difficulty of the chain until this block.
 - `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
 
 **Example**
@@ -490,7 +492,7 @@ Returns information about a block by hash.
 curl https://your-rpc-endpoint \
 -X POST \
 -H "Content-Type: application/json" \
---data '{"method":"eth_getBlockByHash", "params":["hash",false], "id":1,"jsonrpc":"2.0"}'
+--data '{"method":"eth_getBlockByHash", "params":["0xa4e138bc8e2dbe88d3c37171b8d400269129d51a9c2630a80eb31571b86e60b6",false], "id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_getBlockByNumber
@@ -506,21 +508,23 @@ Returns information about a block by block number.
 
 `Object` - A block object, or `null` when no block was found:
 
-- `number` - the block number. `null` when its pending block.
-- `hash` - hash of the block. `null` when its pending block.
-- `parentHash` - hash of the parent block.
-- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
-- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
-- `transactionsRoot` - the root of the transaction trie of the block.
-- `stateRoot` - the root of the final state trie of the block.
-- `receiptsRoot` - the root of the receipts trie of the block.
-- `miner` - the address of the beneficiary to whom the mining rewards were given.
 - `difficulty` - integer of the difficulty for this block.
-- `totalDifficulty` - integer of the total difficulty of the chain until this block.
 - `extraData` - the "extra data" field of this block.
-- `size` - integer the size of this block in bytes.
 - `gasLimit` - the maximum gas allowed in this block.
 - `gasUsed` - the total used gas by all transactions in this block.
+- `hash` - hash of the block. `null` when its pending block.
+- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
+- `miner` - the address of the beneficiary to whom the mining rewards were given.
+- `mixHash`- A string of a 256-bit hash encoded as a hexadecimal
+- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
+- `number` - the block number. `null` when its pending block.
+- `parentHash` - hash of the parent block.
+- `receiptsRoot` - the root of the receipts trie of the block.
+- `sha3Uncles`- The SHA3 of the uncles data in the block.
+- `size` - integer the size of this block in bytes.
+- `transactionsRoot` - the root of the transaction trie of the block.
+- `stateRoot` - the root of the final state trie of the block.
+- `totalDifficulty` - integer of the total difficulty of the chain until this block.
 - `timestamp` - the unix timestamp for when the block was collated.
 - `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
 
@@ -530,7 +534,7 @@ Returns information about a block by block number.
 curl https://your-rpc-endpoint \
 -X POST \
 -H "Content-Type: application/json" \
---data '{"method":"eth_getBlockByNumber", "params":["latest",false], "id":1,"jsonrpc":"2.0"}'
+--data '{"method":"eth_getBlockByNumber", "params":["0x2b732",false], "id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_getTransactionByHash
@@ -545,17 +549,18 @@ Returns the information about a transaction requested by transaction hash.
 
 `Object` - A transaction object, or `null` when no transaction was found:
 
+- `hash` - hash of the transaction.
 - `blockHash` - hash of the block where this transaction was in. `null` when its pending.
 - `blockNumber` - block number where this transaction was in. `null` when its pending.
 - `from` - address of the sender.
-- `gas` - gas provided by the sender.
-- `gasPrice` - gas price provided by the sender in Wei.
-- `hash` - hash of the transaction.
-- `input` - the data send along with the transaction.
 - `nonce` - the number of transactions made by the sender prior to this one.
 - `to` - address of the receiver. `null` when its a contract creation transaction.
-- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
+- `gas` - gas provided by the sender.
+- `input` - the data send along with the transaction.
 - `value` - value transferred in Wei.
+- `gasPrice` - gas price provided by the sender in Wei.
+- `chainId` - The chain id of the transaction, if any.
+- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
 - `v` - ECDSA recovery id
 - `r` - ECDSA signature r
 - `s` - ECDSA signature s
@@ -566,7 +571,7 @@ Returns the information about a transaction requested by transaction hash.
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionByHash","params":["hash"],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_getTransactionByHash","params":["0x213c5516059ad8399df495a5c99d4f94a9a058327106c0bae011897109dda58a"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_getTransactionReceipt
@@ -585,18 +590,18 @@ Note That the receipt is not available for pending transactions.
 
 `Object` - A transaction receipt object, or `null` when no receipt was found:
 
-- `transactionHash ` - hash of the transaction.
-- `transactionIndex` - integer of the transactions index position in the block.
 - `blockHash` - hash of the block where this transaction was in.
 - `blockNumber` - block number where this transaction was in.
-- `from` - address of the sender.
-- `to` - address of the receiver. null when its a contract creation transaction.
+- `contractAddress ` - The contract address created, if the transaction was a contract creation, otherwise `null`.
 - `cumulativeGasUsed` - The total amount of gas used when this transaction was executed in the block.
 - `effectiveGasPrice`  - The sum of the base fee and tip paid per unit of gas.
+- `from` - address of the sender.
 - `gasUsed ` - The amount of gas used by this specific transaction alone.
-- `contractAddress ` - The contract address created, if the transaction was a contract creation, otherwise `null`.
 - `logs` - Array of log objects, which this transaction generated.
 - `logsBloom` - Bloom filter for light clients to quickly retrieve related logs.
+- `to` - address of the receiver. null when its a contract creation transaction.
+- `transactionHash ` - hash of the transaction.
+- `transactionIndex` - integer of the transactions index position in the block.
 - `type` - integer of the transaction type, `0x0` for legacy transactions, `0x1` for access list types, `0x2` for dynamic fees.
 
 It also returns either :
@@ -610,5 +615,5 @@ It also returns either :
 curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionReceipt","params":["hash"],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_getTransactionReceipt","params":["0x213c5516059ad8399df495a5c99d4f94a9a058327106c0bae011897109dda58a"],"id":1,"jsonrpc":"2.0"}'
 ```
