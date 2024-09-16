@@ -146,7 +146,7 @@ docker-compose --version
 Run the following command:
 
 ```
-curl -O https://raw.githubusercontent.com/shardeum/validator-dashboard/main/installer.sh && chmod +x installer.sh && ./installer.sh
+curl -O https://raw.githubusercontent.com/shardeum/validator-dashboard/dev/installer.sh && chmod +x installer.sh && ./installer.sh
 ```
 
 The terminal will ask questions about your setup settings.
@@ -292,18 +292,16 @@ You might see a warning page when trying to access this address in your web brow
 
 Enter the password you set during the installation process.
 
-![loginPage.jpg](/img/node/run/validator/loginPage.jpg)
+![loginPage.png](/img/node/run/validator/loginPage.png)
 
 You should now see the “Overview” page for the Shardeum Validator Dashboard in your web browser:
 
-![overviewBetanet.jpg](/img/node/run/validator/overviewBetanet.jpg)
+![overviewBetanet.png](/img/node/run/validator/overviewBetanet.png)
 
 
 ## Start validator
 
-Go to the “Maintenance” page, then click the “Start Node” button in the top left white box:
-
-![startBetanet.jpg](/img/node/run/validator/startBetanet.jpg)
+Click the “Start Node” button in the top right white box:
 
 if that does not work, you can also try running the following command on cli:
 
@@ -318,7 +316,7 @@ operator-cli start
 
 Go to “Performance” to see your node’s hardware performance here:
 
-![performanceBetanet.jpg](/img/node/run/validator/performanceBetanet.jpg)
+![performanceBetanet.png](/img/node/run/validator/performanceBetanet.png)
 
 For more details about your node status run the following inside the CLI:
 
@@ -341,17 +339,13 @@ Claim testnet tokens from [Shardeum Discord SHM Faucet](/docs/faucet/claim).
 
 ### GUI
 
-After you start the validator, go to the “Settings” page. You will be asked to connect your wallet:
+After you start the validator, you will be asked to connect your wallet:
 
-![connectWalletBetanet.jpg](/img/node/run/validator/connectWalletBetanet.jpg)
+![connectWalletBetanet.png](/img/node/run/validator/connectWalletBetanet.png)
 
-After you connect your wallet, you should see the following:
+After you connect your wallet, click on the "Add Stake" button, you will see the following:
 
-![connectedWalletOptions.jpg](/img/node/run/validator/connectedWalletOptions.jpg)
-
-When you click "Add Stake", you will see the following:
-
-![connectedWalletAddStake.jpg](/img/node/run/validator/connectedWalletAddStake.jpg)
+![connectedWalletAddStake.png](/img/node/run/validator/connectedWalletAddStake.png)
 
 ```
 -Stake Wallet Address [wallet connected]
