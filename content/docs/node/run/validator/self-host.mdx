@@ -350,9 +350,9 @@ You should now see the “Overview” page for the Shardeum Validator Dashboard 
 
 ## Start validator
 
-Click the “Start Node” button in the top right white box:
+Click the “Start Node” button in the top right white box.
 
-if that does not work, you can also try running the following command on cli:
+If that does not work, you can also try running the following command on cli:
 
 <Tabs items={["Shell"]}>
 ```ts tab="Shell"
@@ -367,6 +367,17 @@ Set password for logging into the GUI
 operator-cli gui set password 123456 #log into the GUI with 123456 as your password
 ```
 </Tabs>
+
+<Callout title="" type="info">
+
+To run `operator-cli` commands, you need to be in the shardeum directory and run the shell script.
+
+```shell
+cd shardeum
+./shell.sh
+```
+
+</Callout>
 
 ## Monitor validator
 
@@ -586,7 +597,16 @@ curl -O https://raw.githubusercontent.com/shardeum/shardeum-validator/refs/heads
 </Tabs>
 
 
-You might manually have to start the GUI afterwards with:
+You might manually have to start the GUI afterwards. To do that, first get into the shell with:
+
+<Tabs items={["Shell"]}>
+```ts tab="Shell"
+cd shardeum
+./shell.sh
+```
+</Tabs>
+
+Then start the GUI with:
 
 <Tabs items={["Shell"]}>
 ```ts tab="Shell"
