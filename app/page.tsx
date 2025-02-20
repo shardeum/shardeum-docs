@@ -15,6 +15,12 @@ const features = [
     link: '/docs/node/run/validator'
   },
   {
+    name: 'RPC API',
+    description: 'Explore the Shardeum JSON-RPC API and learn how to interact with the Shardeum network.',
+    icon: NewspaperIcon,
+    link: '/docs/api/json-rpc'
+  },
+  {
     name: 'Network Setup',
     description: 'Easily add the Shardeum network to your wallet with just a few clicks.',
     icon: CubeTransparentIcon,
@@ -32,12 +38,7 @@ const features = [
     icon: ArrowUpRightIcon,
     link: '/docs/smart-contracts/deploy/foundry'
   },
-  {
-    name: 'Shardeum Whitepaper',
-    description: 'Dive into Shardeum Whitepaper to learn more about the Project.',
-    icon: NewspaperIcon,
-    link: '/docs/whitepaper'
-  },
+  
 ];
 
 export default function Home() {
