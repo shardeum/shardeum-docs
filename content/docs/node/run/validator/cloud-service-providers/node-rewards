@@ -1,0 +1,19 @@
+# Reward Policy for Nodes on Shardeum
+
+The main incentive for nodes participating in the network is to earn rewards. For validator nodes, rewards are based only on the duration the node actively participated in the network and not the time spent in standby or the amount of transactions successfully processed. Furthermore, Shardeum makes a distinction between reward accumulation and reward distribution. Even though rewards are earned while a node is active, they are not distributed until the node is removed from the network and submits a transaction to unstake. For archiver nodes the reward is also based on the time spent actively participating in the network. However, since archiver nodes are not rotated out, they are allowed to submit a transaction to receive the earned reward once a day.
+
+## Active Nodes
+
+Active (validator) nodes earn rewards for participating in consensus and validation on Shardeum. Rewards earned by active nodes are based on their duration in the active set and not the amount of transactions successfully processed or validated. Node rewards accumulate hourly but aren’t distributed per hour as the total active time of any node may or may not be longer than one hour. In fact, it varies based on the overall amount of time spent in the active set until rotated back into the standby set. So how to claim the rewards earned? We will find that in one of the upcoming para.
+
+Active nodes are responsible for processing transactions, securing the network, and maintaining the ledger’s integrity – tasks that require a certain amount of computational resources. By focusing rewards on active nodes, Shardeum incentivizes direct contributions to the network’s core functionalities, ensuring that any node that expends resources and upholds network operations will be fairly compensated.
+
+## Standby Nodes
+
+Standby nodes do not earn rewards on Shardeum. Standby nodes, while unique and crucial for network resilience and scalability, do not directly participate in the consensus process or transaction validation in the same way active nodes do. Rewarding standby nodes without active involvement in network operations could inadvertently create vulnerabilities in the reward system. This approach might further lead to imbalances and reduce the overall efficiency and fairness of the system.
+
+That said, standby nodes are used not only to handle surges in network throughput, but also as part of the regular node rotation process to enhance security and decentralization. Therefore, standby nodes can expect to transition into active node set quite frequently and will have opportunities to earn rewards when auto-selected by the network. Remember, standby nodes are selected randomly by the network, not in a FIFO (First In, First Out) manner, to enhance security. Therefore, how often a node transitions to the active set depends on the network demand, node performance among few other factors.
+
+## Archive Nodes
+
+Archive or archiver nodes are eligible for rewards. As highlighted in the Shardeum whitepaper, archiver nodes, due to their critical role in preserving the network’s history and their substantial hardware requirements, can expect to earn significantly more than validator nodes. Details about hardware requirements, active duration specifications, and other important information will be officially announced as we approach the mainnet launch.
