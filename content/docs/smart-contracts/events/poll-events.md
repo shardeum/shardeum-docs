@@ -56,8 +56,8 @@ https://explorer-sphinx.shardeum.org/api/transaction?startCycle=19020&endCycle=1
 ## JSON URL Filter Variables
 
 ```
-?startCycle=lastestCycle
-&endCycle=lastestCycle
+?startCycle=latestCycle
+&endCycle=latestCycle
 &address=addressToListenTo
 &page=1
 ```

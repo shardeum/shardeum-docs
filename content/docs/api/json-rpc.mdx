@@ -112,6 +112,121 @@ curl https://your-rpc-endpoint \
   --data '{"method":"eth_chainId","id":1,"jsonrpc":"2.0"}'
 ```
 
+## shardeum_getNodeList
+
+Returns a paginated list of active nodes in the Shardeum network.
+
+**Parameters**
+
+1. `Object` - (optional) The pagination parameters
+   - `page` - (optional) Page number, defaults to 1
+   - `limit` - (optional) Number of items per page, defaults to 100, maximum 1000
+
+**Returns**
+
+`Object` - A node list response object containing:
+- `jsonrpc` - The JSON-RPC version ("2.0")
+- `id` - The request ID
+- `result` - Object containing:
+  - `nodes` - Array of node objects, each containing:
+    - `id` - Unique identifier of the node
+    - `ip` - IP address of the node
+    - `port` - Port number the node is running on
+    - `publicKey` - Public key of the node
+  - `totalNodes` - Total number of nodes in the network
+  - `page` - Current page number
+  - `limit` - Number of items per page
+  - `totalPages` - Total number of pages available
+
+**Example**
+
+```bash
+curl https://your-rpc-endpoint \
+-X POST \
+-H "Content-Type: application/json" \
+--data '{"method":"shardeum_getNodeList","params":[{"page": 1, "limit": 100}],"id":1,"jsonrpc":"2.0"}'
+```
+
+## shardeum_getNetworkAccount
+
+Returns the current network settings and parameters.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`Object` - A response object containing:
+- `jsonrpc` - The JSON-RPC version ("2.0")
+- `id` - The request ID
+- `result` - Object containing:
+  - `activeVersion` - Current active version of the network
+  - `latestVersion` - Latest available version
+  - `minVersion` - Minimum required version
+  - `certCycleDuration` - Duration of certification cycle
+  - `maintenanceFee` - Network maintenance fee
+  - `maintenanceInterval` - Interval for maintenance
+  - `penalty` - Object containing penalty information
+    - `amount` - Penalty amount
+    - `currency` - Currency type (e.g. "shm")
+  - `slashing` - Object containing slashing parameters
+    - `leftNetworkEarlyPenaltyPercent` - Penalty percentage for leaving network early
+    - `nodeRefutedPenaltyPercent` - Penalty percentage for node refutation
+    - `syncTimeoutPenaltyPercent` - Penalty percentage for sync timeout
+  - `reward` - Object containing reward information
+    - `amount` - Reward amount
+    - `currency` - Currency type (e.g. "shm")
+    - `nodeRewardInterval` - Interval for node rewards
+  - `requiredStake` - Object containing staking requirements
+    - `amount` - Required stake amount
+    - `currency` - Currency type (e.g. "shm")
+  - `restakeCooldown` - Cooldown period for restaking
+  - `timestamp` - Timestamp of the network account data
+
+**Example**
+```bash
+curl https://your-rpc-endpoint \
+-X POST \
+-H "Content-Type: application/json" \
+--data '{"method":"shardeum_getNetworkAccount","params":[],"id":1,"jsonrpc":"2.0"}'
+```
+## shardeum_getCycleInfo
+
+Returns information about a specific cycle or the latest cycle in the network.
+
+**Parameters**
+
+1. `number` - (optional) The cycle number to query. If null, returns the latest cycle information.
+
+**Returns**
+
+`Object` - A response object containing:
+- `jsonrpc` - The JSON-RPC version ("2.0")
+- `id` - The request ID
+- `result` - Object containing cycle info:
+  - `cycleInfo` - Object containing cycle details:
+    - `cycleCounter` - The cycle number
+    - `startTime` - Start time of the cycle in milliseconds
+    - `endTime` - End time of the cycle in milliseconds
+    - `nodes` - Object containing node counts:
+      - `active` - Number of active nodes
+      - `standby` - Number of standby nodes
+      - `syncing` - Number of syncing nodes
+    - `desired` - Desired number of nodes
+    - `duration` - Duration of the cycle
+    - `maxSyncTime` - Maximum allowed sync time
+    - `timestamp` - Timestamp of the cycle info
+
+**Example**
+
+```bash
+curl https://your-rpc-endpoint \
+-X POST \
+-H "Content-Type: application/json" \
+--data '{"method":"shardeum_getCycleInfo","params":[null],"id":1,"jsonrpc":"2.0"}'
+```
+
 ## eth_gasPrice
 
 Returns an estimate of the current price per gas in wei.
