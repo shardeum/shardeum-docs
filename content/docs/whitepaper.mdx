@@ -39,73 +39,73 @@ The content of this whitepaper is intended for informational purposes only and d
 
 Anyone considering using Shardeum or engaging in associated activities are strongly encouraged to conduct thorough due diligence and seek advice from appropriate professionals. By accessing this whitepaper, readers agree to assume full responsibility for any decisions made based on its content, acknowledge that the information provided may contain errors, and understand that it should not be solely relied upon. This document is for informational purposes only, and any engagement is undertaken at your own risk.
 
-[1 Background](#background)
+[1 Background](#1-background)
 
-[1.1 Scalability Trilemma](#scalability-trilemma)
+[1.1 Scalability Trilemma](#11-scalability-trilemma)
 
-[1.2 Current Solutions](#current-solutions)
+[1.2 Current Solutions](#12-current-solutions)
 
-[1.3 Sharding](#sharding)
+[1.3 Sharding](#13-sharding)
 
-[2 Technology](#technology)
+[2 Technology](#2-technology)
 
-[2.1 Design Considerations](#design-considerations)
+[2.1 Design Considerations](#21-design-considerations)
 
-[2.2 Architecture](#architecture)
+[2.2 Architecture](#22-architecture)
 
-[2.3 Performance](#performance)
+[2.3 Performance](#23-performance)
 
-[2.4 Security](#security)
+[2.4 Security](#24-security)
 
-[3 Tokenomics](#tokenomics)
+[3 Tokenomics](#3-tokenomics)
 
-[3.1 SHM Token](#shm-token)
+[3.1 SHM Token](#31-shm-token)
 
-[3.2 SHM Allocation](#shm-allocation)
+[3.2 SHM Allocation](#32-shm-allocation)
 
-[3.3 Sale](#sale)
+[3.3 Sale](#33-sale)
 
-[3.4 Shardus License](#shardus-license)
+[3.4 Shardus License](#34-shardus-license)
 
-[3.5 Emissions After Genesis](#emissions-after-genesis)
+[3.5 Emissions After Genesis](#35-emissions-after-genesis)
 
-[3.6 Tokenomics Policy](#tokenomics-policy)
+[3.6 Tokenomics Policy](#36-tokenomics-policy)
 
-[4 Ecosystem](#ecosystem)
+[4 Ecosystem](#4-ecosystem)
 
-[4.1 DApps](#dapps)
+[4.1 DApps](#41-dapps)
 
-[4.2 Relayers](#relayers)
+[4.2 Relayers](#42-relayers)
 
-[4.3 Connectors](#connectors)
+[4.3 Connectors](#43-connectors)
 
-[4.4 Explorers](#explorers)
+[4.4 Explorers](#44-explorers)
 
-[4.5 Oracles](#oracles)
+[4.5 Oracles](#45-oracles)
 
-[4.6 Bridges](#bridges)
+[4.6 Bridges](#46-bridges)
 
-[4.7 Wallets](#wallets)
+[4.7 Wallets](#47-wallets)
 
-[4.8 Shardus](#shardus)
+[4.8 Shardus](#48-shardus)
 
-[5 Community](#community)
+[5 Community](#5-community)
 
-[5.1 OCC Principle](#occ-principle)
+[5.1 OCC Principle](#51-occ-principle)
 
-[5.2 Governance](#governance)
+[5.2 Governance](#52-governance)
 
-[5.3 Growth](#growth)
+[5.3 Growth](#53-growth)
 
-[6 Roadmap](#roadmap)
+[6 Roadmap](#6-roadmap)
 
-[6.1 Timeline](#timeline)
+[6.1 Timeline](#61-timeline)
 
-[6.2 Current Milestones](#current-milestones)
+[6.2 Current Milestones](#62-current-milestones)
 
-[6.3 Future Directions](#future-directions)
+[6.3 Future Directions](#63-future-directions)
 
-[7 Conclusion](#conclusion)
+[7 Conclusion](#7-conclusion)
 
 ## 1. Background
 
@@ -235,7 +235,7 @@ Many of the features exhibited by the Shardeum network are inherited from the us
 
 #### 2.2.4.1 Blockless
 
-[Blockchains](https://eprint.iacr.org/2016/555.pdf) have intrinsic [scalability](https://eprint.iacr.org/2019/416.pdf) [limitations](https://eprint.iacr.org/2019/416.pdf) due to their block-based architecture. Bitcoin bundles transactions into blocks, which are then further constricted by block size and block rate. Ethereum blocks are also constrained by block rate and their block size is indirectly limited by a parameter known as the “gas limit” as each block has a gas limit that dictates the amount of computational work that can be included in the block. Moreover, grouping transactions into blocks makes it impossible to route a particular transaction to just the set of nodes that need the transaction. A node would also receive other transactions in the block which it should not process. Processing transactions without grouping them into blocks works better for sharded networks; however, each transaction needs to be consensed upon individually. It is more efficient to do consensus on a block of transactions than on each individual transaction. This adds more processing to each transaction and at first would seem to slow down the transaction processing rate. Although this is true for a network that is not sharded, for a network with many shards the level of parallel processing allowed by this approach achieves a much higher transaction processing rate.
+[Blockchains](https://eprint.iacr.org/2016/555.pdf) have intrinsic [scalability](https://eprint.iacr.org/2019/416.pdf) [limitations](https://eprint.iacr.org/2019/416.pdf) due to their block-based architecture. Bitcoin bundles transactions into blocks, which are then further constricted by block size and block rate. Ethereum blocks are also constrained by block rate and their block size is indirectly limited by a parameter known as the "gas limit" as each block has a gas limit that dictates the amount of computational work that can be included in the block. Moreover, grouping transactions into blocks makes it impossible to route a particular transaction to just the set of nodes that need the transaction. A node would also receive other transactions in the block which it should not process. Processing transactions without grouping them into blocks works better for sharded networks; however, each transaction needs to be consensed upon individually. It is more efficient to do consensus on a block of transactions than on each individual transaction. This adds more processing to each transaction and at first would seem to slow down the transaction processing rate. Although this is true for a network that is not sharded, for a network with many shards the level of parallel processing allowed by this approach achieves a much higher transaction processing rate.
 
 #### 2.2.4.2 PoQ Consensus
 
@@ -308,7 +308,7 @@ An additional benefit of sharding is the increased storage capacity of the netwo
 
 ### 2.4 Security
 
-Given that Shardeum functions as a sharded network, processing various transaction sets across its multiple shards, its security model diverges from non-sharded Layer 1 architectures: it must defend against both standard Layer 1 threats and those attacks specific to sharded architectures. To this end, we provide an overview of common attacks, Shardeum’s defenses and mitigations. The list is non-exhaustive due to the evolving nature of security threats and to maintain a focused and concise document. Readers are encouraged to explore additional resources for a more comprehensive understanding of potential security challenges.
+Given that Shardeum functions as a sharded network, processing various transaction sets across its multiple shards, its security model diverges from non-sharded Layer 1 architectures: it must defend against both standard Layer 1 threats and those attacks specific to sharded architectures. To this end, we provide an overview of common attacks, Shardeum's defenses and mitigations. The list is non-exhaustive due to the evolving nature of security threats and to maintain a focused and concise document. Readers are encouraged to explore additional resources for a more comprehensive understanding of potential security challenges.
 
 #### 2.4.1 Sybil Attacks
 
@@ -326,13 +326,13 @@ Given that Shardeum functions as a sharded network, processing various transacti
 
 **Description**: During a network fork, an adversary in the form of a validator node can continue to validate on a fork of a blockchain incurring no cost for validating both chains. On PoW mechanisms, miners are incentivized to not waste network resources mining on the alternate chain, but PoS validators can potentially still earn transaction fees on both versions of the network, meaning they have nothing at stake that incentivizes or disincentivizes them from supporting illegitimate forks unlike on PoW networks.
 
-**Mitigations**: Shardeum does not use PoW or PoS as its consensus mechanism, it uses PoQ for consensus and PoS as a Sybil deterrence mechanism so the stake is not part of the consensus. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting slashed. Additionally, the digital signatures used to produce a receipt via PoQ can’t be forged.
+**Mitigations**: Shardeum does not use PoW or PoS as its consensus mechanism, it uses PoQ for consensus and PoS as a Sybil deterrence mechanism so the stake is not part of the consensus. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting slashed. Additionally, the digital signatures used to produce a receipt via PoQ can't be forged.
 
 #### 2.4.4 Long Range Attacks
 
 **Description**: A [long-range](https://ieeexplore.ieee.org/document/8653269) [attack](https://ieeexplore.ieee.org/document/8653269) is when an adversary goes back to the genesis block and forks the blockchain.
 
-**Mitigations**: Long-range attacks on Shardeum are not possible as we do not use PoW or PoS as a consensus mechanism. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting slashed. Additionally, the digital signatures used to produce a receipt via PoQ can’t be forged.
+**Mitigations**: Long-range attacks on Shardeum are not possible as we do not use PoW or PoS as a consensus mechanism. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting slashed. Additionally, the digital signatures used to produce a receipt via PoQ can't be forged.
 
 #### 2.4.5 Censorship
 
@@ -344,7 +344,7 @@ Given that Shardeum functions as a sharded network, processing various transacti
 
 **Description**: [Denial](https://arxiv.org/pdf/2007.08600.pdf) [of](https://arxiv.org/pdf/2007.08600.pdf) [service](https://arxiv.org/pdf/2007.08600.pdf) or distributed denial of service is an attack where nodes are knocked offline and fail to meet liveness requirements. A distributed denial of service is similar but with many nodes taking part to knock a node offline.
 
-**Mitigation**: Nodes should have DDoS protection by running their node with an ISP with a strong DDoS protection mechanism. If a node is successfully taken down, other nodes in the shard have account range redundancy and can still validate the transaction. Another node or shard will always have an opportunity every cycle to join when nodes are downed. If a shard was knocked down via a form of DoS it would not be able to produce a receipt and the user who submitted a transaction would be informed that their transaction didn’t go through resulting in certain accounts being temporarily unable to process the transaction. Nodes that stay in the network and aren't successfully taken offline will also more likely stay in the network in the long-run due to superior DDoS defenses.
+**Mitigation**: Nodes should have DDoS protection by running their node with an ISP with a strong DDoS protection mechanism. If a node is successfully taken down, other nodes in the shard have account range redundancy and can still validate the transaction. Another node or shard will always have an opportunity every cycle to join when nodes are downed. If a shard was knocked down via a form of DoS it would not be able to produce a receipt and the user who submitted a transaction would be informed that their transaction didn't go through resulting in certain accounts being temporarily unable to process the transaction. Nodes that stay in the network and aren't successfully taken offline will also more likely stay in the network in the long-run due to superior DDoS defenses.
 
 #### 2.4.7 Transaction Flooding
 
@@ -356,7 +356,7 @@ Given that Shardeum functions as a sharded network, processing various transacti
 
 Shardeum employs dynamic state sharding to attain linear scalability, ensuring that every node added boosts network throughput instantly. As a result, Shardeum can enhance its TPS capacity and maintain low fees sustainably. Our simulations revealed that the economics of linear scalability required a specific dynamic approach to how the native token SHM is issued. 
 
-Since the initial 2022 whitepaper, Shardeum’s tokenomics have undergone refinement, shaped by insights from large-scale testnet participation. Originally structured around a fixed-supply model of 508 million SHM, the network’s design was predicated on predefined adoption metrics, with 51% of the token supply allocated to the community at genesis. However, as empirical data from testnet activity emerged, it became clear that a more adaptable and demand-driven framework was needed.
+Since the initial 2022 whitepaper, Shardeum's tokenomics have undergone refinement, shaped by insights from large-scale testnet participation. Originally structured around a fixed-supply model of 508 million SHM, the network's design was predicated on predefined adoption metrics, with 51% of the token supply allocated to the community at genesis. However, as empirical data from testnet activity emerged, it became clear that a more adaptable and demand-driven framework was needed.
 
 It was due to this reason that, at the start of 2025, Shardeum transitioned to a dynamically responsive supply model, whilst still aligning with the principles of EIP-1559, reducing genesis issuance to 249 million SHM. This refined economic structure integrates real-time transaction fee burning with a programmatically adjusted issuance mechanism, ensuring that supply expansion aligns with network utility and transaction throughput rather than speculative preallocations. By synchronizing emissions with actualized demand, this model better balances long-term sustainability with network security, fostering a scalable, self-regulating Layer 1 that dynamically adjusts to evolving adoption patterns. 
 
@@ -444,13 +444,13 @@ The SHM tokenomics policy is designed to make the supply stable, predictable, ad
 
 • SHM tokens from slashed validators are also burned, adding to the scarcity of SHM
 
-• This fee structure bolsters the scarcity of SHM’s tokenomics as Shardeum undergoes technological maturity and sees greater adoption (with increased transaction total, smart contract deployments, etc.) SHM’s supply is designed to dynamically adjust based on network demand, balancing issuance and burning to maintain long-term sustainability.
+• This fee structure bolsters the scarcity of SHM's tokenomics as Shardeum undergoes technological maturity and sees greater adoption (with increased transaction total, smart contract deployments, etc.) SHM's supply is designed to dynamically adjust based on network demand, balancing issuance and burning to maintain long-term sustainability.
 
-In summary, Shardeum’s tokenomics have been designed for controlled issuance, where scarcity increases over time due to transaction fee burning and validator slashing, while maintaining sustainable validator incentives.
+In summary, Shardeum's tokenomics have been designed for controlled issuance, where scarcity increases over time due to transaction fee burning and validator slashing, while maintaining sustainable validator incentives.
 
 #### 3.6.1 Design Considerations
 
-The first step in understanding why a unique issuance method is required is to comprehend how Shardeum scales from a hardware perspective. Shardeum increases its network throughput (TPS) by increasing the number of active validator nodes. This requires a pool of standby nodes to be ready to join as needed. The rewards for active validator nodes must be adequate to ensure sustainability, as they don’t earn while on standby. By increasing the reward given to active validators the network can ensure there will be sufficient nodes ready to join when traffic (TPS) increases. Not having enough standby nodes to draw from would cause the active nodes in the network to become overloaded and the network would have to reject some transactions.
+The first step in understanding why a unique issuance method is required is to comprehend how Shardeum scales from a hardware perspective. Shardeum increases its network throughput (TPS) by increasing the number of active validator nodes. This requires a pool of standby nodes to be ready to join as needed. The rewards for active validator nodes must be adequate to ensure sustainability, as they don't earn while on standby. By increasing the reward given to active validators the network can ensure there will be sufficient nodes ready to join when traffic (TPS) increases. Not having enough standby nodes to draw from would cause the active nodes in the network to become overloaded and the network would have to reject some transactions.
 
 The figures below compare horizontal and vertical scaling. The two figures on the right demonstrate how non-sharded networks achieve higher throughput (TPS) by scaling vertically; this scaling method increases the CPU, RAM and network resources of each node to increase the network's capacity. This approach has two significant drawbacks. Firstly, no matter how many nodes join the network, the lowest-performing node will determine the TPS (lower right figure). The other drawback is hardware cost; these networks require high-end equipment to reach high network capacity, making it expensive to become a validator and reducing overall decentralization. Shardeum uses horizontal scaling to increase network throughput (TPS). As demonstrated by the two figures on the left; this approach adds more nodes with similar resources per node and uses parallel processing to increase the network's capacity. The network TPS is practically unlimited, providing more nodes can be added to the network (lower left figure) and due to the low hardware cost/requirement, overall decentralization increases.
 
@@ -461,11 +461,11 @@ Unstable validator numbers pose a significantly higher risk for a sharded horizo
 
 #### 3.6.2 Existing Approaches
 
-Firstly, we analyzed pre-existing tokenomic policies of a multitude of Layer 1’s to understand, explore and see if any of their issuance schedules were broadly applicable to Shardeum. We found that there were two prominent types of issuance schedules, namely scaled and linear issuance schedules (figure below).
+Firstly, we analyzed pre-existing tokenomic policies of a multitude of Layer 1's to understand, explore and see if any of their issuance schedules were broadly applicable to Shardeum. We found that there were two prominent types of issuance schedules, namely scaled and linear issuance schedules (figure below).
 
 ![image12-scaled-linear-issuance](/img/whitepaper/v2/image12.png)
 
-Scaled predefined issuance schedules reduce reward percentage through disinflation at different points, whether approximately every 4 years (210,000 blocks) as in the case of Bitcoin or every year with a 1.5% disinflation rate as in the case of Solana. Linear issuance schedules mint a set amount of the network’s native asset over a specified duration and this is the issuance schedule of projects like Algorand. These issuance schedules did not apply to Shardeum; they caused an inefficient and unpredictable network, a lack of profitability, or too high an APY for long-term sustainability.
+Scaled predefined issuance schedules reduce reward percentage through disinflation at different points, whether approximately every 4 years (210,000 blocks) as in the case of Bitcoin or every year with a 1.5% disinflation rate as in the case of Solana. Linear issuance schedules mint a set amount of the network's native asset over a specified duration and this is the issuance schedule of projects like Algorand. These issuance schedules did not apply to Shardeum; they caused an inefficient and unpredictable network, a lack of profitability, or too high an APY for long-term sustainability.
 
 Secondly, we ran simulations on the network to see how some of these pre-existing tokenomics models applied to SHM, confirming they were not applicable due to the aforementioned reasons and that the optimal SHM model would always be flexible enough to reach supply equilibrium.
 
@@ -511,7 +511,7 @@ This flexible supply mechanism ensures that token issuance aligns with optimal e
 
 **3.6.3.1 Adjustable Parameters**
 
-The literature above shows that controlling the S:A ratio and finding supply equilibrium is critical to the network’s smooth yet efficient operation. We understand that attempting to predict countless variables to create a predefined issuance schedule is impossible. 
+The literature above shows that controlling the S:A ratio and finding supply equilibrium is critical to the network's smooth yet efficient operation. We understand that attempting to predict countless variables to create a predefined issuance schedule is impossible. 
 
 The adjustable parameters are:
 
@@ -527,26 +527,26 @@ The secondary impact this parameter can have is either increasing or decreasing 
 
 **Stake Amount**  \- The amount of SHM a node must stake to join the network. It is staked in SHM based on the Stable Price. Some or all of the stake can be lost if the node misbehaves or falls behind in processing; this ensures that operators run nodes on suitable hardware.
 
-Adjusting this parameter can either increase or decrease a node’s overall APY(%)/year (100 \* income \* 365 / stake amount); this will either increase or reduce the S:A ratio as running a node becomes more or less profitable.
+Adjusting this parameter can either increase or decrease a node's overall APY(%)/year (100 \* income \* 365 / stake amount); this will either increase or reduce the S:A ratio as running a node becomes more or less profitable.
 
 **3.6.3.2 Effects on Supply**
 
-It’s essential to understand how the relationship between the tx fee and node reward/hr allows the supply to be elastic. This relationship can be in one of three states:
+It's essential to understand how the relationship between the tx fee and node reward/hr allows the supply to be elastic. This relationship can be in one of three states:
 
 **If Network Revenue \< Network Expense then Supply Inflation** where  
 **Network Revenue \= daily tx volume \* tx fee** 
 
 **Network Expense \= active nodes \* node reward/hr \* 24**
 
-**Supply Inflation**: If the network’s daily revenue (from transaction fees) is less than its daily expenses (the cost of operating nodes), the network is not generating enough income to cover its costs (pay node operators). In this case, the network will issue more SHM to node operators than it is burning from transaction fees. The network will become inflationary, increasing the supply of SHM in circulation.
+**Supply Inflation**: If the network's daily revenue (from transaction fees) is less than its daily expenses (the cost of operating nodes), the network is not generating enough income to cover its costs (pay node operators). In this case, the network will issue more SHM to node operators than it is burning from transaction fees. The network will become inflationary, increasing the supply of SHM in circulation.
 
 **If Network Revenue \> Network Expense then Supply Deflation**
 
-**Supply Deflation**: If the network’s daily revenue (from transaction fees) is greater than its daily expenses (the cost of operating nodes), the network is generating more income than it needs to cover its costs (pay node operators). In this scenario, because all the transaction fees are burned, the network will become deflationary, reducing the supply of SHM in circulation.
+**Supply Deflation**: If the network's daily revenue (from transaction fees) is greater than its daily expenses (the cost of operating nodes), the network is generating more income than it needs to cover its costs (pay node operators). In this scenario, because all the transaction fees are burned, the network will become deflationary, reducing the supply of SHM in circulation.
 
 **If Network Revenue \= Network Expense then Supply Equilibrium**
 
-**Supply Equilibrium**: When the network’s daily revenue (from transaction fees) equals its daily expenses (the cost of operating nodes), it operates in a balanced financial state. In this case, the network is neither inflating nor deflating its token supply; it’s maintaining a stable supply (Equilibrium).
+**Supply Equilibrium**: When the network's daily revenue (from transaction fees) equals its daily expenses (the cost of operating nodes), it operates in a balanced financial state. In this case, the network is neither inflating nor deflating its token supply; it's maintaining a stable supply (Equilibrium).
 
 **3.6.3.3 Static Simulations**
 
@@ -556,7 +556,7 @@ The right figure below demonstrates how changing a single  variable can move the
 
 ![image15-static-simulations](/img/whitepaper/v2/image15.png)
 
-The left figure below demonstrates how a change to another variable (tx fee ) can impact the issuance state. In the example below, the network is moved from the equilibrium state in the above right figure to an inflationary state with a minor change to the tx fee ; after the change, the network is issuing more SHM via node reward than it’s burning from the received transaction fees.
+The left figure below demonstrates how a change to another variable (tx fee ) can impact the issuance state. In the example below, the network is moved from the equilibrium state in the above right figure to an inflationary state with a minor change to the tx fee ; after the change, the network is issuing more SHM via node reward than it's burning from the received transaction fees.
 
 The right figure below is another example of how the variables can be changed to create a state of supply equilibrium. In this example, the tx fee  and node reward/hr variables are used to balance the network revenues and expenses ([run more parameter scenarios here](https://shardeum.org/shm-tokenomics/Parameters)).
 
@@ -564,7 +564,7 @@ The right figure below is another example of how the variables can be changed to
 
 **3.6.3.4 Model Properties**
 
-In a previous section, we discussed how no pre-existing issuance model satisfied all the ideal criteria required to guarantee the network’s secure, efficient and smooth operation.
+In a previous section, we discussed how no pre-existing issuance model satisfied all the ideal criteria required to guarantee the network's secure, efficient and smooth operation.
 
 In this section, we will discuss how using a dynamic supply model will:
 
@@ -580,7 +580,7 @@ The adjustable network parameters, specifically tx fee and node reward/hr, can p
 
 3. **Keep the S:A ratio high enough that the network always retains its ability to scale and never sacrifices security**
 
-The S:A ratio can be raised by increasing the node reward/hr parameter.  If it drops low enough that security or the network’s ability to scale is compromised, the increase in node reward/hr will make the network more profitable (able to sustain more nodes at a given APY%), attracting more node operators to the network and therefore increasing the S:A ratio.
+The S:A ratio can be raised by increasing the node reward/hr parameter.  If it drops low enough that security or the network's ability to scale is compromised, the increase in node reward/hr will make the network more profitable (able to sustain more nodes at a given APY%), attracting more node operators to the network and therefore increasing the S:A ratio.
 
 4. **Keep the S:A ratio low enough so that the network never issues more SHM than required to secure the network and avoid the pointless waste of natural and computational resources**
 
@@ -588,7 +588,7 @@ The S:A ratio can be lowered by decreasing the node reward/hr parameter. It is d
 
 5. **Actively promote network efficiency by rewarding the validator node operators enough APY% to stay in the network but no more**
 
-We cannot predict in advance what is “enough” APY% for node operators to continue validating the network; the micro, macro and socio-economic climate all play a significant role in how well entire asset classes perform. The S:A ratio is used as a collective representation of the current economic environment to allow us to make informed decisions on the future profitability of the network.
+We cannot predict in advance what is "enough" APY% for node operators to continue validating the network; the micro, macro and socio-economic climate all play a significant role in how well entire asset classes perform. The S:A ratio is used as a collective representation of the current economic environment to allow us to make informed decisions on the future profitability of the network.
 
 In the event that the S:A ratio is too high, the node reward/hr parameter would be lowered to reduce profitability. In these circumstances, the most inefficient nodes will likely leave the network first, as they will become unprofitable sooner, resulting in a consistently efficient network.
 
@@ -600,9 +600,9 @@ In the event that the S:A ratio is too high, the node reward/hr parameter would 
 
 ##### 3.6.3.5 Dynamic Simulations
 
-We extensively tested our model using the price action and transaction volumes of other well-known Layer 1’s. The model finds equilibrium (SHM burned \= SHM issued) naturally or with minor network adjustments.
+We extensively tested our model using the price action and transaction volumes of other well-known Layer 1's. The model finds equilibrium (SHM burned \= SHM issued) naturally or with minor network adjustments.
 
-The figure below shows how Shardeum’s dynamic supply model would react following Ethereum’s price action and transaction volumes. In the first 180 days, the supply is highly inflationary as transaction volumes are low and the network still needs to reward the validator nodes (600 nodes minimum). Between 180 and 600 days since Genesis, the network transactions continue to increase; this slows supply inflation and finally results in the supply reaching equilibrium from 600 to 2000 days.
+The figure below shows how Shardeum's dynamic supply model would react following Ethereum's price action and transaction volumes. In the first 180 days, the supply is highly inflationary as transaction volumes are low and the network still needs to reward the validator nodes (600 nodes minimum). Between 180 and 600 days since Genesis, the network transactions continue to increase; this slows supply inflation and finally results in the supply reaching equilibrium from 600 to 2000 days.
 
 ![image18-dynamic-simulations](/img/whitepaper/v2/image18.png)              
 
@@ -699,7 +699,7 @@ Shardeum also encourages third parties to develop Explorers and will incentivize
 
 ### 4.5 Oracles
 
-We believe [oracles](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9801856) are an indispensable component of the web3 technology stack and therefore are essential for Shardeum. We will use decentralized oracles networks (DONs) which will allow on-chain smart contracts to be empowered by off-chain data such as price feeds, data feeds and hybrid smart contracts. DONs are necessary for Shardeum as they provide cryptographic truth guarantees which are both tamper-proof and immutable; unlocking the next generation of advanced decentralized applications. Here’s some of the potential use cases unlocked by DONs interacting with Shardeum:
+We believe [oracles](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9801856) are an indispensable component of the web3 technology stack and therefore are essential for Shardeum. We will use decentralized oracles networks (DONs) which will allow on-chain smart contracts to be empowered by off-chain data such as price feeds, data feeds and hybrid smart contracts. DONs are necessary for Shardeum as they provide cryptographic truth guarantees which are both tamper-proof and immutable; unlocking the next generation of advanced decentralized applications. Here's some of the potential use cases unlocked by DONs interacting with Shardeum:
 
 • Any stablecoins require oracles for accurate price pegging
 
@@ -741,7 +741,7 @@ Initially, Shardeum will accomplish interoperability through integration with mu
 
 • Cross-chain DAO treasuries
 
-• Expanding Shardeum’s dApps and SHM use cases
+• Expanding Shardeum's dApps and SHM use cases
 
 • Inherently larger user base for SHM and dApps on SHM
 
@@ -753,7 +753,7 @@ Besides Bridges, a crucial technological component is our smart contract interop
 
 ### 4.7 Wallets
 
-Cryptographic wallets serve as digital interfaces that facilitate the generation, storage and management of cryptographic keys, enabling users to interact with DLTs. These keys represent a user’s digital identity and ownership of assets on a network. At Shardeum, while we recognise the importance of wallets in the web3 space, we have strategically chosen not to develop our own proprietary wallet solution. Instead, we prioritize ensuring that our network is accessible via RPCs and thus making it compatible with a wide range of existing Ethereum wallet providers.
+Cryptographic wallets serve as digital interfaces that facilitate the generation, storage and management of cryptographic keys, enabling users to interact with DLTs. These keys represent a user's digital identity and ownership of assets on a network. At Shardeum, while we recognise the importance of wallets in the web3 space, we have strategically chosen not to develop our own proprietary wallet solution. Instead, we prioritize ensuring that our network is accessible via RPCs and thus making it compatible with a wide range of existing Ethereum wallet providers.
 
 There are several critical reasons underpinning our decision. By choosing not to create a Shardeum-specific wallet, we avoid misallocating our efforts and instead can direct our resources toward mission critical areas, like enhancing the core infrastructure to optimize performance, scalability, and security. Furthermore, this approach promotes the seamless integration of Shardeum with renowned and widely adopted wallets such as Metamask. Due to the native Ethereum compatibility of Shardeum, users can leverage their favorite and most familiar wallets when interacting with our network. This level of compatibility not only lowers the barrier of entry for new users but also reduces fragmentation in the user experience.
 
@@ -769,7 +769,7 @@ At the heart of every decentralized project lies its community — an intricate 
 
 ### 5.1 OCC Principle
 
-Shardeum is being built on the principles of Open, Collaborative and Community-driven [(OCC](https://shardeum.org/occ/)) approach. Shardeum will be an open, collaborative and community-driven project by taking an approach that’s not been tried by other projects until now. The project will maintain openness in discussions, sharing information, ideas, documents and more. Shardeum believes that cooperation among diverse projects will be necessary to enable the global adoption of decentralized applications. That means collaborating within the ecosystem to find ways to help every individual or group building on top of Shardeum. It will collaborate with anyone who is trying to achieve a similar goal of increasing decentralization. Shardeum’s core belief is that community is supreme and plans to involve the community in key decisions. But, decisions are just part of being community-driven. An even more important aspect is to reduce the delta of project information. Whenever there is any new information to be shared we’ll share that with the community as early as possible.
+Shardeum is being built on the principles of Open, Collaborative and Community-driven [(OCC](https://shardeum.org/occ/)) approach. Shardeum will be an open, collaborative and community-driven project by taking an approach that's not been tried by other projects until now. The project will maintain openness in discussions, sharing information, ideas, documents and more. Shardeum believes that cooperation among diverse projects will be necessary to enable the global adoption of decentralized applications. That means collaborating within the ecosystem to find ways to help every individual or group building on top of Shardeum. It will collaborate with anyone who is trying to achieve a similar goal of increasing decentralization. Shardeum's core belief is that community is supreme and plans to involve the community in key decisions. But, decisions are just part of being community-driven. An even more important aspect is to reduce the delta of project information. Whenever there is any new information to be shared we'll share that with the community as early as possible.
 
 ### 5.2 Governance
 
@@ -781,9 +781,9 @@ A Swiss based Foundation will support the early development of Shardeum. The law
 
 The founding members of Shardeum are Nischal Shetty and Omar Syed. Shardeum team members, also known as committers, are distributed across the US, India and Myanmar.
 
-• Nischal Shetty \- is the Founder and CEO of WazirX, India’s largest crypto exchange with over 10 million users. Nischal is a highly regarded entrepreneur with over a decade of experience building and scaling global products out of India. A software engineer by education, Nischal has also founded Crowdfire, a social media management web service with over 20 million users in the past. Nischal’s previous successes have landed him on the Forbes ‘30 under 30’ list. A passionate blockchain evangelist, Nischal has been active in the Indian crypto space since its inception. Nischal’s mission has been to make crypto accessible to every Indian; he’s also been advocating positive crypto regulation in India with his Twitter campaign \#IndiaWantsCrypto for over 1000 days.
+• Nischal Shetty \- is the Founder and CEO of WazirX, India's largest crypto exchange with over 10 million users. Nischal is a highly regarded entrepreneur with over a decade of experience building and scaling global products out of India. A software engineer by education, Nischal has also founded Crowdfire, a social media management web service with over 20 million users in the past. Nischal's previous successes have landed him on the Forbes '30 under 30' list. A passionate blockchain evangelist, Nischal has been active in the Indian crypto space since its inception. Nischal's mission has been to make crypto accessible to every Indian; he's also been advocating positive crypto regulation in India with his Twitter campaign \#IndiaWantsCrypto for over 1000 days.
 
-• Omar Syed \- is a systems architect who organized the Shardus project in 2017 to build a linearly scalable distributed ledger. Over the past three decades, Omar has been involved with helping large organizations such as NASA, Yahoo and Zynga build scalable, fault-tolerant, distributed systems. Omar holds a B.S. and M.S. from Case Western Reserve University with specialization in Artificial Intelligence. Omar was involved with several start-ups including the first matrimonial website and the first stock sentiment analysis website. Omar along with his son Aamir invented the strategy board game, Arimaa and offered the Arimaa Challenge Prize to promote breakthrough research in AI. Omar’s long-term vision is a world where everyone receives an unconditional universal basic income based on a stable cryptocurrency so that poverty and hunger are eliminated.
+• Omar Syed \- is a systems architect who organized the Shardus project in 2017 to build a linearly scalable distributed ledger. Over the past three decades, Omar has been involved with helping large organizations such as NASA, Yahoo and Zynga build scalable, fault-tolerant, distributed systems. Omar holds a B.S. and M.S. from Case Western Reserve University with specialization in Artificial Intelligence. Omar was involved with several start-ups including the first matrimonial website and the first stock sentiment analysis website. Omar along with his son Aamir invented the strategy board game, Arimaa and offered the Arimaa Challenge Prize to promote breakthrough research in AI. Omar's long-term vision is a world where everyone receives an unconditional universal basic income based on a stable cryptocurrency so that poverty and hunger are eliminated.
 
 #### 5.2.2 DAO
 
@@ -861,7 +861,7 @@ PoC is designed to be tailored to both a web2 and web3 audience to accelerate ad
 
 With a community-oriented focus, Shardeum aims to empower individuals from all across the globe to contribute to the network in various capacities including but not limited to organizing PoC events, content creation, business development, community management and more. As mentioned above, there are over 69 self-run Shardeum communities on Twitter and Telegram created and managed by contributors from several countries including India, Turkey, Japan, South Korea, Vietnam, Nigeria and more.
 
-Shardeum also holds a special place for both English and non-English content creators across the world through its ‘Shardeum is Borderless’ program. From February 2023 to December 2024, the program received an impressive collection of over 2500+ guest blogs, translations, and videos, representing contributors from 66+ countries and spanning 49 languages. In 2024, Shardeum’s website also witnessed over 85,000 participants, across 51 countries, successfully completing the comprehensive [Blockchain Quiz](https://shardeum.org/blockchain-quiz/) with a perfect score.
+Shardeum also holds a special place for both English and non-English content creators across the world through its 'Shardeum is Borderless' program. From February 2023 to December 2024, the program received an impressive collection of over 2500+ guest blogs, translations, and videos, representing contributors from 66+ countries and spanning 49 languages. In 2024, Shardeum's website also witnessed over 85,000 participants, across 51 countries, successfully completing the comprehensive [Blockchain Quiz](https://shardeum.org/blockchain-quiz/) with a perfect score.
 
 #### 5.3.3 Future Growth
 
@@ -903,7 +903,7 @@ In Q2 2024, as we prepared for the launch of the incentivized testnet, Shardeum 
 
 #### 6.1.7 Atomium Incentivized Testnet Q2 2024
 
-Launched in June 2024, Shardeum’s incentivized testnet, named Atomium by the community, has continued to actively engage participation from community members. With focus on on-chain and validator functionalities across four stages, the network saw over 31,000 validators, 638,000 wallets, and 23 million transactions recorded within the first six months of launch.
+Launched in June 2024, Shardeum's incentivized testnet, named Atomium by the community, has continued to actively engage participation from community members. With focus on on-chain and validator functionalities across four stages, the network saw over 31,000 validators, 638,000 wallets, and 23 million transactions recorded within the first six months of launch.
 
 ### 6.2 Current Milestones
 
@@ -957,7 +957,7 @@ Prior to the Shardeum mainnet launch, which will feature validator capabilities�
 
 #### 6.3.4 Path to decentralization
 
-The ultimate goal of any decentralized platform is to be supported and governed by the community that uses the platform. Initial ideas of achieving greater decentralization are outlined in the “Community: Governance” section.
+The ultimate goal of any decentralized platform is to be supported and governed by the community that uses the platform. Initial ideas of achieving greater decentralization are outlined in the "Community: Governance" section.
 
 ### 6.4 Conclusion
 
