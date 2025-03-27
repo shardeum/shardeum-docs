@@ -8,13 +8,14 @@ declare global {
   }
 }
 
-export default function ConnectToAtomium() {
-  const chainId = '0x1f92';
-  const rpcURL = 'https://atomium.shardeum.org/';
-  const networkName = 'Shardeum Atomium';
+export default function ConnectToShardeum() {
+  // Network configuration
+  const rpcURL = 'https://api-testnet.shardeum.org';
+  const chainId = '0x1f93'; // 8083 in decimal
+  const chainName = 'Shardeum Testnet';
+  const explorerURL = 'https://explorer-testnet.shardeum.org';
   const currencyName = 'SHM';
   const currencySymbol = 'SHM';
-  const explorerURL = 'https://explorer-atomium.shardeum.org/';
   const iconUrls = 'https://ipfs.io/ipfs/QmRVnDJue9wyEq8zBhvm24W1sLUcdGqLhTMpso6GoJVkzf';
 
   const addNetwork = async () => {
@@ -22,8 +23,8 @@ export default function ConnectToAtomium() {
       alert("Metamask not detected! Install Metamask then try again.");
       return;
     }
-    if (window.ethereum.networkVersion == 8082) {
-      alert("You are already connected to Shardeum Atomium (chainId 8082).");
+    if (window.ethereum.networkVersion == 8083) {
+      alert("You are already connected to Shardeum Testnet (chainId 8083).");
       return;
     }
     try {
@@ -32,7 +33,7 @@ export default function ConnectToAtomium() {
         params: [
           {
             chainId: chainId,
-            chainName: networkName,
+            chainName: chainName,
             rpcUrls: [rpcURL],
             blockExplorerUrls: [explorerURL],
             iconUrls: [iconUrls],
@@ -58,7 +59,7 @@ export default function ConnectToAtomium() {
       className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
       onClick={addNetwork}
     >
-      Connect to Shardeum Atomium
+      Connect to Shardeum Testnet
     </button>
   );
 }
