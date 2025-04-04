@@ -8,12 +8,30 @@ declare global {
   }
 }
 
-export default function ConnectToShardeum() {
-  // Network configuration
-  const rpcURL = 'https://api-testnet.shardeum.org';
-  const chainId = '0x1f93'; // 8083 in decimal
-  const chainName = 'Shardeum Testnet';
-  const explorerURL = 'https://explorer-testnet.shardeum.org';
+interface ConnectToShardeumProps {
+  network: 'mainnet' | 'testnet';
+}
+
+export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
+  // Network configuration based on network type
+  const config = {
+    mainnet: {
+      rpcURL: 'https://api.shardeum.org',
+      chainId: '0x1f92', // 8082 in decimal
+      chainName: 'Shardeum Mainnet',
+      explorerURL: 'https://explorer.shardeum.org',
+      networkVersion: 8082
+    },
+    testnet: {
+      rpcURL: 'https://api-testnet.shardeum.org',
+      chainId: '0x1f93', // 8083 in decimal
+      chainName: 'Shardeum Testnet',
+      explorerURL: 'https://explorer-testnet.shardeum.org',
+      networkVersion: 8083
+    }
+  };
+
+  const { rpcURL, chainId, chainName, explorerURL, networkVersion } = config[network];
   const currencyName = 'SHM';
   const currencySymbol = 'SHM';
   const iconUrls = 'https://ipfs.io/ipfs/QmRVnDJue9wyEq8zBhvm24W1sLUcdGqLhTMpso6GoJVkzf';
@@ -23,8 +41,8 @@ export default function ConnectToShardeum() {
       alert("Metamask not detected! Install Metamask then try again.");
       return;
     }
-    if (window.ethereum.networkVersion == 8083) {
-      alert("You are already connected to Shardeum Testnet (chainId 8083).");
+    if (window.ethereum.networkVersion == networkVersion) {
+      alert(`You are already connected to ${chainName} (chainId ${networkVersion}).`);
       return;
     }
     try {
@@ -59,7 +77,7 @@ export default function ConnectToShardeum() {
       className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
       onClick={addNetwork}
     >
-      Connect to Shardeum Testnet
+      Connect to Shardeum {network === 'mainnet' ? 'Mainnet' : 'Testnet'}
     </button>
   );
 }

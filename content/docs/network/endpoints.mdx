@@ -5,14 +5,26 @@ description: Shardeum Network Endpoints
 
 import ConnectToShardeum from '/components/NetworkButton0.tsx';
 
-## Shardeum Testnet
+<div className="grid grid-cols-1 md:grid-cols-2 gap-32">
+  <div>
+    <h2>Shardeum Mainnet</h2>
+    <ConnectToShardeum network="mainnet"/>
+    | **Field**                         	| **Details**               	
+    |-----------------------------------	|----------------------------
+    | **Network Name**                  	| Shardeum Mainnet
+    | **New RPC URL**                   	| https://api.shardeum.org             
+    | **Chain ID**                      	| 8082                        	
+    | **Block Explorer URL (optional)** 	| https://explorer.shardeum.org
+  </div>
 
-
-<ConnectToShardeum/>
-
-| **Field**                         	| **Details**               	
-|-----------------------------------	|----------------------------
-| **Network Name**                  	| Shardeum Testnet
-| **New RPC URL**                   	| https://api-testnet.shardeum.org             
-| **Chain ID**                      	| 8083                        	
-| **Block Explorer URL (optional)** 	| https://explorer-testnet.shardeum.org
+  <div>
+    <h2>Shardeum Testnet</h2>
+    <ConnectToShardeum network="testnet"/>
+    | **Field**                         	| **Details**               	
+    |-----------------------------------	|----------------------------
+    | **Network Name**                  	| Shardeum Testnet
+    | **New RPC URL**                   	| https://api-testnet.shardeum.org             
+    | **Chain ID**                      	| 8083                        	
+    | **Block Explorer URL (optional)** 	| https://explorer-testnet.shardeum.org
+  </div>
+</div>
