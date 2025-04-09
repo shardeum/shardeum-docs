@@ -5,26 +5,54 @@ description: Shardeum Network Endpoints
 
 import ConnectToShardeum from '/components/NetworkButton0.tsx';
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-32">
+<div className="space-y-16">
   <div>
     <h2>Shardeum Mainnet</h2>
     <ConnectToShardeum network="mainnet"/>
-    | **Field**                         	| **Details**               	
-    |-----------------------------------	|----------------------------
-    | **Network Name**                  	| Shardeum Mainnet
-    | **New RPC URL**                   	| https://api.shardeum.org             
-    | **Chain ID**                      	| 8082                        	
-    | **Block Explorer URL (optional)** 	| https://explorer.shardeum.org
+    <table className="table-auto w-full">
+      <tbody>
+        <tr>
+          <td>Network Name:</td>
+          <td>Shardeum Mainnet</td>
+        </tr>
+        <tr>
+          <td>New RPC URL:</td>
+          <td>https://api.shardeum.org</td>
+        </tr>
+        <tr>
+          <td>Chain ID:</td>
+          <td>8082</td>
+        </tr>
+        <tr>
+          <td>Block Explorer URL (optional):</td>
+          <td>https://explorer.shardeum.org</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <div>
     <h2>Shardeum Testnet</h2>
     <ConnectToShardeum network="testnet"/>
-    | **Field**                         	| **Details**               	
-    |-----------------------------------	|----------------------------
-    | **Network Name**                  	| Shardeum Testnet
-    | **New RPC URL**                   	| https://api-testnet.shardeum.org             
-    | **Chain ID**                      	| 8083                        	
-    | **Block Explorer URL (optional)** 	| https://explorer-testnet.shardeum.org
+    <table className="table-auto w-full">
+      <tbody>
+        <tr>
+          <td>Network Name:</td>
+          <td>Shardeum Testnet</td>
+        </tr>
+        <tr>
+          <td>New RPC URL:</td>
+          <td>https://api-testnet.shardeum.org</td>
+        </tr>
+        <tr>
+          <td>Chain ID:</td>
+          <td>8083</td>
+        </tr>
+        <tr>
+          <td>Block Explorer URL (optional):</td>
+          <td>https://explorer-testnet.shardeum.org</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
