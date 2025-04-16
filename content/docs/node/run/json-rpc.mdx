@@ -3,7 +3,7 @@ title: JSON RPC
 description: Steps to run a Shardeum RPC
 ---
 
-# Shardeum JSON RPC Documentation
+## Shardeum JSON RPC Documentation
 
 This guide explains how to connect to the Shardeum network through JSON-RPC endpoints, tailored for different user types.
 
@@ -24,7 +24,7 @@ This option is recommended for exchanges, infrastructure providers, and enterpri
 
 You will need to have an archiver and distributor running somewhere. These configs will be provided by a shardeum representative or if you need to run a local devnet you can follow [these instructions](https://github.com/shardeum/shardeum?tab=readme-ov-file#installation) to run `shardus start 10` as well as boot a [distributor](https://github.com/shardeum/relayer-distributor) in MQ mode following the instructions as well.
 
-GitHub Repo: <https://github.com/shardeum/ldrpc-docker/>
+GitHub Repo: https://github.com/shardeum/ldrpc-docker
 
 #### Installation
 
@@ -114,7 +114,7 @@ The configuration is done through environment variables when running the contain
 
 ### JSON-RPC Server healthcheck API
 
-URL: <http://localhost:8080/is-healthy>
+URL: http://localhost:8080/is-healthy
 
 #### Sample Response
 
@@ -139,7 +139,7 @@ URL: <http://localhost:8080/is-healthy>
 
 <details>
 <summary>Response</summary>
-  
+
 ```bash
 {
   "status": "degraded",
@@ -169,7 +169,7 @@ Logs are stored at:
 
 ### Collector Server healthcheck API
 
-URL: <http://localhost:4444/is-healthy>
+URL: http://localhost:4444/is-healthy
 
 #### Sample Response
 
@@ -216,7 +216,7 @@ URL: <http://localhost:4444/is-healthy>
 Logs are stored at:
 - Info logs: ~/xyz/pm2/logs/collector-server-out.log
 - Error logs: ~/xyz/pm2/logs/collector-server-error.log
-  
+
 **Important Note:** In the `collector-server-out.log` file, if you see messages like:
 
 - `🟢 Verification successful. Updating checkpoint to XXXX` -> This means that the collector is syncing data and also verifying it successfully. Once the XXXX matches latest_cycle_from_explorer - 21 (21 is a threshold from latest cycle to trigger verification of a cycle), it means data verification is caught up with the network.
@@ -225,7 +225,7 @@ Logs are stored at:
 
 ### Collector API Server healthcheck API
 
-URL: <http://localhost:6101/is-healthy>
+URL: http://localhost:6101/is-healthy
 
 #### Sample Response
 
@@ -278,12 +278,13 @@ Sample Response for `/totalData` API:
   "totalTransactions": 20882618
 }
 ```
+</details>
 
 **Important Note:** The `/totalData` API is resource-intensive and may respond slowly. Avoid frequent requests within a short period to prevent overloading the Collector API Server.
 
 ### Service Validator healthcheck API
 
-URL: <http://localhost:9001/is-healthy>
+URL: http://localhost:9001/is-healthy
 
 #### Sample Response
 
