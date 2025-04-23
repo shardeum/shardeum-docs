@@ -1,0 +1,92 @@
+---
+title: Validator Node States
+description: Understanding the different states of a Shardeum validator node
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Shardeum Validator Node States
+
+This guide explains the various states a Shardeum validator node can be in during its lifecycle. Understanding these states will help you monitor and troubleshoot your validator node effectively.
+
+<Callout title="" type="info">
+A validator node transitions through different states as it participates in the Shardeum network. Each state represents a specific operational condition of your node.
+</Callout>
+
+## Operational States
+
+### Active
+- The node is fully operational and participating in the network
+- Processing transactions and contributing to consensus
+- Receiving rewards for participation
+- Can be transitioned to standby during rotation
+
+### Standby
+- Node is ready to become active but currently not processing transactions
+- Maintains network connection
+- Part of the standby pool waiting for rotation
+- No rewards earned in this state
+
+### Selected
+- Node has been chosen from the standby pool to become active
+- Will transition to syncing state to catch up with network
+- Temporary state before becoming active
+- Part of the rotation process
+
+### Syncing
+- Node is catching up with the network state
+- Downloading and processing historical data
+- Temporary state before becoming active
+- Cannot process new transactions while syncing
+
+### Ready
+- Node has completed syncing all network data
+- Fully synchronized with the network
+- Waiting to transition into active state
+- Final state before becoming fully operational
+
+## Initialization States
+
+### Stopped
+- Node is not running
+- Not connected to the network
+- Not processing transactions
+- Can be started to enter initialization state
+
+### Initializing
+- Temporary state during node startup
+- Setting up connections with network
+- Transitions to either:
+  - `need-stake` if no stake is present
+  - `waiting-for-network` if stake is present
+
+### Need Stake
+- Node requires stake to participate
+- Occurs when node is initialized with less than minimum required stake
+- Must stake SHM tokens to proceed
+
+### Waiting for Network
+- Node has stake but is waiting to join the network's standby list
+- Ready to transition to standby
+- Occurs after initialization with stake present
+
+## Exit States
+
+### Exit with Warning
+- Node stopped with non-critical issues
+- May require attention but not immediate action
+- Check logs for specific warnings
+
+### Exited Cleanly
+- Normal shutdown
+- No issues detected
+- Can be restarted normally
+
+### Exit with Error
+- Node stopped due to critical error
+- Requires troubleshooting before restart
+- Check logs for specific error messages
+
+<Callout title="" type="info">
+You can check your node's current state using the operator-cli status command in the validator CLI or through the validator dashboard GUI.
+</Callout>
