@@ -1,35 +1,39 @@
 ---
-title: ERC-721
-description: Deploy an ERC-721 on Shardeum
+title: ERC-721 Token Standard
+description: Learn about the ERC-721 token standard on Shardeum
 ---
+
+import SmartContractDisclaimer from '../../../../components/SmartContractDisclaimer';
+
+<SmartContractDisclaimer />
 
 # Deploy NFT Smart Contract (ERC721)
 
 ## What are NFTs?
 
-NFTs are individual tokens with valuable information stored in them. Because they hold a value primarily set by the market and demand, they can be bought and sold just like other physical types of art. NFTs’ immutable data stored on technologies like blockchain makes it easy to assign/validate its ownership and transfer tokens between two parties transparently without any intermediary.
+NFTs are individual tokens with valuable information stored in them. Because they hold a value primarily set by the market and demand, they can be bought and sold just like other physical types of art. NFTs' immutable data stored on technologies like blockchain makes it easy to assign/validate its ownership and transfer tokens between two parties transparently without any intermediary.
 
-NFT is a virtual digital asset that is typically unique and scarce similar to a Mona Lisa painting. An NFT is unique evidence of ownership of a virtual digital asset. You can read more about the use cases of NFTs like ‘NFT for Causes’ and ‘Private Club Memberships’ [here](https://shardeum.org/blog/top-10-nft-use-cases-in-2022/). And smart contracts are one of the best use cases/innovations of blockchain technology. It is a virtual settlement between two parties enforced through a computer program (code) instead of a third party. You can find more on smart contracts and their deployment on Shardeum using Hardhat [here](https://shardeum.org/blog/how-to-deploy-smart-contract-on-shardeum-testnet-hardhat/), which would have similar coding as below since we will be using Hardhat for this documentation of deploying an NFT smart contract.
+NFT is a virtual digital asset that is typically unique and scarce similar to a Mona Lisa painting. An NFT is unique evidence of ownership of a virtual digital asset. You can read more about the use cases of NFTs like 'NFT for Causes' and 'Private Club Memberships' [here](https://shardeum.org/blog/top-10-nft-use-cases-in-2022/). And smart contracts are one of the best use cases/innovations of blockchain technology. It is a virtual settlement between two parties enforced through a computer program (code) instead of a third party. You can find more on smart contracts and their deployment on Shardeum using Hardhat [here](https://shardeum.org/blog/how-to-deploy-smart-contract-on-shardeum-testnet-hardhat/), which would have similar coding as below since we will be using Hardhat for this documentation of deploying an NFT smart contract.
 
 ## NFT Smart Contract Deployment Using Hardhat
 
 ## Step 1 : Initialize Our Project
 
-First, we’ll need to create a folder for our project. Navigate to your command line and type the following commands.
+First, we'll need to create a folder for our project. Navigate to your command line and type the following commands.
 
 ```shell
 mkdir shardeum-nft-dapp
 cd shardeum-nft-dapp
 ```
 
-Now that we’re inside our project folder, we’ll use ‘npm init’ to initialize the project. If you don’t have npm installed already, download from here [Node](https://nodejs.org/en/).
+Now that we're inside our project folder, we'll use 'npm init' to initialize the project. If you don't have npm installed already, download from here [Node](https://nodejs.org/en/).
 
 
 ```shell
 npm init
 ```
 
-This command will create a package.json file. It doesn’t really matter how you answer the installation questions, here is how we did it for reference.
+This command will create a package.json file. It doesn't really matter how you answer the installation questions, here is how we did it for reference.
 
 ```
 package name: (shardeum-nft-dapp)
@@ -81,7 +85,7 @@ npx hardhat
 ```
 
 
-You should then see a welcome message and option to select what you want to do. Select “create an empty hardhat.config.js”:
+You should then see a welcome message and option to select what you want to do. Select "create an empty hardhat.config.js":
 
 ```
 G:shardeum-nft-dapp>npx hardhat
@@ -104,20 +108,20 @@ Welcome to Hardhat v2.9.5
   Quit
 ```
 
-This will generate a hardhat.config.js file for us, which is where we’ll specify all of the set up for our project.
+This will generate a hardhat.config.js file for us, which is where we'll specify all of the set up for our project.
 
 ## Step 4 : Project Folders
 
 To keep our project organized, Hardhat creates two new folders. Navigate to the root directory of your shardeum-nft-dapp
 
-1. contracts/ is where we’ll keep our hello world smart contract code file
-2. scripts/ is where we’ll keep scripts to deploy and interact with our contract
+1. contracts/ is where we'll keep our hello world smart contract code file
+2. scripts/ is where we'll keep scripts to deploy and interact with our contract
 
 ## Step 5 : Write Our Contract
 
 Open up the shardeum-nft-dapp project in your favorite editor. Smart contracts are written in a language called Solidity which is what we will use to write our Domains.sol smart contract
 
-1. Navigate to the “contracts” folder and create a new file called Domains.sol
+1. Navigate to the "contracts" folder and create a new file called Domains.sol
 2. Below is Domains smart contract from the [nft.shardeum.us](https://nft.shardeum.us/) that we will be using for this tutorial. Copy and paste in the contents below into your Domains.sol file.
 
 
@@ -306,13 +310,13 @@ Now that we have created smart contract, we need to deploy this smart contract t
 
 ## Step 6 : Add the Shardeum Network to Metamask/Claim Token
 
-[MetaMask](https://metamask.io/) allows users to store and manage account keys, broadcast transactions, send and receive Ethereum-based cryptocurrencies and tokens, and securely connect to decentralized applications through a compatible web browser or the mobile app’s built-in browser. Click [here](https://metamask.io/download/) to install the MetaMask extension on your browser.
+[MetaMask](https://metamask.io/) allows users to store and manage account keys, broadcast transactions, send and receive Ethereum-based cryptocurrencies and tokens, and securely connect to decentralized applications through a compatible web browser or the mobile app's built-in browser. Click [here](https://metamask.io/download/) to install the MetaMask extension on your browser.
 
 And follow these [instructions](https://docs.shardeum.org/docs/faucet/claim) to add Shardeum to MetaMask wallet and claim test 100 $SHM tokens from Sphinx faucet.
 
 ## Step 7 : Connect MetaMask to Your Project
 
-We’ve created a MetaMask wallet and written our smart contract, and now it’s time to connect these two!
+We've created a MetaMask wallet and written our smart contract, and now it's time to connect these two!
 
 Every transaction sent from your virtual wallet requires a signature using your unique private key. To provide our program with this permission, we can safely store our private key in an environment file.
 
@@ -328,7 +332,7 @@ Note:
 ```
 .env
 
-- Your environment file must be named .env or it won’t be recognized as an environment file. Do not name it process.env or .env-custom or anything else.
+- Your environment file must be named .env or it won't be recognized as an environment file. Do not name it process.env or .env-custom or anything else.
 ```
 
 Your .env should look like this:
@@ -338,13 +342,13 @@ SHARDEUM_RPC=https://sphinx.shardeum.org/
 PRIVATE_KEY= Your_Metamask_Private_Key
 ```
 
-To actually connect these to our code, we’ll reference these variables in our hardhat.config.js file
+To actually connect these to our code, we'll reference these variables in our hardhat.config.js file
 
 ## Step 8 : Install Ethers.js
 
 Ethers.js is a library that makes it easier to interact and make requests to Ethereum by wrapping standard JSON-RPC methods with more user friendly methods.
 
-Hardhat makes it super easy to integrate [Plugins](https://hardhat.org/hardhat-runner/plugins) for additional tooling and extended functionality. We’ll be taking advantage of the [Ethers plugin](https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-ethers) for contract deployment ([Ethers.js](https://github.com/ethers-io/ethers.js/) has some super clean contract deployment methods).
+Hardhat makes it super easy to integrate [Plugins](https://hardhat.org/hardhat-runner/plugins) for additional tooling and extended functionality. We'll be taking advantage of the [Ethers plugin](https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-ethers) for contract deployment ([Ethers.js](https://github.com/ethers-io/ethers.js/) has some super clean contract deployment methods).
 
 In your project directory type:
 
@@ -353,11 +357,11 @@ npm install --save-dev @nomiclabs/hardhat-ethers "ethers@^5.0.0"
 npm install --save-dev @nomiclabs/hardhat-waffle 'ethereum-waffle@^3.0.0'
 ```
 
-We’ll also require ethers in our hardhat.config.js in the next step.
+We'll also require ethers in our hardhat.config.js in the next step.
 
 ## Step 9 : Update hardhat.config.js
 
-We’ve added several dependencies and plugins so far, now we need to update hardhat.config.js so that our project knows about all of them.
+We've added several dependencies and plugins so far, now we need to update hardhat.config.js so that our project knows about all of them.
 
 Update your hardhat.config.js to look like this:
 
@@ -391,7 +395,7 @@ module.exports = {
 
 ## Step 10 : Compile Our Contract
 
-To make sure everything is working so far, let’s compile our contract. The compile task is one of the built-in hardhat tasks.
+To make sure everything is working so far, let's compile our contract. The compile task is one of the built-in hardhat tasks.
 
 From the command line run:
 
@@ -408,7 +412,7 @@ Compiled 16 Solidity files successfully
 
 ## Step 11 : Write Our Deploy Script
 
-Now that our contract is written and our configuration file is good to go, it’s time to write our contract deploy script.
+Now that our contract is written and our configuration file is good to go, it's time to write our contract deploy script.
 
 Navigate to the /scripts folder and create a new file called deploy.js, adding the following contents to it:
 
@@ -438,7 +442,7 @@ runMain();
 ```
 
 
-Hardhat does an amazing job of explaining what each line of these codes does in their contracts tutorial. We’ve adopted their explanations here.
+Hardhat does an amazing job of explaining what each line of these codes does in their contracts tutorial. We've adopted their explanations here.
 
 ```js
 const domainContractFactory = await hre.ethers.getContractFactory("Domains");
@@ -506,7 +510,7 @@ _name contract.shm
 Registering contract on the contract with tokenId 0
 
 --------------------------------------------------------
-Final tokenURI data:application/json;base64,eyJuYW1lIjoiY29udHJhY3Quc2htIiwiZGVzY3JpcHRpb24iOiJXZWIzIHVzZXIgbmFtZSBORlQgb24gc2hhcmRldW0gfCBTSE0iLCJpbWFnZSI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIZHBaSFJvUFNJeU56QWlJR2hsYVdkb2REMGlNamN3SWlCbWFXeHNQU0p1YjI1bElqNDhjR0YwYUNCbWFXeHNQU0oxY213b0kyRXBJaUJrUFNKTk1DQXdhREkzTUhZeU56QklNSG9pTHo0OFpHVm1jejQ4Wm1sc2RHVnlJR2xrUFNKaUlpQmpiMnh2Y2kxcGJuUmxjbkJ2YkdGMGFXOXVMV1pwYkhSbGNuTTlJbk5TUjBJaUlHWnBiSFJsY2xWdWFYUnpQU0oxYzJWeVUzQmhZMlZQYmxWelpTSWdhR1ZwWjJoMFBTSXlOekFpSUhkcFpIUm9QU0l5TnpBaVBqeG1aVVJ5YjNCVGFHRmtiM2NnWkhnOUlqQWlJR1I1UFNJeElpQnpkR1JFWlhacFlYUnBiMjQ5SWpJaUlHWnNiMjlrTFc5d1lXTnBkSGs5SWk0eU1qVWlJSGRwWkhSb1BTSXlNREFsSWlCb1pXbG5hSFE5SWpJd01DVWlMejQ4TDJacGJIUmxjajQ4TDJSbFpuTStQSE4yWnlCNFBTSXhOU0lnZVQwaU1UVWlJSGRwWkhSb1BTSXhNakFpSUdobGFXZG9kRDBpTVRBNElpQjJhV1YzUW05NFBTSXdJREFnTVRJd0lERXdPQ0lnWm1sc2JEMGlibTl1WlNJZ2VHMXNibk05SW1oMGRIQTZMeTkzZDNjdWR6TXViM0puTHpJd01EQXZjM1puSWo0OGNHRjBhQ0JrUFNKTk1qa3VORE0xT0NBM055NHlPRGc0VERFMkxqY3lNVE1nTVRBd1NERXdNeTR5TnpsTU9UQXVOVFkwTXlBM055NHlPRGc0U0RJNUxqUXpOVGhhSWlCbWFXeHNQU0ozYUdsMFpTSXZQanh3WVhSb0lHUTlJazAyTUNBeU1pNDNNVEV5VERRM0xqSTROVFlnTUV3MElEYzNMakk0T0RsSU1qa3VORE0xT0V3Mk1DQXlNaTQzTVRFeVdpSWdabWxzYkQwaWQyaHBkR1VpTHo0OGNHRjBhQ0JrUFNKTk9UQXVOVFkwTWlBM055NHlPRGc1U0RFeE5rdzNNaTQzTVRRMUlDMHpMakExTVRjMlpTMHdOVXcyTUNBeU1pNDNNVEV4VERrd0xqVTJORElnTnpjdU1qZzRPVm9pSUdacGJHdzlJbmRvYVhSbElpOCtQSEJoZEdnZ1pEMGlUVFl3SURjekxqTTROVE5ETmpjdU5qQXpOeUEzTXk0ek9EVXpJRGN6TGpjMk56Y2dOamN1TURNd015QTNNeTQzTmpjM0lEVTVMakU1TURsRE56TXVOelkzTnlBMU1TNHpOVEUxSURZM0xqWXdNemNnTkRRdU9UazJOQ0EyTUNBME5DNDVPVFkwUXpVeUxqTTVOalFnTkRRdU9UazJOQ0EwTmk0eU16STBJRFV4TGpNMU1UVWdORFl1TWpNeU5DQTFPUzR4T1RBNVF6UTJMakl6TWpRZ05qY3VNRE13TXlBMU1pNHpPVFkwSURjekxqTTROVE1nTmpBZ056TXVNemcxTTFvaUlHWnBiR3c5SW5kb2FYUmxJaTgrUEM5emRtYytQR1JsWm5NK1BHeHBibVZoY2tkeVlXUnBaVzUwSUdsa1BTSmhJaUI0TVQwaU1DSWdlVEU5SWpBaUlIZ3lQU0l5TnpBaUlIa3lQU0l5TnpBaUlHZHlZV1JwWlc1MFZXNXBkSE05SW5WelpYSlRjR0ZqWlU5dVZYTmxJajQ4YzNSdmNDQnpkRzl3TFdOdmJHOXlQU0lqWTJJMVpXVmxJaTgrUEhOMGIzQWdiMlptYzJWMFBTSXhJaUJ6ZEc5d0xXTnZiRzl5UFNJak1HTmtOMlUwSWlCemRHOXdMVzl3WVdOcGRIazlJaTQ1T1NJdlBqd3ZiR2x1WldGeVIzSmhaR2xsYm5RK1BDOWtaV1p6UGp4MFpYaDBJSGc5SWpNeUxqVWlJSGs5SWpJek1TSWdabTl1ZEMxemFYcGxQU0l5TnlJZ1ptbHNiRDBpSTJabVppSWdabWxzZEdWeVBTSjFjbXdvSTJJcElpQm1iMjUwTFdaaGJXbHNlVDBpVUd4MWN5QktZV3RoY25SaElGTmhibk1zUkdWcVlWWjFJRk5oYm5Nc1RtOTBieUJEYjJ4dmNpQkZiVzlxYVN4QmNIQnNaU0JEYjJ4dmNpQkZiVzlxYVN4ellXNXpMWE5sY21sbUlpQm1iMjUwTFhkbGFXZG9kRDBpWW05c1pDSStZMjl1ZEhKaFkzUXVjMmh0UEM5MFpYaDBQand2YzNablBnPT0iLCJsZW5ndGgiOiI4In0=
+Final tokenURI data:application/json;base64,eyJuYW1lIjoiY29udHJhY3Quc2htIiwiZGVzY3JpcHRpb24iOiJXZWIzIHVzZXIgbmFtZSBORlQgb24gc2hhcmRldW0gfCBTSE0iLCJpbWFnZSI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIZHBaSFJvUFNJeU56QWlJR2hsYVdkb2REMGlNamN3SWlCbWFXeHNQU0p1YjI1bElqNDhjR0YwYUNCbWFXeHNQU0oxY213b0kyRXBJaUJrUFNKTk1DQXdhREkzTUhZeU56QklNSG9pTHo0OFpHVm1jejQ4Wm1sc2RHVnlJR2xrUFNKaUlpQmpiMnh2Y2kxcGJuUmxjbkJ2YkdGMGFXOXVMV1pwYkhSbGNuTTlJbk5TUjBJaUlHWnBiSFJsY2xWdWFYUnpQU0oxYzJWeVUzQmhZMlZQYmxWelpTSWdhR1ZwWjJoMFBTSXlOekFpSUhkcFpIUm9QU0l5TnpBaVBqeG1aVVJ5YjNCVGFHRmtiM2NnWkhnOUlqQWlJR1I1UFNJeElpQnpkR1JFWlhacFlYUnBiMjQ5SWpJaUlHWnNiMjlrTFc5d1lXTnBkSGs5SWk0eU1qVWlJSGRwWkhSb1BTSXlNREFsSWlCb1pXbG5hSFE5SWpJd01DVWlMejQ4TDJacGJIUmxjajQ4TDJSbFpuTStQSE4yWnlCNFBTSXhOU0lnZVQwaU1UVWlJSGRwWkhSb1BTSXhNakFpSUdobGFXZG9kRDBpTVRBNElpQjJhV1YzUW05NFBTSXdJREFnTVRJd0lERXdPQ0lnWm1sc2JEMGlibTl1WlNJZ2VHMXNibk05SW1oMGRIQTZMeTkzZDNjdWR6TXViM0puTHpJd01EQXZjM1puSWo0OGNHRjBhQ0JrUFNKTk1qa3VORE0xT0NBM055NHlPRGc0VERFMkxqY3lNVE1nTVRBd1NERXdNeTR5TnpsTU9UQXVOVFkwTXlBM055NHlPRGc0U0RJNUxqUXpOVGhhSWlCbWFXeHNQU0ozYUdsMFpTSXZQanh3WVhSb0lHUTlJazAyTUNBeU1pNDNNVEV5VERRM0xqSTROVFlnTUV3MElEYzNMakk0T0RsSU1qa3VORE0xT0V3Mk1DQXlNaTQzTVRFeVdpSWdabWxzYkQwaWQyaHBkR1VpTHo0OGNHRjBhQ0JrUFNKTk9UQXVOVFkwTWlBM055NHlPRGc1U0RFeE5rdzNNaTQzTVRRMUlDMHpMakExTVRjMlpTMHdOVXcyTUNBeU1pNDNNVEV4VERrd0xqVTJORElnTnpjdU1qZzRPVm9pSUdacGJHdzlJbmRvYVhSbElpOCtQSEJoZEdnZ1pEMGlUVFl3SURjekxqTTROVE5ETmpjdU5qQXpOeUEzTXk0ek9EVXpJRGN6TGpjMk56Y2dOamN1TURNd015QTNNeTQzTmpjM0lEVTVMakU1TURsRE56TXVOelkzTnlBMU1TNHpOVEUxSURZM0xqWXdNemNnTkRRdU9UazJOQ0EyTUNBME5DNDVPVFkwUXpVeUxqTTVOalFnTkRRdU9UazJOQ0EwTmk0eU16STBJRFV4TGpNMU1UVWdORFl1TWpNeU5DQTFPUzR4T1RBNVF6UTJMakl6TWpRZ05qY3VNRE13TXlBMU1pNHpPVFkwSURjekxqTTROVE1nTmpBZ056TXVNemcxTTFvaUlHWnBiR3c5SW5kb2FYUmxJaTgrUEhOMGIzQWdiMlptYzJWMFBTSXhJaUJ6ZEc5d0xXTnZiRzl5UFNJak1HTmtOMlUwSWlCemRHOXdMVzl3WVdOcGRIazlJaTQ1T1NJdlBqd3ZiR2x1WldGeVIzSmhaR2xsYm5RK1BDOWtaV1p6UGp4MFpYaDBJSGc5SWpNeUxqVWlJSGs5SWpJek1TSWdabTl1ZEMxemFYcGxQU0l5TnlJZ1ptbHNiRDBpSTJabVppSWdabWxzZEdWeVBTSjFjbXdvSTJJcElpQm1iMjUwTFdaaGJXbHNlVDBpVUd4MWN5QktZV3RoY25SaElGTmhibk1zUkdWcVlWWjFJRk5oYm5Nc1RtOTBieUJEYjJ4dmNpQkZiVzlxYVN4QmNIQnNaU0JEYjJ4dmNpQkZiVzlxYVN4ellXNXpMWE5sY21sbUlpQm1iMjUwTFhkbGFXZG9kRDBpWW05c1pDSStZMjl1ZEhKaFkzUXVjMmh0UEM5MFpYaDBQand2YzNablBnPT0iLCJsZW5ndGgiOiI4In0=
 --------------------------------------------------------
 
 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has registered a domain
