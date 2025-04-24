@@ -5,12 +5,13 @@ description: Steps to run a Shardeum RPC
 
 ## Shardeum JSON RPC Documentation
 
-This guide explains how to connect to the Shardeum network through JSON-RPC endpoints, tailored for different user types.
+This guide explains how to connect to the Shardeum network using JSON-RPC endpoints. Depending on your role or use case, there are multiple ways to interact with the network:
 
-Shardeum provides two main ways to connect to the network:
+1. Public RPC Endpoints: Recommended for most developers, dApp builders, and community contributors
 
-1. Using Public RPC Endpoints - Recommended for most developers, and contributors
-2. Running Your Own RPC Server - Recommended for exchanges, infrastructure providers, and advanced users
+2. Run Your Own RPC Server: Recommended for exchanges, infrastructure providers, and advanced users
+
+3. Run JSON-RPC Locally for Development: Recommended for Shardeum core developers and protocol contributors
 
 ## Using Public RPC Endpoints
 
@@ -110,13 +111,13 @@ The configuration is done through environment variables when running the contain
 
 > Optional Configuration: For development or testing, you can skip the backup download process using: `-e SKIP_BACKUP_DOWNLOAD=true`. This will prevent the service from downloading a backup of the databases before starting. This can be useful during development or testing, but should not be used in production environments where data integrity is critical.
 
-## Healthcheck API
+### Healthcheck API
 
-### JSON-RPC Server healthcheck API
+#### JSON-RPC Server healthcheck API
 
 URL: http://localhost:8080/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -167,11 +168,11 @@ Logs are stored at:
 
 **Important Note:** In the `json-rpc-server-out.log` file, if you see messages like `Updating NodeList from XXXX and nodelist_update: YYYms` or `<N> Healthy Archivers active in the Network` -> This means your JSON-RPC server is active and updating important network information from the network regularly.
 
-### Collector Server healthcheck API
+#### Collector Server healthcheck API
 
 URL: http://localhost:4444/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -223,11 +224,11 @@ Logs are stored at:
 
 - [If verbose logging is enabled] `Downloading receipts/originalTxsData/cycles from <X> to <Y>` -> This indicates the API is syncing transaction data. These logs appear mostly during initial sync and become less frequent once syncing stabilizes.
 
-### Collector API Server healthcheck API
+#### Collector API Server healthcheck API
 
 URL: http://localhost:6101/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -282,11 +283,11 @@ Sample Response for `/totalData` API:
 
 **Important Note:** The `/totalData` API is resource-intensive and may respond slowly. Avoid frequent requests within a short period to prevent overloading the Collector API Server.
 
-### Service Validator healthcheck API
+#### Service Validator healthcheck API
 
 URL: http://localhost:9001/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -318,9 +319,9 @@ URL: http://localhost:9001/is-healthy
 ```
 </details>
 
-## Troubleshooting
+### Troubleshooting
 
-### Debugging
+#### Debugging
 
 you can attach to the container and check list out the services and their status with `pm2`
 
@@ -329,7 +330,7 @@ $ docker exec -it $(docker ps --format '{{.Names}}' --filter ancestor=ghcr.io/sh
 node@b903ee67f879:~$ pm2 list
 ```
 
-### Handling Connection Loss
+#### Handling Connection Loss
 
 In rare cases, the Collector Server may lose its connection with RabbitMQ and fail to recover automatically. If this happens, you will see errors in the `collector-server-error.log` file, such as:
 `IllegalOperationError: Channel closed` or `Connection error: Error: Channel closed by server: 406 (PRECONDITION-FAILED)`
@@ -340,7 +341,7 @@ To resolve this issue, restart the Collector Server using the following command:
 docker exec -it <container-id> pm2 restart collector-server
 ```
 
-### Error messages and Recovery
+#### Error messages and Recovery
 
 You may also encounter the following error messages in the logs:
 
@@ -352,3 +353,8 @@ You may also encounter the following error messages in the logs:
 - `Identified missing data for cycle: XXXX`
 
 Please don't worry if you encounter any of the above error messages. Our systems are designed to automatically recover, sync, and verify any missing data.
+
+## Run JSON-RPC Locally for Development
+
+
+
