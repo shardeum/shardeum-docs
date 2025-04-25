@@ -299,7 +299,7 @@ Returns the balance of the account of given address.
 **Parameters**
 
 1. `address` - The address to check for balance.
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -322,7 +322,7 @@ Returns the value from a storage position at a given address.
 
 1. `address` - The address to check for the storage.
 2. `QUANTITY` - An integer of the position in the storage.
-3. `QUANTITY|TAG` - An integer block number, or the string `"latest"`
+3. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -344,7 +344,7 @@ Returns the number of transactions sent from an address.
 **Parameters**
 
 1. `address` - The address to check for the transaction count.
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -386,7 +386,7 @@ Returns the number of transactions in a block matching the given block number.
 
 **Parameters**
 
-1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+1. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -530,7 +530,7 @@ Returns an estimation of gas for a given transaction.
 - `value` - (optional) Integer of the value sent with this transaction, in Wei.
 - `input`: (optional) Hash of the method signature and encoded parameters. For details see [Ethereum Contract ABI in the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html).
 
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -593,7 +593,7 @@ Returns information about a block by block number.
 
 **Parameters**
 
-1. `QUANTITY|TAG` - An integer block number, or the string `"latest"`
+1. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 2. `Boolean` - If `true` it returns the full transaction objects, if `false` only the hashes of the transactions.
 
 **Returns**
