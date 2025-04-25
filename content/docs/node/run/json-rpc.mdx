@@ -5,12 +5,13 @@ description: Steps to run a Shardeum RPC
 
 ## Shardeum JSON RPC Documentation
 
-This guide explains how to connect to the Shardeum network through JSON-RPC endpoints, tailored for different user types.
+This guide explains how to connect to the Shardeum network using JSON-RPC endpoints. Depending on your role or use case, there are multiple ways to interact with the network:
 
-Shardeum provides two main ways to connect to the network:
+1. Public RPC Endpoints: Recommended for most developers, dApp builders, and community contributors
 
-1. Using Public RPC Endpoints - Recommended for most developers, and contributors
-2. Running Your Own RPC Server - Recommended for exchanges, infrastructure providers, and advanced users
+2. Run Your Own RPC Server: Recommended for exchanges, infrastructure providers, and advanced users
+
+3. Run JSON-RPC Locally for Development: Recommended for Shardeum core developers and protocol contributors
 
 ## Using Public RPC Endpoints
 
@@ -110,13 +111,13 @@ The configuration is done through environment variables when running the contain
 
 > Optional Configuration: For development or testing, you can skip the backup download process using: `-e SKIP_BACKUP_DOWNLOAD=true`. This will prevent the service from downloading a backup of the databases before starting. This can be useful during development or testing, but should not be used in production environments where data integrity is critical.
 
-## Healthcheck API
+### Healthcheck API
 
-### JSON-RPC Server healthcheck API
+#### JSON-RPC Server healthcheck API
 
 URL: http://localhost:8080/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -167,11 +168,11 @@ Logs are stored at:
 
 **Important Note:** In the `json-rpc-server-out.log` file, if you see messages like `Updating NodeList from XXXX and nodelist_update: YYYms` or `<N> Healthy Archivers active in the Network` -> This means your JSON-RPC server is active and updating important network information from the network regularly.
 
-### Collector Server healthcheck API
+#### Collector Server healthcheck API
 
 URL: http://localhost:4444/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -223,11 +224,11 @@ Logs are stored at:
 
 - [If verbose logging is enabled] `Downloading receipts/originalTxsData/cycles from <X> to <Y>` -> This indicates the API is syncing transaction data. These logs appear mostly during initial sync and become less frequent once syncing stabilizes.
 
-### Collector API Server healthcheck API
+#### Collector API Server healthcheck API
 
 URL: http://localhost:6101/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -282,11 +283,11 @@ Sample Response for `/totalData` API:
 
 **Important Note:** The `/totalData` API is resource-intensive and may respond slowly. Avoid frequent requests within a short period to prevent overloading the Collector API Server.
 
-### Service Validator healthcheck API
+#### Service Validator healthcheck API
 
 URL: http://localhost:9001/is-healthy
 
-#### Sample Response
+##### Sample Response
 
 **Healthy:**
 
@@ -318,9 +319,9 @@ URL: http://localhost:9001/is-healthy
 ```
 </details>
 
-## Troubleshooting
+### Troubleshooting
 
-### Debugging
+#### Debugging
 
 you can attach to the container and check list out the services and their status with `pm2`
 
@@ -329,7 +330,7 @@ $ docker exec -it $(docker ps --format '{{.Names}}' --filter ancestor=ghcr.io/sh
 node@b903ee67f879:~$ pm2 list
 ```
 
-### Handling Connection Loss
+#### Handling Connection Loss
 
 In rare cases, the Collector Server may lose its connection with RabbitMQ and fail to recover automatically. If this happens, you will see errors in the `collector-server-error.log` file, such as:
 `IllegalOperationError: Channel closed` or `Connection error: Error: Channel closed by server: 406 (PRECONDITION-FAILED)`
@@ -340,7 +341,7 @@ To resolve this issue, restart the Collector Server using the following command:
 docker exec -it <container-id> pm2 restart collector-server
 ```
 
-### Error messages and Recovery
+#### Error messages and Recovery
 
 You may also encounter the following error messages in the logs:
 
@@ -352,3 +353,191 @@ You may also encounter the following error messages in the logs:
 - `Identified missing data for cycle: XXXX`
 
 Please don't worry if you encounter any of the above error messages. Our systems are designed to automatically recover, sync, and verify any missing data.
+
+## Run JSON-RPC Locally for Development
+
+This setup is intended for local development and testing. It allows you to spin up a local Shardeum network, deploy a JSON-RPC server, and run Distributor and Collector services for full transaction lifecycle testing. Please note that this setup is not meant for production use, it's ideal for contributors working on the Shardeum protocol, RPC server, or relayer infrastructure.
+
+### Service Validator Setup
+
+#### Prerequisites
+
+- Node.js (v18.19.1)
+- npm (v10.2.4)
+- Rust (v1.74.1)
+- Docker (optional, for containerized deployment)
+
+#### Setting Up Your Environment
+
+Shardeum requires specific versions of Nodejs, Rust and other build tools to run. We have detailed setup instructions [in this page](https://github.com/shardeum/shardeum/blob/dev/local-environment-setup.md)
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="Note" type="info">
+This is a crucial step, ensure your local environment is correctly set up before proceeding with the next steps
+</Callout>
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/shardeum/shardeum.git
+cd shardeum
+```
+
+2. Install dependencies
+
+```bash
+npm ci
+```
+
+3. Network Configuration
+
+```bash
+export LOAD_JSON_CONFIGS=[full-path-to-your-local-shardeum-repo]/debug-10-nodes.config.json
+```
+
+**Example:** If your Shardeum repo is located at `/Users/john/projects/shardeum/`, you would run:
+
+```bash
+export LOAD_JSON_CONFIGS=/Users/john/Desktop/projects/shardeum/debug-10-nodes.config.json
+```
+
+4. Compile project
+
+```bash
+npm run prepare
+```
+
+5. Install Shardus CLI and Update Archiver
+
+```bash
+npm install -g @shardeum-foundation/tools-shardus-cli
+npm update @shardeum-foundation/archiver
+```
+
+6. Start the Shardeum Local Network
+
+```bash
+shardus start 10
+```
+
+7. Generate Collector keypair
+
+For the Collector service, generate a public/private keypair using the following command:
+
+```bash
+node scripts/generateWallet.js
+```
+
+Make sure to store the keys securely. You'll use them later for configuring the Collector.
+
+### Running the JSON-RPC Server
+
+This section sets up the RPC interface to interact with your local Shardeum network.
+
+1. Clone the JSON-RPC server repository:
+
+```bash
+git clone https://github.com/shardeum/json-rpc-server.git
+cd json-rpc-server
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the server:
+
+```bash
+npm run start
+```
+
+The default RPC URL is `http://localhost:8080`.
+
+### Distributor Setup
+
+1. Clone the Distributor repo:
+
+```bash
+git clone https://github.com/shardeum/distributor.git
+cd distributor
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Configure `distributor-config.json` file
+
+Set the following fields correctly:
+
+```bash
+"ARCHIVER_DB_PATH": "Base-Dir/instances/archiver-db-4000/archiverdb-4000.sqlite3"
+"DATA_LOG_DIR": "Base-Dir/instances/data-logs/127.0.0.1_4000"
+```
+
+> Replace `Base-Dir` with your actual Shardeum directory path.
+
+4. Start the distributor:
+
+```bash
+npm start
+```
+
+### Collector Setup
+
+The Collector is responsible for fetching and serving transaction data based on queries via the RPC server.
+
+1. Clone the repo
+
+```bash
+git clone https://github.com/shardeum/collector.git
+cd collector
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Update config.json
+
+Paste your keys from the Shardeum keypair generated earlier:
+
+```bash
+"distributorInfo": {
+	"ip": "<distributor-server-ip>",        //eg: 127.0.0.1
+	"port": "<distributor-server-port>", //eg: 6100
+	"publicKey": "distributor-server-public-key"
+},
+
+"collectorInfo": {
+	 "publicKey": "<collector-pub-key>",
+	"secretKey": "<collector-secret-key>"
+}
+```
+
+4. Prepare the build
+
+```bash
+npm run prepare
+````
+
+5. Start collector
+
+```bash
+npm run collector
+````
+
+6. Start API server
+
+```bash
+npm run server
+```
+
+To verify your setup, send transactions on your local Shardeum network and query them via RPC. The JSON-RPC server handles incoming requests and forwards them to the Collector. The Collector, as configured, is subscribed to the Distributor, which syncs data from the local ArchiverDB. When properly configured, this flow returns complete transaction details in the RPC response.
