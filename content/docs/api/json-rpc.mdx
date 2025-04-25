@@ -7,6 +7,8 @@ The Shardeum JSON-RPC API enables developers to interact directly with the Shard
 
 For information on the RPC endpoint for the live network, visit [Shardeum Network Endpoints](https://docs.shardeum.org/docs/network/endpoints) or use the RPC endpoint for our beta network or local development version.
 
+# Supported Methods
+
 ## web3_clientVersion
 
 Returns the current client version.
@@ -297,7 +299,7 @@ Returns the balance of the account of given address.
 **Parameters**
 
 1. `address` - The address to check for balance.
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -320,7 +322,7 @@ Returns the value from a storage position at a given address.
 
 1. `address` - The address to check for the storage.
 2. `QUANTITY` - An integer of the position in the storage.
-3. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+3. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -342,7 +344,7 @@ Returns the number of transactions sent from an address.
 **Parameters**
 
 1. `address` - The address to check for the transaction count.
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -384,7 +386,7 @@ Returns the number of transactions in a block matching the given block number.
 
 **Parameters**
 
-1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+1. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -397,28 +399,6 @@ curl https://your-rpc-endpoint \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getCode
-
-Returns code at a given address.
-
-**Parameters**
-
-1. `address` - The address of the smart contract from which the bytecode will be obtained.
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
-
-**Returns**
-
-`result` - The code from the given address.
-
-**Example**
-
-```bash
-curl https://your-rpc-endpoint \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getCode","params":["your-contract-address", "latest"],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_signTransaction
@@ -510,34 +490,29 @@ curl https://your-rpc-endpoint \
   --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["Signed Transaction"],"id":1}'
 ```
 
-## eth_call
+## eth_subscribe
 
-Executes a new message call immediately without creating a transaction on the block chain. Often used for executing read-only smart contract functions, for example the `balanceOf` for an ERC-20 contract.
+Subscribes to real-time Ethereum node events over a WebSocket connection.
 
 **Parameters**
 
-1. `Object` - The transaction object
+1. `subscription_name` - The type of event you want to subscribe to (i.e., newHeads, logs). This method supports the following subscription types:
 
-- `from` - (optional) The address the transaction is sent from.
-- `to` - The address the transaction is directed to.
-- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
-- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
-- `value` - (optional) Integer of the value sent with this transaction, in Wei.
-- `input`: (optional) Hash of the method signature and encoded parameters. For details see [Ethereum Contract ABI in the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html).
+- `newHeads` - It fires a notification each time a new header is appended to the chain, including chain reorganizations
+- `logs` - It returns logs that are included in new imported blocks and match the given filter criteria
 
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `flag` - If true, method will return the full transaction data, otherwise only the transaction hash
+3. `data` - The arguments such as an address, multiple addresses, and topics. Note, only logs that are created from these addresses or match the specified topics will return logs
 
 **Returns**
 
-`data` - the return value of executed contract.
+`result` - The hex encoded subscription ID.
 
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_call","params":[{"from": null,"to":"<>","data":"<>"}, "latest", {"<>": {"balance": "<>"}}],"id":1,"jsonrpc":"2.0"}'
+wscat -c wss://<your-websocket-endpoint> \
+  -x '{"jsonrpc": "2.0", "id": 1, "method": "eth_subscribe", "params": ["newHeads"]}'
 ```
 
 ## eth_estimateGas
@@ -555,7 +530,7 @@ Returns an estimation of gas for a given transaction.
 - `value` - (optional) Integer of the value sent with this transaction, in Wei.
 - `input`: (optional) Hash of the method signature and encoded parameters. For details see [Ethereum Contract ABI in the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html).
 
-2. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 
 **Returns**
 
@@ -618,7 +593,7 @@ Returns information about a block by block number.
 
 **Parameters**
 
-1. `QUANTITY|TAG` - integer block number, or the string `"latest"`, `"earliest"`, `"pending"`, `"safe"`, or `"finalized"`, see the [default block parameter](https://ethereum.org/en/developers/docs/apis/json-rpc/#default-block)
+1. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
 2. `Boolean` - If `true` it returns the full transaction objects, if `false` only the hashes of the transactions.
 
 **Returns**
@@ -695,10 +670,6 @@ curl https://your-rpc-endpoint \
 
 Returns the receipt of a transaction by transaction hash.
 
-<Callout title="Note" type="info">
-Note That the receipt is not available for pending transactions.
-</Callout>
-
 **Parameters**
 
 1. `hash` - The hash of a transaction
@@ -734,3 +705,13 @@ curl https://your-rpc-endpoint \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionReceipt","params":["0x213c5516059ad8399df495a5c99d4f94a9a058327106c0bae011897109dda58a"],"id":1,"jsonrpc":"2.0"}'
 ```
+
+# Unsupported Methods
+
+- eth_call
+- eth_getCode
+- debug_traceTransaction
+- trace_transaction
+- trace_call
+- trace_block
+- trace_filter
