@@ -356,5 +356,186 @@ Please don't worry if you encounter any of the above error messages. Our systems
 
 ## Run JSON-RPC Locally for Development
 
+This setup is intended for local development and testing. It allows you to spin up a local Shardeum network, deploy a JSON-RPC server, and run Distributor and Collector services for full transaction lifecycle testing. Please note that this setup is not meant for production use, it's ideal for contributors working on the Shardeum protocol, RPC server, or relayer infrastructure.
 
+### Service Validator Setup
 
+#### Prerequisites
+
+- Node.js (v18.19.1)
+- npm (v10.2.4)
+- Rust (v1.74.1)
+- Docker (optional, for containerized deployment)
+
+#### Setting Up Your Environment
+
+Shardeum requires specific versions of Nodejs, Rust and other build tools to run. We have detailed setup instructions [in this page](https://github.com/shardeum/shardeum/blob/dev/local-environment-setup.md)
+
+<Callout title="Note" type="info">
+This is a crucial step, ensure your local environment is correctly set up before proceeding with the next steps
+</Callout>
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/shardeum/shardeum.git
+cd shardeum
+```
+
+2. Install dependencies
+
+```bash
+npm ci
+```
+
+3. Network Configuration
+
+```bash
+export LOAD_JSON_CONFIGS=[full-path-to-your-local-shardeum-repo]/debug-10-nodes.config.json
+```
+
+**Example:** If your Shardeum repo is located at /Users/john/projects/shardeum/, you would run:
+
+```bash
+export LOAD_JSON_CONFIGS=/Users/john/Desktop/projects/shardeum/debug-10-nodes.config.json
+```
+
+4. Compile project
+
+```bash
+npm run prepare
+```
+
+5. Install Shardus CLI and Update Archiver
+
+```bash
+npm install -g @shardeum-foundation/tools-shardus-cli
+npm update @shardeum-foundation/archiver
+```
+
+6. Start the Shardeum Local Network
+
+```bash
+shardus start 10
+```
+
+7. Generate Collector keypair
+
+For the Collector service, generate a public/private keypair using the following command:
+
+```bash
+node scripts/generateWallet.js
+```
+
+Make sure to store the keys securely. You'll use them later for configuring the Collector.
+
+### Running the JSON-RPC Server
+
+This section sets up the RPC interface to interact with your local Shardeum network.
+
+1. Clone the JSON-RPC server repository:
+
+```bash
+git clone https://github.com/shardeum/json-rpc-server.git
+cd json-rpc-server
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the server:
+
+```bash
+npm run start
+```
+
+The default RPC URL is `http://localhost:8080`.
+
+### Distributor Setup
+
+1. Clone the Distributor repo:
+
+```bash
+git clone https://github.com/shardeum/relayer-distributor.git
+cd relayer-distributor
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Configure `distributor-config.json` file
+
+Set the following fields correctly:
+
+```bash
+"ARCHIVER_DB_PATH": "<Base-Dir>/server/instances/archiver-db-4000/archiverdb-4000.sqlite3"
+"DATA_LOG_DIR": "<Base-Dir>/server/instances/data-logs/127.0.0.1_4000"
+```
+
+> Replace <Base-Dir> with your actual Shardeum directory path.
+
+4. Start the distributor:
+
+```bash
+npm start
+```
+
+### Collector Setup
+
+The Collector is responsible for fetching and serving transaction data based on queries via the RPC server.
+
+1. Clone the repo
+
+```bash
+git clone https://github.com/shardeum/relayer-collector.git collector
+cd collector
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Update config.json
+
+Paste your keys from the Shardeum keypair generated earlier:
+
+```bash
+"distributorInfo": {
+	"ip": "<distributor-server-ip>",        //eg: 127.0.0.1
+	"port": "<distributor-server-port>", //eg: 6100
+	"publicKey": "distributor-server-public-key"
+},
+
+"collectorInfo": {
+	 "publicKey": "<collector-pub-key>",
+	"secretKey": "<collector-secret-key>"
+}
+```
+
+4. Prepare the build
+
+```bash
+npm run prepare
+````
+
+5. Start collector
+
+```bash
+npm run collector
+````
+
+6. Start API server
+
+```bash
+npm run server
+```
+
+You can test the setup by sending transactions on your local Shardeum network and querying them via RPC. The JSON-RPC server forwards requests to the Collector, which fetches data from the Distributor. If configured correctly, you'll get the full transaction details in the response.
