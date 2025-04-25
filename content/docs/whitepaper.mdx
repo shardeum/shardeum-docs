@@ -11,7 +11,7 @@ slug: /
 
 <div style={{"textAlign": "center"}}>
 Original Version: 2023-11-08  
-Updated Version: 2025-02-27
+Updated Version: 2025-04-09
 </div>
 
 <div style={{"width": "80%", "textAlign": "justify", "margin": "auto"}}><b>Abstract</b>: The launch of the Ethereum blockchain in 2015 demonstrated the ability to deploy Turing complete smart contracts on decentralized, peer-to-peer networks in a transparent and trustless manner. It spawned a multitude of decentralized applications, creating entirely new fields of innovations such as DeFi, AMMs, NFTs, DEXs, etc. In turn, these applications increased demand on the Ethereum network. Due to scalability issues, users faced high transaction fees and long confirmation times, resulting in limited adoption. Other smart contract platforms have been created with higher throughput levels than Ethereum but lack true scalability or decentralization. To address these challenges, we present Shardeum, a sharded, Ethereum compatible, smart contract platform. Shardeum is powered by the Shardus protocol which employs dynamic state sharding, cross-shard atomic composability, auto scaling, linear scaling and many other novel technological innovations designed to solve the scalability trilemma and keep transaction fees low even as adoption increases. We believe sustainably low transaction fees are key to bringing decentralized applications to the masses.</div>
@@ -173,7 +173,7 @@ An important design goal of Shardeum is to not reinvent the wheel when it comes 
 
 ### 2.1.7 Shard Security
 
-Economic security makes [Sybil](https://www.mdpi.com/1999-4893/16/1/34) [attacks](https://www.mdpi.com/1999-4893/16/1/34) expensive in unsharded networks such as Ethereum. Sharded networks that are naively designed risk a Sybil attack as the cost of taking over any one shard is much less than taking over a majority of the network. An important design goal of Shardeum is to ensure that a Sybil attack on a shard has the same economic cost as an attack on the whole network through various mechanisms such as staking, slashing, standby nodes and node rotation.
+Economic security makes [Sybil](https://www.mdpi.com/1999-4893/16/1/34) [attacks](https://www.mdpi.com/1999-4893/16/1/34) expensive in unsharded networks such as Ethereum. Sharded networks that are naively designed risk a Sybil attack as the cost of taking over any one shard is much less than taking over a majority of the network. An important design goal of Shardeum is to ensure that a Sybil attack on a shard has the same economic cost as an attack on the whole network through various mechanisms such as staking, eviction, standby nodes and node rotation.
 
 ### 2.2 Architecture
 
@@ -181,7 +181,7 @@ The Shardeum network was architected based on the above design considerations. I
 
 ### 2.2.1 Network Architecture
 
-The Shardeum network is composed of validator nodes and archiver nodes. Validator nodes that are waiting to join the network are referred to as standby nodes. The validator nodes hold the state data of the accounts they are assigned to and process incoming transactions involving the accounts within their address range to change the state. The transaction history is passed on to archiver nodes for permanent storage. The archiver nodes are not involved in any consensus and simply provide the service of storing historical network data such as transactions and receipts. Validator nodes have light storage requirements and fast syncing when joining the network as they only need to sync and store the state of the accounts they are assigned to. Validator nodes which have been active in the network for the longest time are periodically removed from the network and replaced by randomly selected standby nodes. A slow and constant rotation of validator nodes enhances the decentralization level of the network and prevents attacks from slowly adaptive adversaries. Running a validator node requires staking the native Shardeum token called Shard with ticker SHM. The staked SHM are subject to slashing if the validator does not perform its duties as expected or is misbehaving. However, for honest validators there is sufficient reward to easily cover the cost of operating the node.
+The Shardeum network is composed of validator nodes and archiver nodes. Validator nodes that are waiting to join the network are referred to as standby nodes. The validator nodes hold the state data of the accounts they are assigned to and process incoming transactions involving the accounts within their address range to change the state. The transaction history is passed on to archiver nodes for permanent storage. The archiver nodes are not involved in any consensus and simply provide the service of storing historical network data such as transactions and receipts. Validator nodes have light storage requirements and fast syncing when joining the network as they only need to sync and store the state of the accounts they are assigned to. Validator nodes which have been active in the network for the longest time are periodically removed from the network and replaced by randomly selected standby nodes. A slow and constant rotation of validator nodes enhances the decentralization level of the network and prevents attacks from slowly adaptive adversaries. Running a validator node requires staking the native Shardeum token called Shard with ticker SHM. The staked SHM are subject to eviction if the validator does not perform its duties as expected or is misbehaving. However, for honest validators there is sufficient reward to easily cover the cost of operating the node.
 
 ![image2-network-architecture-1](/img/whitepaper/v2/image2.png)
 
@@ -211,7 +211,7 @@ Unlike Ethereum and most other networks, the complete state is not stored on eve
 
 ### 2.2.3.2 Proof of Stake
 
-Shardeum uses Proof of Quorum (PoQ) as its consensus mechanism, but uses PoS as its [Sybil](https://www.mdpi.com/1999-4893/16/1/34) [deterrence](https://www.mdpi.com/1999-4893/16/1/34) mechanism to mitigate Sybil attacks and protect the network from misbehaving and faulty nodes. In order to participate in the network, a validator node will need to lock up some stake amount which can be slashed if the node misbehaves or does not provide the expected service. The logic for staking, unstaking, rewards and penalties are handled at the Shardeum application layer, while the Shardus protocol layer notifies the application layer of critical events.
+Shardeum uses Proof of Quorum (PoQ) as its consensus mechanism, but uses PoS as its [Sybil](https://www.mdpi.com/1999-4893/16/1/34) [deterrence](https://www.mdpi.com/1999-4893/16/1/34) mechanism to mitigate Sybil attacks and protect the network from misbehaving and faulty nodes. In order to participate in the network, a validator node will need to lock up some stake amount as a disincentive for malicious behavior or not providing the expected service. The logic for staking, unstaking, rewards and penalties are handled at the Shardeum application layer, while the Shardus protocol layer notifies the application layer of critical events.
 
 #### 2.2.3.2.1 Staking
 
@@ -227,7 +227,19 @@ The main incentive for nodes participating in the network is to earn rewards. Fo
 
 #### 2.2.3.2.4 Slashing
 
-For every malicious action or inaction reported by the Shardus protocol layer, the Shardeum application will determine the node slashing amount and if the node needs to be removed from the network. Nodes can be penalized for misbehavior such as: leaving early, syncing too slowly, double voting, not voting, etc. Thus, nodes running on less performant hardware would be at risk of getting penalized if the node is not able to keep up with the rest of the network. Certain actions will result in the node immediately being removed from the network in addition to being slashed, while other actions such as not producing a vote when required may only result in a small penalty for each infraction. But even if the node is only slashed, it must ensure that it is always staking more than the required amount. If the sum of the initial staked amount, plus the rewards earned, minus the penalty, is less than the required stake, the node will be removed from the network. A node is allowed to initially stake more than the required stake amount and can add to the stake amount while it is participating. Thus, nodes are expected to stake more than the required amount so that a minor penalty does not cause them to be removed from the network.
+With the implementation of autoscaling, a slashing mechanism will be implemented, beyond eviction of
+misbehaving nodes. For every malicious action or inaction reported by the Shardus protocol layer, the
+Shardeum application will determine the node slashing amount and if the node needs to be removed from
+the network. Nodes can be penalized for misbehavior such as: leaving early, syncing too slowly, double
+voting, not voting, etc. Thus, nodes running on less performant hardware would be at risk of getting
+penalized if the node is not able to keep up with the rest of the network. Certain actions will result in the
+node immediately being removed from the network in addition to being slashed, while other actions such as
+not producing a vote when required may only result in a small penalty for each infraction. But even if the
+node is only slashed, it must ensure that it is always staking more than the required amount. If the sum of
+the initial staked amount, plus the rewards earned, minus the penalty, is less than the required stake, the
+node will be removed from the network. A node is allowed to initially stake more than the required stake
+amount and can add to the stake amount while it is participating. Thus, nodes are expected to stake more
+than the required amount so that a minor penalty does not cause them to be removed from the network.
 
 ### 2.2.4 Shardus Protocol Layer
 
@@ -279,7 +291,7 @@ In a sharded network like Shardeum, the state data is distributed across many va
 
 Even though each archiver will hold the complete network data, there will be many archivers to provide redundancy so that even if some archivers go down, the network is not affected. In Shardeum we expect to have at least 10 archivers at mainnet launch. Since each archiver connects to about two validators in each shard, a shard size of 128 can allow up to 64 archivers. Increasing the number of archivers does not increase the performance of the network in any way, but instead adds more bandwidth load on the validators. The reason for having many archivers is only to ensure redundant storage of the complete network data.
 
-The archiver nodes must also have an economic stake to join the network. A node can also be slashed if it leaves the network without first requesting to leave. The archiver nodes also earn a reward for participating in the network. The reward for running an archiver is expected to be about 10x more than running a validator since the hardware requirements for running an archiver will also be much higher.
+The archiver nodes must also have an economic stake to join the network. A node can also be evicted if it continually leaves the network without first requesting to leave. The archiver nodes also earn a reward for participating in the network. The reward for running an archiver is expected to be about 10x more than running a validator since the hardware requirements for running an archiver will also be much higher.
 
 In addition to earning rewards from the network, archiver nodes can also earn from providing a data subscription service. For example, exchanges will need data and events for accounts owned by the exchange and may not want to run an archiver node.
 
@@ -314,7 +326,7 @@ Given that Shardeum functions as a sharded network, processing various transacti
 
 **Description**: [Sybil](https://arxiv.org/pdf/2104.07215.pdf) [attacks](https://arxiv.org/pdf/2104.07215.pdf) are a type of attack in which an adversarial actor or group of adversarial actors attempt to gain control of a disproportionate percentage of a network by creating pseudonymous identities that can disrupt the network and compromise its security.
 
-**Mitigations**: To counter Sybil attacks, DLTs that wish to retain decentralization and secure use a Sybil deterrence mechanism to impose a cost for network participants to join the network as they cannot use typical centralized solutions such as identification authorities. In the case of Shardeum, nodes must stake a minimum amount of SHM. This imposes an economic burden on the attacker and helps to deter a Sybil attack. Also nodes which misbehave can be slashed and removed from the network. Losing the staked amount makes it harder for an attacker to continue to attempt additional attacks.
+**Mitigations**: To counter Sybil attacks, DLTs that wish to retain decentralization and secure use a Sybil deterrence mechanism to impose a cost for network participants to join the network as they cannot use typical centralized solutions such as identification authorities. In the case of Shardeum, nodes must stake a minimum amount of SHM. This imposes an economic burden on the attacker and helps to deter a Sybil attack. Also nodes which misbehave can be removed from the network. Losing the staked amount makes it harder for an attacker to continue to attempt additional attacks.
 
 #### 2.4.2 Shard Takeover Attack
 
@@ -326,13 +338,13 @@ Given that Shardeum functions as a sharded network, processing various transacti
 
 **Description**: During a network fork, an adversary in the form of a validator node can continue to validate on a fork of a blockchain incurring no cost for validating both chains. On PoW mechanisms, miners are incentivized to not waste network resources mining on the alternate chain, but PoS validators can potentially still earn transaction fees on both versions of the network, meaning they have nothing at stake that incentivizes or disincentivizes them from supporting illegitimate forks unlike on PoW networks.
 
-**Mitigations**: Shardeum does not use PoW or PoS as its consensus mechanism, it uses PoQ for consensus and PoS as a Sybil deterrence mechanism so the stake is not part of the consensus. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting slashed. Additionally, the digital signatures used to produce a receipt via PoQ can't be forged.
+**Mitigations**: Shardeum does not use PoW or PoS as its consensus mechanism, it uses PoQ for consensus and PoS as a Sybil deterrence mechanism so the stake is not part of the consensus. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting evicted. Additionally, the digital signatures used to produce a receipt via PoQ can't be forged.
 
 #### 2.4.4 Long Range Attacks
 
 **Description**: A [long-range](https://ieeexplore.ieee.org/document/8653269) [attack](https://ieeexplore.ieee.org/document/8653269) is when an adversary goes back to the genesis block and forks the blockchain.
 
-**Mitigations**: Long-range attacks on Shardeum are not possible as we do not use PoW or PoS as a consensus mechanism. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting slashed. Additionally, the digital signatures used to produce a receipt via PoQ can't be forged.
+**Mitigations**: Long-range attacks on Shardeum are not possible as we do not use PoW or PoS as a consensus mechanism. Therefore, the network will not accept a fork based on the longest-chain rule like on PoW or based on overall weight staked like on PoS and an adversary cannot double-sign or equivocate a transaction without getting evicted. Additionally, the digital signatures used to produce a receipt via PoQ can't be forged.
 
 #### 2.4.5 Censorship
 
@@ -408,7 +420,7 @@ Of the 36.72% of SHM supply allocated for Sale, less than half was sold to priva
 
 ### 3.4 Shardus License
 
-The Shardeum project will obtain a [license](https://shardus.com/license/SHARDUS_SOFTWARE_LICENSE_2023-02-02.pdf) for the Shardus software by allowing Shardus token (ULT) holders to claim 1% of the 249m supply in proportion to the Shardus tokens they hold. More details about the claim event will be posted on the Shardeum website in the near future. The founders and several members of the team hold Shardus tokens.
+The Shardeum project will obtain a [license](https://shardus.com/license/SHARDUS_SOFTWARE_LICENSE_2023-02-02.pdf) for the Shardus software by allowing Shardus token (ULT) holders to claim 1% of the 249m supply in proportion to the Shardus tokens they hold. The founders and several members of the team hold Shardus tokens.
 
 ### 3.5 Emissions After Genesis
 
@@ -442,11 +454,11 @@ The SHM tokenomics policy is designed to make the supply stable, predictable, ad
 
 • 100% of fees are burned on Shardeum, with no transaction fees going to validator nodes, driving scarcity
 
-• SHM tokens from slashed validators are also burned, adding to the scarcity of SHM
+• SHM tokens from evicted validators are also burned, adding to the scarcity of SHM
 
 • This fee structure bolsters the scarcity of SHM's tokenomics as Shardeum undergoes technological maturity and sees greater adoption (with increased transaction total, smart contract deployments, etc.) SHM's supply is designed to dynamically adjust based on network demand, balancing issuance and burning to maintain long-term sustainability.
 
-In summary, Shardeum's tokenomics have been designed for controlled issuance, where scarcity increases over time due to transaction fee burning and validator slashing, while maintaining sustainable validator incentives.
+In summary, Shardeum's tokenomics have been designed for controlled issuance, where scarcity increases over time due to transaction fee burning and validator eviction, while maintaining sustainable validator incentives.
 
 #### 3.6.1 Design Considerations
 
@@ -944,6 +956,8 @@ There are various improvements planned for the Shardeum network after mainnet la
 • Archiver staking, reward and slashing \- The archiver nodes will initially be run by the team. Future upgrades will require archivers to also stake and earn rewards as well as lose stake if slashed. Once this is implemented the community will also be able to run archiver nodes.
 
 • Validator software in more languages \- Currently the Shardeum validator is written in TypeScript using node.js. We plan to also develop the software in other languages such as Rust. The community may also develop clients in other languages.
+
+• Slashing - With the implementation of autoscaling, a slashing mechanism will be implemented, beyond eviction of misbehaving nodes.
 
 • Upgrades to the EVM \- As improvements are made to the EVM, they will be ported to the Shardeum validator.
 
