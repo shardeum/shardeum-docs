@@ -13,4 +13,4 @@ Welcome to the Layer 1 blockchain where the community runs the nodes, and auto-s
 - Clone this repository 
 - npm install the project dependencies
 - npm run dev to start the local development server
-- Open http://localhost:3000 with your browser to see the result.
+- Open `http://localhost:3000` with your browser to see the result.
