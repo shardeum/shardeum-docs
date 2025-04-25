@@ -371,6 +371,8 @@ This setup is intended for local development and testing. It allows you to spin 
 
 Shardeum requires specific versions of Nodejs, Rust and other build tools to run. We have detailed setup instructions [in this page](https://github.com/shardeum/shardeum/blob/dev/local-environment-setup.md)
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
 <Callout title="Note" type="info">
 This is a crucial step, ensure your local environment is correctly set up before proceeding with the next steps
 </Callout>
@@ -474,11 +476,11 @@ npm install
 Set the following fields correctly:
 
 ```bash
-"ARCHIVER_DB_PATH": "<Base-Dir>/server/instances/archiver-db-4000/archiverdb-4000.sqlite3"
-"DATA_LOG_DIR": "<Base-Dir>/server/instances/data-logs/127.0.0.1_4000"
+"ARCHIVER_DB_PATH": "&lt;Base-Dir&gt;/server/instances/archiver-db-4000/archiverdb-4000.sqlite3"
+"DATA_LOG_DIR": "&lt;Base-Dir&gt;/server/instances/data-logs/127.0.0.1_4000"
 ```
 
-> Replace <Base-Dir> with your actual Shardeum directory path.
+> Replace `Base-Dir` with your actual Shardeum directory path.
 
 4. Start the distributor:
 
