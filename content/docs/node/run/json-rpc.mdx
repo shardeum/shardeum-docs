@@ -461,8 +461,8 @@ The default RPC URL is `http://localhost:8080`.
 1. Clone the Distributor repo:
 
 ```bash
-git clone https://github.com/shardeum/relayer-distributor.git
-cd relayer-distributor
+git clone https://github.com/shardeum/distributor.git
+cd distributor
 ```
 
 2. Install dependencies:
@@ -476,8 +476,8 @@ npm install
 Set the following fields correctly:
 
 ```bash
-"ARCHIVER_DB_PATH": "&lt;Base-Dir&gt;/server/instances/archiver-db-4000/archiverdb-4000.sqlite3"
-"DATA_LOG_DIR": "&lt;Base-Dir&gt;/server/instances/data-logs/127.0.0.1_4000"
+"ARCHIVER_DB_PATH": "&lt;Base-Dir&gt;/instances/archiver-db-4000/archiverdb-4000.sqlite3"
+"DATA_LOG_DIR": "&lt;Base-Dir&gt;/instances/data-logs/127.0.0.1_4000"
 ```
 
 > Replace `Base-Dir` with your actual Shardeum directory path.
@@ -495,7 +495,7 @@ The Collector is responsible for fetching and serving transaction data based on 
 1. Clone the repo
 
 ```bash
-git clone https://github.com/shardeum/relayer-collector.git collector
+git clone https://github.com/shardeum/collector.git
 cd collector
 ```
 
@@ -540,4 +540,4 @@ npm run collector
 npm run server
 ```
 
-You can test the setup by sending transactions on your local Shardeum network and querying them via RPC. The JSON-RPC server forwards requests to the Collector, which fetches data from the Distributor. If configured correctly, you'll get the full transaction details in the response.
+To verify your setup, send transactions on your local Shardeum network and query them via RPC. The JSON-RPC server handles incoming requests and forwards them to the Collector. The Collector, as configured, is subscribed to the Distributor, which syncs data from the local ArchiverDB. When properly configured, this flow returns complete transaction details in the RPC response.
