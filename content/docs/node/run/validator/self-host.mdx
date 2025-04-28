@@ -481,7 +481,6 @@ export APP_IP="EXTERNAL_IP"
 </Accordion>
 </Accordions>
 
-
 ### CLI
 
 You can also stake and unstake from the Validator CLI if you are not able to access a web browser for the Validator GUI.
@@ -503,8 +502,6 @@ Start the CLI by running the following shell script:
 ./shell.sh
 ```
 </Tabs>
-
-
 
 First, set your private key in your Validator CLI:
 
@@ -539,7 +536,6 @@ operator-cli stake 10
 
 Check your stake amount with:
 
-
 <Tabs items={["Shell"]}>
 ```ts tab="Shell"
 operator-cli stake_info <wallet_address>
@@ -548,12 +544,64 @@ operator-cli stake_info <wallet_address>
 
 Remove stake with:
 
-
 <Tabs items={["Shell"]}>
 ```ts tab="Shell"
 operator-cli unstake
 ```
 </Tabs>
+
+### How to Unstake a Node Previously Staked on Another Node
+
+When you stake SHM tokens on a Shardeum validator node, those tokens are locked for a period of time (stake lock). During this period, you cannot immediately unstake and move your tokens to another node. This mechanism helps maintain network stability.
+
+#### Prerequisites
+
+- Access to the wallet that was used for staking
+- Web3 wallet (like MetaMask) with your account connected
+- Your stake lock period must have expired if you want to unstake normally
+
+#### Unstaking Using the GUI
+
+##### Check Your Stake Status
+
+1. Login to your Shardeum validator dashboard
+2. Connect the same wallet that was used for staking on the previous node
+3. If your wallet has an active stake on another node, the GUI will inform you that you need to remove the stake from the previous node before staking on a new one
+
+##### Wait for Stake Lock Expiration
+
+1. The unstake button will be disabled until your stake lock period has expired
+2. Once the lock period is over, the unstake button will become active
+
+##### Unstaking Process
+
+1. Click the "Remove Stake" button on the dashboard
+2. Confirm the transaction in your Web3 wallet
+3. Wait for the transaction to be confirmed on the network
+4. Your SHM tokens will be returned to your wallet
+
+#### Unstaking Using the CLI
+
+You can also unstake using the command line interface:
+
+1. Navigate to your validator directory
+2. Use the following command:
+
+```bash
+operator-cli unstake
+```
+
+3. If your stake is locked, you'll see a message indicating the remaining time:
+
+```bash
+Unstaking not allowed yet: Stake is locked. Please wait X minutes Y seconds before trying again.
+```
+
+#### Common Issues
+
+1. **Cannot Unstake**: If the unstake button is disabled or you receive an error, your stake is likely still locked. Wait for the lock period to expire.
+
+2. **Node Recently Stopped**: If your node was stopped recently, you may need to wait at least 15 minutes before being able to unstake.
 
 ## Validator
 
@@ -629,10 +677,6 @@ operator-cli version
 ```
 </Tabs>
 
-
-
-
-
 ### Update
 
 Run:
@@ -647,7 +691,6 @@ operator-cli update
 
 To see all CLI commands, run:
 
-
 <Tabs items={["Shell"]}>
 ```ts tab="Shell"
 operator-cli help
@@ -659,7 +702,6 @@ operator-cli help
 Useful if your validator is outdated and you want to clean your last installation.
 
 You can delete the validator folder while in your root directory with:
-
 
 <Tabs items={["Shell"]}>
 ```ts tab="Shell"
