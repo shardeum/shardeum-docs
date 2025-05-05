@@ -17,10 +17,10 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
   const config = {
     mainnet: {
       rpcURL: 'https://api.shardeum.org',
-      chainId: '0x1f92', // 8082 in decimal
+      chainId: '1fb6', // 8118 in decimal
       chainName: 'Shardeum Mainnet',
       explorerURL: 'https://explorer.shardeum.org',
-      networkVersion: 8082
+      networkVersion: 8118
     },
     testnet: {
       rpcURL: 'https://api-testnet.shardeum.org',
