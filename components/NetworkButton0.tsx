@@ -17,7 +17,7 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
   const config = {
     mainnet: {
       rpcURL: 'https://api.shardeum.org',
-      chainId: '1fb6', // 8118 in decimal
+      chainId: '0x1fb6', // 8118 in decimal
       chainName: 'Shardeum Mainnet',
       explorerURL: 'https://explorer.shardeum.org',
       networkVersion: 8118
@@ -64,10 +64,13 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
         ],
       });
     } catch (error) {
+      console.error("MetaMask add network error:", error);
       if (error instanceof Error) {
         alert("Failed to add the network with wallet_addEthereumChain request. Add the network with https://chainlist.org/ or do it manually. Error log: " + error.message);
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        alert("Error: " + (error as any).message);
       } else {
-        alert("An unknown error occurred.");
+        alert("An unknown error occurred. See console for details.");
       }
     }
   };
