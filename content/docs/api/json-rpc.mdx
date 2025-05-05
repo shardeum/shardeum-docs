@@ -24,7 +24,7 @@ None
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"web3_clientVersion","id":1,"jsonrpc":"2.0"}'
@@ -45,7 +45,7 @@ data - The data in hexadecimal form to convert into a SHA3 hash
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"jsonrpc":"2.0","method":"web3_sha3","params":["data"],"id":1}'
@@ -66,7 +66,7 @@ None
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"net_version","id":1,"jsonrpc":"2.0"}'
@@ -87,7 +87,7 @@ None
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"net_listening","id":1,"jsonrpc":"2.0"}'
@@ -108,7 +108,7 @@ None
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_chainId","id":1,"jsonrpc":"2.0"}'
@@ -143,7 +143,7 @@ Returns a paginated list of active nodes in the Shardeum network.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"shardeum_getNodeList","params":[{"page": 1, "limit": 100}],"id":1,"jsonrpc":"2.0"}'
@@ -188,7 +188,7 @@ None
 
 **Example**
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"shardeum_getNetworkAccount","params":[],"id":1,"jsonrpc":"2.0"}'
@@ -223,7 +223,7 @@ Returns information about a specific cycle or the latest cycle in the network.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"shardeum_getCycleInfo","params":[null],"id":1,"jsonrpc":"2.0"}'
@@ -244,7 +244,7 @@ None
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_gasPrice","id":1,"jsonrpc":"2.0"}'
@@ -265,7 +265,7 @@ None
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_accounts","id":1,"jsonrpc":"2.0"}'
@@ -286,7 +286,7 @@ None
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_blockNumber","id":1,"jsonrpc":"2.0"}'
@@ -308,7 +308,7 @@ Returns the balance of the account of given address.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBalance","params":["0x364cb09e7c26c6b437122d9f0163eb65fd6c9db8", "latest"],"id":1,"jsonrpc":"2.0"}'
@@ -331,7 +331,7 @@ Returns the value from a storage position at a given address.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getStorageAt","params":["address", "0x0", "latest"],"id":1,"jsonrpc":"2.0"}'
@@ -353,7 +353,7 @@ Returns the number of transactions sent from an address.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionCount","params":["0x364cb09e7c26c6b437122d9f0163eb65fd6c9db8", "latest"],"id":1,"jsonrpc":"2.0"}'
@@ -374,7 +374,7 @@ Returns the number of transactions in a block from a block matching the given bl
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBlockTransactionCountByHash","params":["0x0a7bab293e1cdf4e70db9d1217003b3e03dc40a85ec8b4d7c99282edcde3a3e4"],"id":1,"jsonrpc":"2.0"}'
@@ -395,7 +395,7 @@ Returns the number of transactions in a block matching the given block number.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
@@ -424,7 +424,7 @@ Signs a transaction that can be submitted to the network at a later time using w
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_signTransaction","params":["from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"],"id":1,"jsonrpc":"2.0"}'
@@ -459,7 +459,7 @@ Use eth_getTransactionReceipt to get the contract address, after the transaction
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_sendTransaction","params":[{"from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"}],"id":1,"jsonrpc":"2.0"}'
@@ -484,7 +484,7 @@ Use eth_getTransactionReceipt to get the contract address, after the transaction
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["Signed Transaction"],"id":1}'
@@ -539,7 +539,7 @@ Returns an estimation of gas for a given transaction.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_estimateGas","params":[{"from": null,"to":"<>","data":"<>"}, "latest", {"<>": {"balance": "<>"}}],"id":1,"jsonrpc":"2.0"}'
@@ -581,7 +581,7 @@ Returns information about a block by hash.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"eth_getBlockByHash", "params":["0xa4e138bc8e2dbe88d3c37171b8d400269129d51a9c2630a80eb31571b86e60b6",false], "id":1,"jsonrpc":"2.0"}'
@@ -623,7 +623,7 @@ Returns information about a block by block number.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"eth_getBlockByNumber", "params":["0x2b732",false], "id":1,"jsonrpc":"2.0"}'
@@ -660,7 +660,7 @@ Returns the information about a transaction requested by transaction hash.
 **Example**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionByHash","params":["0x213c5516059ad8399df495a5c99d4f94a9a058327106c0bae011897109dda58a"],"id":1,"jsonrpc":"2.0"}'
@@ -700,7 +700,7 @@ It also returns either :
 **Examples**
 
 ```bash
-curl https://your-rpc-endpoint \
+curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"eth_getTransactionReceipt","params":["0x213c5516059ad8399df495a5c99d4f94a9a058327106c0bae011897109dda58a"],"id":1,"jsonrpc":"2.0"}'

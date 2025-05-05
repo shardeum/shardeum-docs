@@ -33,10 +33,10 @@ const features = [
     link: '/docs/faucet/claim'
   },
   {
-    name: 'Deploy Smart Contracts',
-    description: 'Leverage Shardeum to deploy scalable and efficient smart contracts.',
+    name: 'Architecture',
+    description: 'Learn about Shardeum\'s architecture and how it works.',
     icon: ArrowUpRightIcon,
-    link: '/docs/smart-contracts/deploy/foundry'
+    link: '/docs/architecture/high-level-architecture'
   },
   
 ];

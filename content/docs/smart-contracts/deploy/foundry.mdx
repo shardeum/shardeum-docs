@@ -5,6 +5,7 @@ description: Learn how to deploy smart contracts on Shardeum using Foundry
 
 import SmartContractDisclaimer from '../../../../components/SmartContractDisclaimer';
 import { Callout } from 'fumadocs-ui/components/callout';
+import SmartContractWarningCallout from '../../../../components/SmartContractWarningCallout';
 
 <SmartContractDisclaimer />
 
@@ -353,4 +354,3 @@ Check the Shardeum Explorer after a transaction cycle to see if the contract dep
 
 ```shell
 forge create --legacy --rpc-url 	https://sphinx.shardeum.org/ --private-key $devTestnetPrivateKey src/Contract.sol:SimpleStorage
-```
