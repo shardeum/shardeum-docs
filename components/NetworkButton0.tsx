@@ -18,7 +18,7 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
     mainnet: {
       rpcURL: 'https://api.shardeum.org',
       chainId: '0x1fb6', // 8118 in decimal
-      chainName: 'Shardeum Mainnet',
+      chainName: 'Shardeum',
       explorerURL: 'https://explorer.shardeum.org',
       networkVersion: 8118
     },
