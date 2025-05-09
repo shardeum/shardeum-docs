@@ -427,7 +427,7 @@ Signs a transaction that can be submitted to the network at a later time using w
 curl https://api.shardeum.org \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{"method":"eth_signTransaction","params":["from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"],"id":1,"jsonrpc":"2.0"}'
+  --data '{"method":"eth_signTransaction","params":[{"from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"}],"id":1,"jsonrpc":"2.0"}'
 ```
 
 ## eth_sendTransaction
