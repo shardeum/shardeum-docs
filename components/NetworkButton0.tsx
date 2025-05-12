@@ -65,9 +65,9 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
       });
     } catch (error) {
       if (error instanceof Error) {
-        alert("Failed to add the network with wallet_addEthereumChain request. Add the network with https://chainlist.org/ or do it manually. Error log: " + error.message);
+        console.log("Failed to add the network with wallet_addEthereumChain request. Add the network with https://chainlist.org/ or do it manually. Error log: " + error.message);
       } else {
-        alert("An unknown error occurred.");
+        console.log("An unknown error occurred.");
       }
     }
   };
