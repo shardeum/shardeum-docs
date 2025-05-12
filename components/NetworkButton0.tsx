@@ -66,11 +66,12 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
     } catch (error) {
       console.error("MetaMask add network error:", error);
       if (error instanceof Error) {
-        alert("Failed to add the network with wallet_addEthereumChain request. Add the network with https://chainlist.org/ or do it manually. Error log: " + error.message);
+        console.log("Failed to add the network with wallet_addEthereumChain request. Add the network with https://chainlist.org/ or do it manually. Error log: " + error.message);
+        ("Failed to add the network with wallet_addEthereumChain request. Add the network with https://chainlist.org/ or do it manually. Error log: " + error.message);
       } else if (typeof error === "object" && error !== null && "message" in error) {
-        alert("Error: " + (error as any).message);
+        console.log("Error: " + (error as any).message);
       } else {
-        alert("An unknown error occurred. See console for details.");
+        console.log("An unknown error occurred. See console for details.");
       }
     }
   };
