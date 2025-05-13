@@ -3,6 +3,11 @@ title: Frequently Asked Questions
 description: Frequently Asked Questions
 ---
 
+### How does block generation work in Shardeum, and how are transactions mapped to blocks?
+In Shardeum, transactions are processed individually and not grouped into blocks. However, blocks are still generated at regular intervals to support the network's operation and comply with JSON RPC specifications. Shardeum uses a lifecycle called a "cycle" to schedule validator rotation and other operations. Each cycle lasts 60 seconds and produces a cycle record. Shardeum generates 10 blocks within each cycle, meaning a new block is created every 6 seconds.
+
+Transactions are mapped to blocks based on their timestamp. If a transaction has a timestamp, it will be deterministically assigned to the correct block. If no timestamp is provided, the network assigns one and selects the appropriate block. The block information is then fed into the Ethereum Virtual Machine (EVM) along with the transaction details. Additionally, Shardeum exposes block-related public API endpoints, allowing JSON RPC servers to access and use this block information for transaction processing.
+
 ### Why am I seeing "Same destination load limit" when transferring funds?
 This error occurs when you try to send multiple transactions to the same destination wallet address in quick succession. Shardeum enforces a rate limit that allows only one pending transaction per destination address at a time to prevent network congestion or abuse. To resolve this, make sure your transactions to the same wallet are sent sequentially—wait for the first transaction to be confirmed before initiating the next one.
 
