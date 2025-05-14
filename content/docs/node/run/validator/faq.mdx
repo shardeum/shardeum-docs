@@ -8,6 +8,29 @@ In Shardeum, transactions are processed individually and not grouped into blocks
 
 Transactions are mapped to blocks based on their timestamp. If a transaction has a timestamp, it will be deterministically assigned to the correct block. If no timestamp is provided, the network assigns one and selects the appropriate block. The block information is then fed into the Ethereum Virtual Machine (EVM) along with the transaction details. Additionally, Shardeum exposes block-related public API endpoints, allowing JSON RPC servers to access and use this block information for transaction processing.
 
+### When and how can I safely stop or unstake my Shardeum validator node?
+You can safely stop your node if it is in the "standby" state, meaning it is not actively participating in consensus. To unstake, your node must first be safely stopped and meet the following conditions:
+
+- The node is in standby.
+- The node has been safely stopped.
+- The `operator-cli status` shows `"unlocked": true`.
+
+Note: Only active nodes earn SHM rewards. Nodes rotate in and out of the active pool over time. If your node is in "processing" mode, the network is operating normally. If it's not, the network is in recovery mode and stake/unstake actions won’t be processed.
+
+**🛠 Troubleshooting unstaking issues:**
+
+Sometimes after stopping a node, `operator-cli status` may show `"unlocked": false` and `remainingTime: -1`. This usually indicates the node cannot reach the network to fetch its current stake state. In such cases:
+
+- The system defaults `unlocked` to `false` as a safeguard.
+- The actual stake eligibility is unknown—not necessarily locked.
+- Ensure your node has proper network connectivity and retry after a few moments.
+
+To verify if you're allowed to unstake, you can also use this API:
+
+```bash
+/canUnstake/:nominee/:nominator
+```
+
 ### Why am I seeing "Same destination load limit" when transferring funds?
 This error occurs when you try to send multiple transactions to the same destination wallet address in quick succession. Shardeum enforces a rate limit that allows only one pending transaction per destination address at a time to prevent network congestion or abuse. To resolve this, make sure your transactions to the same wallet are sent sequentially—wait for the first transaction to be confirmed before initiating the next one.
 
@@ -32,3 +55,6 @@ You can run a curl command from a different server (not the validator host) to c
 ```bash
 curl http://<your-public-ip>:<SHMINT>/nodeinfo
 ````
+
+### Why am I getting {"account": null} when checking my account status?
+This usually happens if your account doesn’t have enough SHM tokens to perform the requested operation. Ensure your node has sufficient SHM tokens to proceed.
