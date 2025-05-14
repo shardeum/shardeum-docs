@@ -1,0 +1,91 @@
+---
+title: Unstaking Node
+description: Unstaking a Shardeum Validator Node
+---
+
+As a validator node runner, you typically use your node’s web UI dashboard to unstake tokens. The dashboard provides all essential information, including whether your node is currently active or in standby, and if your stake is locked - plus how long the lock remains. This stake lock is a critical security feature of the network, introducing a cooldown period between staking, unstaking, or switching node states. During this period, staking/unstaking are temporarily disabled to maintain network integrity.
+
+For developers managing nodes programmatically-whether to stake across multiple nodes or to build a node hosting service - you can retrieve the same status information via the node’s APIs. This makes it possible to automate monitoring and unstaking processes without manual intervention.
+
+In this guide, we will understand what is important in building such services:
+
+## Understanding the Current Stake Status
+
+The `shardeum-validator` image includes a CLI tool called `operator-cli` that simplifies querying a node’s status. Use the command `operator-cli status` to get a detailed overview.
+
+add-image
+
+This command returns an overview including the important state field, which can be one of: `Active`, `Stopped`, `Initializing`, `Standby`. A full list of node states is available in the [Node States documentation](https://docs.shardeum.org/docs/node/run/validator/node-states).
+
+## When can you Unstake?
+
+You can only unstake when your node is in the Stopped state.
+
+- If your node is Active, stopping it will cause a penalty: you will lose all rewards earned during this session, and must wait hours or even days (depending on network conditions) before you can unstake. **Never try to unstake while active**.
+- If your node is in Standby, it is safe to stop it using `operator-cli stop`. Then monitor the status every 5 seconds until it changes to Stopped. Once the node is Stopped, run `operator-cli unstake` to safely unstake your tokens.
+
+## Unstaking without Node availability
+
+If your node is offline (e.g. server failure, Docker container removed), you can still unstake by using the nominatorAddress (your wallet address) and nomineeAddress (node’s network identity). These addresses can be obtained from the output of `operator-cli status` while the node was running.
+
+Using these, you can query the `/canUnstake` API endpoint on any active node in the network. The URL to query would be:
+
+```bash
+$NODE_IP:$NODE_PORT/canUnstake/<nomineeAddress>/<nominatorAddress>
+```
+
+If the stake is still locked due to the cooldown period, the API will return a response indicating the reason and the remaining time before unstaking is allowed. For example:
+
+```bash
+"stakeUnlocked": {
+    "reason": "Stake lock period active from last staking/unstaking action.",
+    "remainingTime": 424991,
+    "unlocked": false
+}
+```
+
+If the stake is unlocked, the response will confirm that unstaking can proceed.
+
+```bash
+"stakeUnlocked": {
+    "reason": "",
+    "remainingTime": 0,
+    "unlocked": true
+}
+```
+
+To find an active node to query, you can get the list of active nodes from the network’s archivers using the below URL:
+
+```bash
+http://35.238.248.68:4000/full-nodelist?activeOnly=true
+```
+
+This returns a list of active nodes, each with an id matching the nomineeAddress needed for the API call. Using this list, you can programmatically select any active node to check your staking status and unstake accordingly.
+
+```bash
+{
+  "nodeList": [
+    {
+      "foundationNode": true,
+      "id": "a3b19f6c48e3f74d58ea204c8935af23c5b6e21eac43de791ac45e3ad62e91c1",
+      "ip": "35.185.120.101",
+      "port": 9001,
+      "publicKey": "2f4c6d869a781f6e3cfb0d8821677c1e4c67c1e2ab6c340c3be189ec4f38a101"
+    },
+    {
+      "foundationNode": true,
+      "id": "baec4d186e8e2c15e0f4215c8b934c8e613f6b4057ad65811289d1f56db3fcef",
+      "ip": "34.66.13.204",
+      "port": 9001,
+      "publicKey": "3cddc1f9ba17fc457fb28f89d2c5f63b87487b9f41ad3e476fa241ab26e3c4b2"
+    },
+    {
+      "foundationNode": true,
+      "id": "91d32c5a82f61722db29f518b089bcde01deaf90ebc62b3f8c3e6f37db9125d8",
+      "ip": "35.229.88.147",
+      "port": 9001,
+      "publicKey": "8461be6d3e6d27c7b4f1e5c04df12a3f57a3a0ec9b7dca97f4cb20c4c9e21134"
+    }
+  ]
+}
+```
