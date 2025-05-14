@@ -3,7 +3,7 @@ title: Running Multiple Validator Nodes
 description: A comprehensive guide for developers to run and configure multiple Shardeum validator nodes using Docker.
 ---
 
-This guide walks you through setting up and running multiple Shardeum validator nodes on a single machine using Docker. It’s designed for developers and advanced users managing validator farms, or staking services.
+This guide walks you through setting up and running multiple Shardeum validator nodes on a single machine using Docker. For the latest source and updates, visit the official [Shardeum Validator GitHub](https://github.com/shardeum/shardeum-validator) repository. This document is intended for developers and advanced users managing validator farms or staking services.
 
 ## Understanding Port Requirements
 
@@ -18,7 +18,7 @@ If you are running multiple validators, make sure each node has a unique set of 
 
 ## Running a Single Validator with Custom Ports
 
-To run a single Shardeum validator with custom ports, you can set the appropriate environment variables when launching your Docker container. For example:
+To run a single Shardeum validator with custom ports, you can adjust the environment variables when launching your Docker container. In this example, it would change the ports to 10080 for the dashboard GUI, and use 11001, 12002 for the validator P2P ports:
 
 ```bash
 docker pull ghcr.io/shardeum/shardeum-validator:latest
@@ -113,6 +113,8 @@ Repeat for each validator, adjusting the ports and volume paths accordingly.
 It’s important to note that the ports inside the container should match the ports you specify on the host. This ensures that the validator can correctly advertise its real IP and port combination to the network.
 
 Also, ensure that these ports are reachable from the internet, meaning they should be open on your firewall or any security groups you may be using.
+
+**Important:** You can run the validator without starting the dashboard by adding the environment variable `-e RUNDASHBOARD=n` in your `docker run` command.
 
 ## Verifying Port Accessibility
 
