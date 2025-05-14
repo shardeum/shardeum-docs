@@ -1,0 +1,125 @@
+---
+title: Running Multiple Validator Nodes
+description: A comprehensive guide for developers to run and configure multiple Shardeum validator nodes using Docker.
+---
+
+This guide walks you through setting up and running multiple Shardeum validator nodes on a single machine using Docker. It’s designed for developers and advanced users managing validator farms, or staking services.
+
+## Understanding Port Requirements
+
+Each Shardeum validator node requires two distinct ports for peer-to-peer (P2P) communication. These ports are as follows:
+
+- **SHMINT**: The internal P2P port used for inter-node communications within the validator’s network.
+- **SHMEXT**: The external P2P port that connects to other nodes in the Shardeum network.
+
+Additionally, the **DASHPORT** is optional and used for accessing the validator’s dashboard UI. If you want to monitor your validator using the dashboard, you can specify a port for this as well.
+
+If you are running multiple validators, make sure each node has a unique set of ports. For example, running 100 validators would require at least 200 ports exposed to the internet.
+
+## Running a Single Validator with Custom Ports
+
+To run a single Shardeum validator with custom ports, you can set the appropriate environment variables when launching your Docker container. For example:
+
+```bash
+docker pull ghcr.io/shardeum/shardeum-validator:latest
+
+docker run \
+  --name shardeum-validator \
+  -p 10080:10080 \  # DASHPORT
+  -p 11001:11001 \  # SHMINT
+  -p 12001:12001 \  # SHMEXT
+  -e SHMINT=11001 \
+  -e SHMEXT=12001 \
+  -e DASHPORT=10080 \
+  -v $(pwd)/shardeum-node:/home/node/config \
+  --restart=always \
+  --detach \
+  ghcr.io/shardeum/shardeum-validator:latest
+
+docker exec -it shardeum-validator operator-cli gui set password "YOUR_PASSWORD"
+````
+
+In this example, the following ports are being used:
+
+- The dashboard UI is accessible via port 10080.
+- The internal P2P port (SHMINT) is set to 11001.
+- The external P2P port (SHMEXT) is set to 12002.
+
+## Running Multiple Validators with Custom Ports
+
+When running multiple validators, each validator will require its own unique set of ports.
+
+### Port Allocation Example for 3 Validators
+
+| Validator   | SHMINT | SHMEXT | DASHPORT |
+| ----------- | ------ | ------ | -------- |
+| validator-1 | 11001  | 12001  | 10080    |
+| validator-2 | 11002  | 12002  | 10081    |
+| validator-3 | 11003  | 12003  | 10082    |
+
+
+```bash
+# Validator 1
+docker run \
+  --name shardeum-validator-001 \
+  -p 10080:10080 \
+  -p 11001:11001 \
+  -p 12001:12001 \
+  -e SHMINT=11001 \
+  -e SHMEXT=12001 \
+  -e DASHPORT=10080 \
+  -v $(pwd)/shardeum-node-001:/home/node/config \
+  --restart=always \
+  --detach \
+  ghcr.io/shardeum/shardeum-validator:latest
+
+docker exec -it shardeum-validator-001 operator-cli gui set password "YOUR_PASSWORD"
+
+# Validator 2
+docker run \
+  --name shardeum-validator-002 \
+  -p 10081:10081 \
+  -p 11002:11002 \
+  -p 12002:12002 \
+  -e SHMINT=11002 \
+  -e SHMEXT=12002 \
+  -e DASHPORT=10081 \
+  -v $(pwd)/shardeum-node-002:/home/node/config \
+  --restart=always \
+  --detach \
+  ghcr.io/shardeum/shardeum-validator:latest
+
+docker exec -it shardeum-validator-002 operator-cli gui set password "YOUR_PASSWORD"
+
+# Validator 3
+docker run \
+  --name shardeum-validator-003 \
+  -p 10082:10082 \
+  -p 11003:11003 \
+  -p 12003:12003 \
+  -e SHMINT=11003 \
+  -e SHMEXT=12003 \
+  -e DASHPORT=10082 \
+  -v $(pwd)/shardeum-node-003:/home/node/config \
+  --restart=always \
+  --detach \
+  ghcr.io/shardeum/shardeum-validator:latest
+
+docker exec -it shardeum-validator-003 operator-cli gui set password "YOUR_PASSWORD"
+```
+
+Repeat for each validator, adjusting the ports and volume paths accordingly.
+
+It’s important to note that the ports inside the container should match the ports you specify on the host. This ensures that the validator can correctly advertise its real IP and port combination to the network.
+
+Also, ensure that these ports are reachable from the internet, meaning they should be open on your firewall or any security groups you may be using.
+
+## Verifying Port Accessibility
+
+To confirm your validator ports are exposed to the internet, run the following **from a remote server (not the host itself):**
+
+```bash
+curl http://<your-public-ip>:<SHMINT>/nodeinfo
+```
+
+A successful response confirms that other nodes will be able to reach your validator.
