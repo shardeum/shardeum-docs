@@ -1,0 +1,54 @@
+---
+title: Shardeum Validator Node States
+description: Understanding Your Shardeum Validator Node States
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+This guide explains the various states a Shardeum validator node can be in during its lifecycle. Understanding these states will help you monitor and troubleshoot your validator node effectively.
+
+<Callout title="" type="info">
+A validator node transitions through different states as it participates in the Shardeum network. Each state represents a specific operational condition of your node.
+</Callout>
+
+## Key Node States (from `operator-cli status`)
+
+The `operator-cli status` command provides two main pieces of information about your node's operational phase: `state` and `status` (within `nodeInfo`). They might seem similar, but they tell you slightly different things.
+
+### Primary `state` Values:
+
+* **`need-stake`**: Your node is running but doesn't have the minimum required SHM staked to it. You'll need to stake SHM to this node for it to participate in the network.
+* **`waiting-for-network`**: Your node has enough SHM staked and is trying to connect and register with the Shardeum network. It's like your node is saying, "I'm here and ready to join the queue!"
+* **`standby`**: Your node is successfully registered with the network and is in the queue, waiting to be selected for active duty. It's healthy and ready, just waiting for its turn. Most nodes will be in this state.
+* **`active`**: Congratulations! Your node is currently an active participant in the Shardeum network. It's validating transactions, contributing to consensus, and earning rewards.
+* **`stopped`**: Your node process is not running. It's not participating in the network and not earning rewards. You might have stopped it manually, or it might have encountered an issue.
+
+### `nodeInfo.status` Values:
+
+This provides a more granular look, often corresponding to the primary `state`:
+
+* **`initializing`**: This is a very temporary state when the node first starts up. It's setting up its connections and figuring out its next step. It will quickly transition to `need-stake` (if no stake is found or the `secrets.json` is missing/new) or `waiting-for-network` (if stake is already associated with its identity).
+* **`standby`**: Corresponds to the primary `standby` state. The node is healthy and waiting.
+* **`active`**: Corresponds to the primary `active` state. The node is currently validating.
+* **`syncing`**: Your node is catching up with the latest network data. This happens when a node is selected from standby to become active, or if it's been offline and is rejoining. It needs to download and process the most recent blocks and state changes. It cannot process new transactions while syncing.
+* **`ready`**: The node has finished syncing and is fully synchronized with the network. It's now waiting for the final signal to transition into the `active` state. This is a brief, final step before it starts validating.
+
+## Other Important States & Conditions:
+
+1. **`stakeState` (from `operator-cli status` or `/canUnstake` API):**
+    * `unlocked`: (boolean) Indicates if your stake is currently eligible for unstaking.
+    * `reason`: (string) If `unlocked` is `false`, this provides an explanation (e.g., "Stake lock period active", "Node is in standby list").
+    * `remainingTime`: (number) If `unlocked` is `false` due to a time-based lock, this shows the remaining time in milliseconds.
+2. **`stakeable` (from `operator-cli status`):**
+    * `restakeAllowed`: (boolean) Indicates if you can currently stake or add more stake to this node.
+    * `reason`: (string) If `restakeAllowed` is `false`, this explains why (e.g., "Could not fetch data", cooldown period active).
+    * `remainingTime`: (number) If `restakeAllowed` is `false` due to a cooldown, this shows the remaining time.
+
+3. **Exit Messages (when a node stops):**
+    * **`Process exited with SIGINT` / `Exit with warning`**: Often seen when `operator-cli stop` is used, especially if the node was active or syncing. It's a signal that the process was interrupted. If you typed 'y' to force stop, this is expected.
+    * **`Exited cleanly`**: The node shut down as expected, usually after being in a `stopped` state and then the process ending.
+    * **`Exit with error`**: The node encountered a critical error that forced it to stop. Logs are crucial here.
+    * **`Unable to access external or internal ports`**: The node cannot be reached by the network on its configured ports. This is often a Docker port mapping or firewall issue.
+    * **`invoke-exit: exitUncleanly: isReadyToJoin: Not ready to join`**: This can happen if the network has upgraded to a new version and your node is running an older, incompatible version. You'll need to update your validator image.
+
+Understanding these states will help you diagnose issues and manage your Shardeum validator more effectively. Always check the `operator-cli status` and the node logs for the most up-to-date information!
