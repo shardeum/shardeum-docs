@@ -12,7 +12,7 @@ const features = [
     name: 'Run a Validator Node',
     description: 'Contribute to the security and decentralization of the Shardeum network by running a validator node.',
     icon: RocketLaunchIcon,
-    link: '/docs/node/run/validator'
+    link: '/docs/node/run/validator-setup'
   },
   {
     name: 'RPC API',
