@@ -1,3 +1,4 @@
 {
-    "pages": ["one-click","vps-cloud-provider", "self-host", "node-providers", "node-states", "cloud-service-providers"]
+    "pages": ["getting-started", "setup", "docker-setup", "cloud-service-providers", "node-states","operations","monitoring", "rewards-and-key-security", "troubleshooting-guide"]
 }
+
