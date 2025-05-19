@@ -1,0 +1,4 @@
+{
+  "title": "Network",
+  "pages": ["endpoints", "network-and-rpc", "faucet"]
+}

@@ -1,9 +1,7 @@
 ---
 title: What is Sharding?
-description: Learn about Shardeum
-
+description: Learn about Sharding in Blockchain Networks
 ---
-
 
 Sharding is a network architecture that enables parallel processing to achieve increased transaction throughput and performance. It involves breaking the network into smaller, more manageable pieces called "shards." Each shard processes a portion of the network's transactions independently, thus allowing for parallel processing and increasing the network's overall capacity.
 
@@ -27,7 +25,33 @@ Sharding helps mitigate the performance challenges that unsharded blockchain net
 
 4. **State Sharding:** State sharding involves dividing the blockchain's state (account balances, smart contract data, etc.) into separate segments, with each shard maintaining a portion of the overall state. This helps reduce storage and computational requirements for individual nodes, making it easier for them to participate in the network.
 
-Shardeum implements a 3-dimensional sharding approach - State, Network, and Transactions. Shardeum’s auto-scaling feature allows the network to adjust the number and size of shards based on the current workload. This allows the system to optimize performance and maintain high levels of scalability as it grows and evolves.
+## Static vs. Dynamic State Sharding
 
+State sharding can be further categorized into two types: static and dynamic state sharding.
+
+|                   Static Sharding                       |                 Dynamic Sharding                 | 
+|---------------------------------------------------------|--------------------------------------------------|
+| Shards pre-exist                                        | Shards are formed as needed                      | 
+| Shards address space is pre-determined                  | Process transaction assigned to the shard        | 
+| Asynchronous processing of multi-shard transaction      | Synchronous processing of multi-shard transactions       | 
+| No composability for cross shard transactions           | Atomic composability for all transactions | 
+
+### Static State Sharding
+
+The most general approach to sharding is to divide the address space of accounts into multiple fixed-size regions called shards. Nodes in the network are assigned to different shards. In static sharding, the structure of shards remains relatively constant, with predefined boundaries and rules for operation.
+
+### Dynamic State Sharding
+
+In a dynamic state sharding system like Shardeum, shards can adapt to changes in network conditions. It involves splitting or merging shards, adding or removing nodes from shards, or reassigning nodes to different shards. Reorganization can help maintain an optimal balance between the system's load and resources, ensuring the network operates efficiently and securely. Shard reorganization happens through various algorithms that respond to changes in real time.
+
+## Shardeum's Approach
+
+Shardeum implements a 3-dimensional sharding approach - State, Network, and Transactions. Shardeum's auto-scaling feature allows the network to adjust the number and size of shards based on the current workload. This allows the system to optimize performance and maintain high levels of scalability as it grows and evolves.
+
+By using dynamic state sharding, Shardeum ensures:
+- Efficient resource utilization
+- Scalability that adapts to network demand
+- Atomic composability for all transactions, including cross-shard ones
+- Synchronous processing of multi-shard transactions
 
 <iframe width="750" height="400" src="https://www.youtube.com/embed/SZpjvWMfgDA" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>

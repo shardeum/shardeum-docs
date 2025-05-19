@@ -1,3 +1,3 @@
 {
-    "pages": ["index","introduction", "api", "node", "architecture", "transaction-types", "wallets","faucet","network","storage", "oracles", "whitepaper","faqs","smart-contracts"]
+    "pages": ["overview", "node", "developer", "wallets","network","storage", "oracles", "faqs"]
   }
