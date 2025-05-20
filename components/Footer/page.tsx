@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import Image from 'next/image';
 
 const navigation = {
   general: [
@@ -101,8 +102,8 @@ export default function Footer({ isDarkMode }: { isDarkMode: boolean }) {
           <div className="space-y-8">
             <img
               className="h-7"
-              src={isDarkMode ? "shardeum_documentation_dark.png" : "shardeum_documentation_light.png"}
-              alt="Company name"
+              src={isDarkMode ? "/img/shardeum_documentation_light.png": "/img/shardeum_documentation_dark.png"}
+              alt="Shardeum Documentation"
             />
             <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
               True decentralization comes with, not at the expense of security and scalability.
