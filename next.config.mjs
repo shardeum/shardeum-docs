@@ -85,11 +85,6 @@ const config = {
         permanent: true,
       },
       {
-        source: '/docs/whitepaper',
-        destination: '/docs/developer/whitepaper',
-        permanent: true,
-      },
-      {
         source: '/docs/api/json-rpc',
         destination: '/docs/developer/json-rpc',
         permanent: true,
