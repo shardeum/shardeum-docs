@@ -104,8 +104,6 @@ const config = {
         destination: '/docs/developer/faucet',
         permanent: true,
       },
-      
-      // Smart Contracts redirects
       // Wildcard for all smart contracts pages
       {
         source: '/docs/smart-contracts/:path*',
