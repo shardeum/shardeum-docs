@@ -12,7 +12,7 @@ const features = [
     name: 'Run a Validator Node',
     description: 'Contribute to the security and decentralization of the Shardeum network by running a validator node.',
     icon: RocketLaunchIcon,
-    link: '/docs/node/run/validator/getting-started'
+    link: '/docs/run-a-node/getting-started'
   },
   {
     name: 'RPC API',
@@ -24,19 +24,19 @@ const features = [
     name: 'Network Setup',
     description: 'Easily add the Shardeum network to your wallet with just a few clicks.',
     icon: CubeTransparentIcon,
-    link: '/docs/network/endpoints'
+    link: '/docs/endpoints'
   },
   {
     name: 'Faucet',
     description: 'Access testnet SHM tokens with our simple faucet service.',
     icon: CurrencyDollarIcon,
-    link: '/docs/faucet/claim'
+    link: '/docs/developer/faucet'
   },
   {
     name: 'Architecture',
     description: 'Learn about Shardeum\'s architecture and how it works.',
     icon: ArrowUpRightIcon,
-    link: '/docs/architecture/high-level-architecture'
+    link: '/docs/developer/architecture/high-level-architecture'
   },
   
 ];
