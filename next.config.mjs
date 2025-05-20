@@ -134,28 +134,32 @@ const config = {
         destination: '/docs/developer/network-and-rpc',
         permanent: true,
       },
-      // Catch-all for other network paths
-      {
-        source: '/docs/network/:path*',
-        destination: '/docs/developer/:path*',
-        permanent: true,
-      },
       
       // Ecosystem section redirects
       {
-        source: '/docs/ecosystem/json-rpc',
+        source: '/docs/node/run/json-rpc',
         destination: '/docs/developer/json-rpc',
         permanent: true,
       },
       {
-        source: '/docs/ecosystem/localdata-rpc',
+        source: '/docs/node/run/localdata-rpc',
         destination: '/docs/developer/localdata-rpc',
         permanent: true,
       },
-      // Catch-all for other ecosystem paths
       {
-        source: '/docs/ecosystem/:path*',
-        destination: '/docs/developer/:path*',
+        source: '/docs/node/types',
+        destination: '/docs/ecosystem/node-types',
+        permanent: true,
+      },
+      {
+        source: '/docs/transaction-types/transaction-types',
+        destination: '/docs/ecosystem/transaction-types',
+        permanent: true,
+      },
+      // Catch-all for other node paths
+      {
+        source: '/docs/node/:path*',
+        destination: '/docs/run-a-node/:path*',
         permanent: true,
       },
     ];
