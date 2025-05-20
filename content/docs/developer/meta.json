@@ -1,3 +1,4 @@
 {
-  "pages": ["architecture", "whitepaper", "smart-contracts", "json-rpc"]
+  "title": "Developers",
+  "pages": ["architecture", "whitepaper", "smart-contracts", "json-rpc", "network-and-rpc", "faucet"]
 }
