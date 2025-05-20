@@ -1,0 +1,68 @@
+---
+title: Cyclic Operations
+description: Learn about Shardeum's concepts of Cycles and phases
+---
+
+### 1. Overview
+
+Cyclic operations are a crucial component of the Shardeum blockchain network, enabling efficient and synchronized updates across all nodes. This model ensures that all nodes maintain a consistent view of the network state and can agree upon changes in a structured manner. The cycle-based operational model divides time into regular intervals called cycles, each consisting of four phases, or quarters. These phases help manage updates, synchronization, and validation processes systematically.
+
+### 2. Node List and Cycle Chain
+
+In Shardeum, maintaining an up-to-date and consistent node list is fundamental. Each node keeps a list of every other node, known as the **node list**, and a history of changes made to this list, referred to as the **cycle chain**. Nodes suggest changes to the node list through signed messages called cycle transactions. These changes are collected and processed within the cycles.
+
+However, nodes only keep a limited history of cycle records at the validator level. When a node syncs with the network, it first receives a snapshot of each list. Following this, it uses the cycle process to update the list. Nodes do not maintain a full history because the sync-to-snapshot process suffices.
+
+### 3. Cycle Creator Process Summary
+
+The [`cycleCreator()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/p2p/CycleCreator.ts#L342) function is essential for managing the cyclic operations within Shardeum. Here's a concise explanation of the process:
+
+1. **Initialization:** The function begins by initializing the current quarter and logging the current state.
+2. **Fetching Previous Record:** It attempts to retrieve the previous cycle record. If unsuccessful, it retries until the record is fetched.
+3. **Applying Previous Changes:** The function applies changes from the previous cycle record to the node list.
+4. **Saving to Database:** It creates a cycle marker and certificate, saves the data to the database, and emits an event indicating new cycle data.
+5. **Logging and Pruning:** The function logs the current cycle and node list state, then prunes the cycle chain to maintain an optimal size.
+6. **Data Distribution:** It sends the latest cycle data to any subscribed archivers.
+7. **Updating Cycle and Quarter:** The function updates the current cycle and quarter based on the previous record.
+8. **Scheduling:** It schedules the execution of each quarter and the next cycle using calculated times, ensuring all nodes are synchronized.
+9. **Final Logging:** The function concludes by logging the end of the cycle creation process.
+
+This process ensures the network remains consistent and synchronized, handling transitions between cycles efficiently.
+
+### 4. Phases of the Cycle
+
+**Quarter 1: Update Phase Start**
+  * **Function:** [`runQ1()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/p2p/CycleCreator.ts#L496)
+
+Detailed Operation:
+  * Nodes use the `runQ1()` and `runQ2()` functions to gather the proposed changes, ensuring they have a comprehensive view of the network's current state.
+    * [`sendRequests()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/p2p/Lost.ts#L582) in `p2p/Lost.ts` is invoked:
+* **Lost Node Reporting:** It tells the checker nodes to check on some nodes that were unresponsive.      * **Scheduled Removals:** It handles and processes scheduled node removals, ensuring nodes are removed as necessary and deletes them from the tracking list.
+      * **Gossiping Status Updates:** It gossips information about nodes that have been verified as down to other nodes in the network, and manages self-refutation messages to update the network about nodes that are back online.
+    * [`sendRequests()`](https://github.com/shardeum/shardus-core/blob/0106966cd63fa7836f9d02ada452094d7ea84974/src/p2p/Join/index.ts#L604) from `p2p/Join/index.ts` is invoked:
+      * This function processes queued syncing and standby refresh requests by signing and validating them, and then gossiping the relevant messages to the network.
+    * Config queue changes and debug logic updates are being handled in a [listener](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/shardus/index.ts#L934-L947) inside the `shardus.ts` [`start()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/shardus/index.ts#L435) function.
+    * Changes in network coverage are calculated and summaries of previous cycles are processed are being executed by [listener](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/state-manager/index.ts#L3703-L3740) in `state-manager.ts` `startShardCalculations()`.
+
+**Quarter 2: Update Phase End**
+  * **Function:** [`runQ2()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/p2p/CycleCreator.ts#L526)
+
+Detailed Operation:
+    * The `runQ2()` function marks the end of this collection period, consolidating the updates for synchronization.
+    * Node selection is triggered by [`executeNodeSelection()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/p2p/Join/v2/select.ts#L28-L38).
+* **Quarter 3: Cycle Sync Start**
+  * **Function:** [`runQ3()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/p2p/CycleCreator.ts#L561)
+
+Detailed Operation:
+    * During `runQ3()`, nodes compare their collected updates by exchanging hashes (`cycle_tx_hash`). This step ensures all nodes have a consistent view of the updates.
+    * Nodes validate these updates by checking the `cycle_tx_hash` and creating a cycle certificate based on the highest value votes from other nodes. This certificate ensures that only valid updates are applied.
+    * Nodes gossip their certificates to ensure the network agrees on the cycle's contents.
+    * Cycle data is being [cleaned up](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/state-manager/index.ts#L3742-L3770) on every 5 cycles.
+* **Quarter 4: Cycle Finalization**
+  * **Function:** [`runQ4()`](https://github.com/shardeum/shardus-core/blob/e8c14ce4ba19785145646e840082acb57ec8ce3b/src/p2p/CycleCreator.ts#L634)
+
+Detailed Operation:
+  * The `runQ4()` function involves comparing cycle certificates with other nodes until the best one is identified.
+
+![Cycle](/img/new/i8.jpg)
+

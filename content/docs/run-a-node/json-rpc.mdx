@@ -1,0 +1,551 @@
+---
+title: JSON RPC
+description: Steps to run a Shardeum RPC
+---
+
+## Shardeum JSON RPC Documentation
+
+This guide explains how to connect to the Shardeum network using JSON-RPC endpoints. Depending on your role or use case, there are multiple ways to interact with the network:
+
+1. Public RPC Endpoints: Recommended for most developers, dApp builders, and community contributors
+
+2. Run Your Own RPC Server: Recommended for exchanges, infrastructure providers, and advanced users
+
+3. Run JSON-RPC Locally for Development: Recommended for Shardeum core developers and protocol contributors
+
+## Using Public RPC Endpoints
+
+If you don't want to host your own server, you can connect to the public Shardeum RPC endpoints. This is ideal for most developers and contributors. Visit /docs/developer/network-and-rpc for the latest network details.
+
+## Running Your Own Shardeum RPC Server
+
+This option is recommended for exchanges, infrastructure providers, and enterprise users who require maximum reliability and control.
+
+### Prerequisites
+
+You will need to have an archiver and distributor running somewhere. These configs will be provided by a shardeum representative or if you need to run a local devnet you can follow [these instructions](https://github.com/shardeum/shardeum?tab=readme-ov-file#installation) to run `shardus start 10` as well as boot a [distributor](https://github.com/shardeum/relayer-distributor) in MQ mode following the instructions as well.
+
+GitHub Repo: https://github.com/shardeum/ldrpc-docker
+
+#### Installation
+
+1. Pull the Docker Image
+
+```bash
+docker pull ghcr.io/shardeum/ldrpc-docker
+```
+
+2. Generate Collector Keys
+
+```bash
+$ docker run -it ghcr.io/shardeum/ldrpc-docker /bin/bash
+node@xxxxxxxxxxxx:~$ cd shardeum/
+node@xxxxxxxxxxxx:~/shardeum$ node scripts/generateWallet.js
+```
+
+You'll get:
+
+```bash
+Public Key: <your-collector-pubkey>
+Secret Key: <your-collector-secretkey>
+```
+
+> Important: Share your public key with your Shardeum representative while keeping your secret key secure.
+
+### Run the service
+
+Run the service, replacing the env variables with the values provided to you by your contact at Shardeum
+
+```bash
+docker run -p 8080:8080 -p 9001:9001 -p 10001:10001 -p 4000:4000 -p 6100:6100 -p 4446:4446 -p 4444:4444 -p 6101:6101 -d \
+  -v shardeum_db:/home/node/shardeum/db \
+  -v relayer_collector_db:/home/node/relayer-collector/db \
+  -v logs:/home/node/.pm2 \
+  -e ARCHIVER_IP=<archiver-ip> \
+  -e ARCHIVER_PUBKEY=<archiver-pubkey> \
+  -e DISTRIBUTOR_IP=<distributor-ip> \
+  -e DISTRIBUTOR_PUBKEY=<distributor-pubkey> \
+  -e COLLECTOR_PUBKEY=<your-collector-pubkey> \
+  -e COLLECTOR_SECRETKEY=<your-collector-secretkey> \
+  -e RMQ_PASS=<rmq-pass> \
+  -e RMQ_CYCLES_QUEUE_NAME=<rmq-cycles-queue-name> \
+  -e RMQ_RECEIPTS_QUEUE_NAME=<rmq-receipts-queue-name> \
+  -e RMQ_ORIGINAL_TXS_QUEUE_NAME=<rmq-original-txs-queue-name> \
+  ghcr.io/shardeum/ldrpc-docker
+```
+
+### Testing Your Server
+
+The JSON-RPC server will be available at `http://localhost:8080` and you can now test it with curl:
+
+```bash
+$ curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' http://localhost:8080
+
+{"jsonrpc":"2.0","id":1,"result":"0x1f92"}
+```
+
+### Run Configuration
+
+The configuration is done through environment variables when running the container. These values should be provided by your shardeum representative:
+
+| Variable                      | Description                                        |
+| ----------------------------- | -------------------------------------------------- |
+| `ARCHIVER_IP`                 | IP address of the archiver                         |
+| `ARCHIVER_PUBKEY`             | Public key of the archiver                         |
+| `DISTRIBUTOR_IP`              | IP address of the distributor                      |
+| `DISTRIBUTOR_PORT`            | Port address of the distributor                    |
+| `DISTRIBUTOR_PUBKEY`          | Public key of the distributor                      |
+| `COLLECTOR_PUBKEY`            | Your collector public key                          |
+| `COLLECTOR_SECRETKEY`         | Your collector secret key                          |
+| `COLLECTOR_MODE`              | Mode of the collector - use `MQ` (`WS` deprecated) |
+| `RMQ_HOST`                    | Host of the RabbitMQ server                        |
+| `RMQ_PORT`                    | Port of the RabbitMQ server                        |
+| `RMQ_PROTOCOL`                | Protocol of the RabbitMQ server                    |
+| `RMQ_USER`                    | User of the RabbitMQ server                        |
+| `RMQ_PASS`                    | Password of the RabbitMQ server                    |
+| `RMQ_CYCLES_QUEUE_NAME`       | Name of the cycles queue                           |
+| `RMQ_RECEIPTS_QUEUE_NAME`     | Name of the receipts queue                         |
+| `RMQ_ORIGINAL_TXS_QUEUE_NAME` | Name of the original transactions queue            |
+| `CHAIN_ID`                    | The chain ID of the network                        |
+
+> Optional Configuration: For development or testing, you can skip the backup download process using: `-e SKIP_BACKUP_DOWNLOAD=true`. This will prevent the service from downloading a backup of the databases before starting. This can be useful during development or testing, but should not be used in production environments where data integrity is critical.
+
+### Healthcheck API
+
+#### JSON-RPC Server healthcheck API
+
+URL: http://localhost:8080/is-healthy
+
+##### Sample Response
+
+**Healthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+    "status": "healthy",
+    "uptime": 242434.358461458,
+    "timestamp": "2025-02-10T04:54:28.110Z",
+    "database": "healthy",
+    "isServiceValidatorMode": false
+}
+```
+
+</details>
+
+**Unhealthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+  "status": "degraded",
+  "uptime": 12.548521417,
+  "timestamp": "2025-02-03T19:58:49.088Z",
+  "database": "unreachable",
+  "isServiceValidatorMode": false
+}
+```
+
+</details>
+
+**Logging**
+
+To enter the Docker container use the command
+
+```bash
+docker exec -it shardeum-collector bash
+```
+
+Logs are stored at:
+
+- Info logs: `~/xyz/pm2/logs/json-rpc-server-out.log`
+- Error logs: `~/xyz/pm2/logs/json-rpc-server-error.log`
+
+**Important Note:** In the `json-rpc-server-out.log` file, if you see messages like `Updating NodeList from XXXX and nodelist_update: YYYms` or `<N> Healthy Archivers active in the Network` -> This means your JSON-RPC server is active and updating important network information from the network regularly.
+
+#### Collector Server healthcheck API
+
+URL: http://localhost:4444/is-healthy
+
+##### Sample Response
+
+**Healthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+  "status": "healthy",
+  "uptime": 47.600131667,
+  "timestamp": "2025-02-03T21:00:35.026Z",
+  "database": true,
+  "shardeumIndexerDb": true,
+  "Cycles": "healthy",
+  "OriginalTxs": "healthy",
+  "Receipts": "healthy"
+}
+```
+
+</details>
+
+**Unhealthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+  "status": "degraded",
+  "uptime": 12.800243708,
+  "timestamp": "2025-02-03T20:08:55.049Z",
+  "database": true,
+  "shardeumIndexerDb": true,
+  "Cycles": "stuck",
+  "OriginalTxs": "stuck",
+  "Receipts": "stuck"
+}
+```
+
+</details>
+
+**LOGGING**
+
+Logs are stored at:
+
+- Info logs: ~/xyz/pm2/logs/collector-server-out.log
+- Error logs: ~/xyz/pm2/logs/collector-server-error.log
+
+**Important Note:** In the `collector-server-out.log` file, if you see messages like:
+
+- `🟢 Verification successful. Updating checkpoint to XXXX` -> This means that the collector is syncing data and also verifying it successfully. Once the XXXX matches latest_cycle_from_explorer - 21 (21 is a threshold from latest cycle to trigger verification of a cycle), it means data verification is caught up with the network.
+
+- [If verbose logging is enabled] `Downloading receipts/originalTxsData/cycles from <X> to <Y>` -> This indicates the API is syncing transaction data. These logs appear mostly during initial sync and become less frequent once syncing stabilizes.
+
+#### Collector API Server healthcheck API
+
+URL: http://localhost:6101/is-healthy
+
+##### Sample Response
+
+**Healthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+  "status": "healthy",
+  "uptime": 339887.239225893,
+  "timestamp": "2025-02-11T07:58:35.766Z",
+  "database": true,
+  "shardeumIndexerDb": true
+}
+```
+
+</details>
+
+**Unhealthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+  "status": "degraded",
+  "uptime": 339887.239225893,
+  "timestamp": "2025-02-11T07:58:35.766Z",
+  "database": false,
+  "shardeumIndexerDb": true
+}
+```
+
+</details>
+
+**Checking Sync status:** During the initial sync, use the `/totalData` API to check if the collector is in sync with the network. If `totalCycles`, `totalTransactions`, and `totalOriginalTxs` approximately match what is shown on the explorer, the collector is in sync. Sync speeds vary based on RAM, disk type, and network speed.
+
+Sample Response for `/totalData` API:
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+  "accountsEntry": 9830905,
+  "totalAccounts": 9830905,
+  "totalCycles": 63584,
+  "totalOriginalTxs": 21060677,
+  "totalReceipts": 20882618,
+  "totalTransactions": 20882618
+}
+```
+
+</details>
+
+**Important Note:** The `/totalData` API is resource-intensive and may respond slowly. Avoid frequent requests within a short period to prevent overloading the Collector API Server.
+
+#### Service Validator healthcheck API
+
+URL: http://localhost:9001/is-healthy
+
+##### Sample Response
+
+**Healthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+  "database": "healthy",
+  "status": "healthy",
+  "timestamp": "2025-02-17T15:17:18.962Z",
+  "uptime": 10246.913707835
+}
+```
+
+</details>
+
+**Unhealthy:**
+
+<details>
+<summary>Response</summary>
+
+```bash
+{
+    "database": "unreachable",
+    "status": "degraded",
+    "timestamp": "2025-02-03T19:14:30.488Z",
+    "uptime": 315.109965833
+}
+```
+
+</details>
+
+### Troubleshooting
+
+#### Debugging
+
+you can attach to the container and check list out the services and their status with `pm2`
+
+```bash
+$ docker exec -it $(docker ps --format '{{.Names}}' --filter ancestor=ghcr.io/shardeum/ldrpc-docker:itn4-1.16.3) /bin/bash
+node@b903ee67f879:~$ pm2 list
+```
+
+#### Handling Connection Loss
+
+In rare cases, the Collector Server may lose its connection with RabbitMQ and fail to recover automatically. If this happens, you will see errors in the `collector-server-error.log` file, such as:
+`IllegalOperationError: Channel closed` or `Connection error: Error: Channel closed by server: 406 (PRECONDITION-FAILED)`
+
+To resolve this issue, restart the Collector Server using the following command:
+
+```bash
+docker exec -it <container-id> pm2 restart collector-server
+```
+
+#### Error messages and Recovery
+
+You may also encounter the following error messages in the logs:
+
+- `The last stored cycle counter does not match with the last stored cycle count! Patch the missing cycle data and start the server again!`
+- `The last saved receipts of last N cycles data do not match with the distributor data! Clear the DB and start the server again!`
+- `The last saved originalTxsData of last N cycles data do not match with the distributor data! Clear the DB and start the server again!`
+- `❗ Verification failed for cycle XXXX. Mismatching Receipts[or Transactions]`
+- `Cycle XXXX is missing from the database`
+- `Identified missing data for cycle: XXXX`
+
+Please don't worry if you encounter any of the above error messages. Our systems are designed to automatically recover, sync, and verify any missing data.
+
+## Run JSON-RPC Locally for Development
+
+This setup is intended for local development and testing. It allows you to spin up a local Shardeum network, deploy a JSON-RPC server, and run Distributor and Collector services for full transaction lifecycle testing. Please note that this setup is not meant for production use, it's ideal for contributors working on the Shardeum protocol, RPC server, or relayer infrastructure.
+
+### Service Validator Setup
+
+#### Prerequisites
+
+- Node.js (v18.19.1)
+- npm (v10.2.4)
+- Rust (v1.74.1)
+- Docker (optional, for containerized deployment)
+
+#### Setting Up Your Environment
+
+Shardeum requires specific versions of Nodejs, Rust and other build tools to run. We have detailed setup instructions [in this page](https://github.com/shardeum/shardeum/blob/dev/local-environment-setup.md)
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+<Callout title="Note" type="info">
+  This is a crucial step, ensure your local environment is correctly set up
+  before proceeding with the next steps
+</Callout>
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/shardeum/shardeum.git
+cd shardeum
+```
+
+2. Install dependencies
+
+```bash
+npm ci
+```
+
+3. Network Configuration
+
+```bash
+export LOAD_JSON_CONFIGS=[full-path-to-your-local-shardeum-repo]/debug-10-nodes.config.json
+```
+
+**Example:** If your Shardeum repo is located at `/Users/john/projects/shardeum/`, you would run:
+
+```bash
+export LOAD_JSON_CONFIGS=/Users/john/Desktop/projects/shardeum/debug-10-nodes.config.json
+```
+
+4. Compile project
+
+```bash
+npm run prepare
+```
+
+5. Install Shardus CLI and Update Archiver
+
+```bash
+npm install -g @shardeum-foundation/tools-shardus-cli
+npm update @shardeum-foundation/archiver
+```
+
+6. Start the Shardeum Local Network
+
+```bash
+shardus start 10
+```
+
+7. Generate Collector keypair
+
+For the Collector service, generate a public/private keypair using the following command:
+
+```bash
+node scripts/generateWallet.js
+```
+
+Make sure to store the keys securely. You'll use them later for configuring the Collector.
+
+### Running the JSON-RPC Server
+
+This section sets up the RPC interface to interact with your local Shardeum network.
+
+1. Clone the JSON-RPC server repository:
+
+```bash
+git clone https://github.com/shardeum/json-rpc-server.git
+cd json-rpc-server
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the server:
+
+```bash
+npm run start
+```
+
+The default RPC URL is `http://localhost:8080`.
+
+### Distributor Setup
+
+1. Clone the Distributor repo:
+
+```bash
+git clone https://github.com/shardeum/distributor.git
+cd distributor
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Configure `distributor-config.json` file
+
+Set the following fields correctly:
+
+```bash
+"ARCHIVER_DB_PATH": "Base-Dir/instances/archiver-db-4000/archiverdb-4000.sqlite3"
+"DATA_LOG_DIR": "Base-Dir/instances/data-logs/127.0.0.1_4000"
+```
+
+> Replace `Base-Dir` with your actual Shardeum directory path.
+
+4. Start the distributor:
+
+```bash
+npm start
+```
+
+### Collector Setup
+
+The Collector is responsible for fetching and serving transaction data based on queries via the RPC server.
+
+1. Clone the repo
+
+```bash
+git clone https://github.com/shardeum/collector.git
+cd collector
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Update config.json
+
+Paste your keys from the Shardeum keypair generated earlier:
+
+```bash
+"distributorInfo": {
+	"ip": "<distributor-server-ip>",        //eg: 127.0.0.1
+	"port": "<distributor-server-port>", //eg: 6100
+	"publicKey": "distributor-server-public-key"
+},
+
+"collectorInfo": {
+	 "publicKey": "<collector-pub-key>",
+	"secretKey": "<collector-secret-key>"
+}
+```
+
+4. Prepare the build
+
+```bash
+npm run prepare
+```
+
+5. Start collector
+
+```bash
+npm run collector
+```
+
+6. Start API server
+
+```bash
+npm run server
+```
+
+To verify your setup, send transactions on your local Shardeum network and query them via RPC. The JSON-RPC server handles incoming requests and forwards them to the Collector. The Collector, as configured, is subscribed to the Distributor, which syncs data from the local ArchiverDB. When properly configured, this flow returns complete transaction details in the RPC response.
