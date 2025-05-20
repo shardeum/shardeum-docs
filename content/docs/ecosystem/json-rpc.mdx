@@ -15,7 +15,7 @@ This guide explains how to connect to the Shardeum network using JSON-RPC endpoi
 
 ## Using Public RPC Endpoints
 
-If you don't want to host your own server, you can connect to the public Shardeum RPC endpoints. This is ideal for most developers and contributors. Visit https://docs.shardeum.org/docs/network/endpoints for the latest network details.
+If you don't want to host your own server, you can connect to the public Shardeum RPC endpoints. This is ideal for most developers and contributors. Visit /docs/developer/network-and-rpc for the latest network details.
 
 ## Running Your Own Shardeum RPC Server
 
@@ -51,7 +51,6 @@ Secret Key: <your-collector-secretkey>
 ```
 
 > Important: Share your public key with your Shardeum representative while keeping your secret key secure.
-
 
 ### Run the service
 
@@ -89,25 +88,25 @@ $ curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","met
 
 The configuration is done through environment variables when running the container. These values should be provided by your shardeum representative:
 
-| Variable                       | Description                                       |
-|--------------------------------|---------------------------------------------------|
-| `ARCHIVER_IP`                  | IP address of the archiver                        |
-| `ARCHIVER_PUBKEY`              | Public key of the archiver                        |
-| `DISTRIBUTOR_IP`               | IP address of the distributor                     |
-| `DISTRIBUTOR_PORT`             | Port address of the distributor                   |
-| `DISTRIBUTOR_PUBKEY`           | Public key of the distributor                     |
-| `COLLECTOR_PUBKEY`             | Your collector public key                         |
-| `COLLECTOR_SECRETKEY`          | Your collector secret key                         |
-| `COLLECTOR_MODE`               | Mode of the collector - use `MQ` (`WS` deprecated)|
-| `RMQ_HOST`                     | Host of the RabbitMQ server                       |
-| `RMQ_PORT`                     | Port of the RabbitMQ server                       |
-| `RMQ_PROTOCOL`                 | Protocol of the RabbitMQ server                   |
-| `RMQ_USER`                     | User of the RabbitMQ server                       |
-| `RMQ_PASS`                     | Password of the RabbitMQ server                   |
-| `RMQ_CYCLES_QUEUE_NAME`        | Name of the cycles queue                          |
-| `RMQ_RECEIPTS_QUEUE_NAME`      | Name of the receipts queue                        |
-| `RMQ_ORIGINAL_TXS_QUEUE_NAME`  | Name of the original transactions queue           |
-| `CHAIN_ID`                     | The chain ID of the network                       |
+| Variable                      | Description                                        |
+| ----------------------------- | -------------------------------------------------- |
+| `ARCHIVER_IP`                 | IP address of the archiver                         |
+| `ARCHIVER_PUBKEY`             | Public key of the archiver                         |
+| `DISTRIBUTOR_IP`              | IP address of the distributor                      |
+| `DISTRIBUTOR_PORT`            | Port address of the distributor                    |
+| `DISTRIBUTOR_PUBKEY`          | Public key of the distributor                      |
+| `COLLECTOR_PUBKEY`            | Your collector public key                          |
+| `COLLECTOR_SECRETKEY`         | Your collector secret key                          |
+| `COLLECTOR_MODE`              | Mode of the collector - use `MQ` (`WS` deprecated) |
+| `RMQ_HOST`                    | Host of the RabbitMQ server                        |
+| `RMQ_PORT`                    | Port of the RabbitMQ server                        |
+| `RMQ_PROTOCOL`                | Protocol of the RabbitMQ server                    |
+| `RMQ_USER`                    | User of the RabbitMQ server                        |
+| `RMQ_PASS`                    | Password of the RabbitMQ server                    |
+| `RMQ_CYCLES_QUEUE_NAME`       | Name of the cycles queue                           |
+| `RMQ_RECEIPTS_QUEUE_NAME`     | Name of the receipts queue                         |
+| `RMQ_ORIGINAL_TXS_QUEUE_NAME` | Name of the original transactions queue            |
+| `CHAIN_ID`                    | The chain ID of the network                        |
 
 > Optional Configuration: For development or testing, you can skip the backup download process using: `-e SKIP_BACKUP_DOWNLOAD=true`. This will prevent the service from downloading a backup of the databases before starting. This can be useful during development or testing, but should not be used in production environments where data integrity is critical.
 
@@ -191,6 +190,7 @@ URL: http://localhost:4444/is-healthy
   "Receipts": "healthy"
 }
 ```
+
 </details>
 
 **Unhealthy:**
@@ -210,11 +210,13 @@ URL: http://localhost:4444/is-healthy
   "Receipts": "stuck"
 }
 ```
+
 </details>
 
 **LOGGING**
 
 Logs are stored at:
+
 - Info logs: ~/xyz/pm2/logs/collector-server-out.log
 - Error logs: ~/xyz/pm2/logs/collector-server-error.log
 
@@ -244,6 +246,7 @@ URL: http://localhost:6101/is-healthy
   "shardeumIndexerDb": true
 }
 ```
+
 </details>
 
 **Unhealthy:**
@@ -260,6 +263,7 @@ URL: http://localhost:6101/is-healthy
   "shardeumIndexerDb": true
 }
 ```
+
 </details>
 
 **Checking Sync status:** During the initial sync, use the `/totalData` API to check if the collector is in sync with the network. If `totalCycles`, `totalTransactions`, and `totalOriginalTxs` approximately match what is shown on the explorer, the collector is in sync. Sync speeds vary based on RAM, disk type, and network speed.
@@ -279,6 +283,7 @@ Sample Response for `/totalData` API:
   "totalTransactions": 20882618
 }
 ```
+
 </details>
 
 **Important Note:** The `/totalData` API is resource-intensive and may respond slowly. Avoid frequent requests within a short period to prevent overloading the Collector API Server.
@@ -302,6 +307,7 @@ URL: http://localhost:9001/is-healthy
   "uptime": 10246.913707835
 }
 ```
+
 </details>
 
 **Unhealthy:**
@@ -317,6 +323,7 @@ URL: http://localhost:9001/is-healthy
     "uptime": 315.109965833
 }
 ```
+
 </details>
 
 ### Troubleshooting
@@ -371,10 +378,11 @@ This setup is intended for local development and testing. It allows you to spin 
 
 Shardeum requires specific versions of Nodejs, Rust and other build tools to run. We have detailed setup instructions [in this page](https://github.com/shardeum/shardeum/blob/dev/local-environment-setup.md)
 
-import { Callout } from 'fumadocs-ui/components/callout';
+import { Callout } from "fumadocs-ui/components/callout";
 
 <Callout title="Note" type="info">
-This is a crucial step, ensure your local environment is correctly set up before proceeding with the next steps
+  This is a crucial step, ensure your local environment is correctly set up
+  before proceeding with the next steps
 </Callout>
 
 1. Clone the repository
@@ -526,13 +534,13 @@ Paste your keys from the Shardeum keypair generated earlier:
 
 ```bash
 npm run prepare
-````
+```
 
 5. Start collector
 
 ```bash
 npm run collector
-````
+```
 
 6. Start API server
 

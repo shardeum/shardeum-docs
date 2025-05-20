@@ -27,9 +27,9 @@ This guide provides detailed instructions for setting up a Shardeum Validator us
    - Name your instance (e.g., "shardeum-validator")
    - Under "Application and OS Images":
      - Select "Ubuntu" as the AMI
-     - Choose "Ubuntu Server 22.04 LTS (HVM)" 
+     - Choose "Ubuntu Server 22.04 LTS (HVM)"
    - Under "Instance Type":
-     - Select an instance that [meets minimum requirements](/docs/node/run/validator/self-host#minimum-hardware-requirements)
+     - Select an instance that [meets minimum requirements](/docs/run-a-node/self-host#minimum-hardware-requirements)
      - Recommended: t3.xlarge (4 vCPU, 16 GB RAM)
      - For production: Consider t3.2xlarge for better performance
    - Create or select a key pair:
@@ -44,6 +44,7 @@ This guide provides detailed instructions for setting up a Shardeum Validator us
 ### 2. Configure Security Group
 
 Create a new security group with the following rules:
+
 - SSH (Port 22): Your IP
 - Custom TCP (Port 8080): Anywhere (Dashboard)
 - Custom TCP (Port 9001): Anywhere (P2P)
@@ -60,4 +61,4 @@ ssh -i your-key-pair.pem user@your-instance-public-dns
 
 ### 4. Installing Shardeum
 
-Once your AWS instance is ready, follow our [Base Guide for Running a Shardeum Validator Node](/docs/node/run/validator/self-host#download-and-install-validator) for detailed installation instructions, including the steps to open the validator dashboard, stake SHM, start the validator, and more.
+Once your AWS instance is ready, follow our [Base Guide for Running a Shardeum Validator Node](/docs/run-a-node/validator/setup/self-host) for detailed installation instructions, including the steps to open the validator dashboard, stake SHM, start the validator, and more.

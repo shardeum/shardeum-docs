@@ -4,7 +4,7 @@ const navigation = {
   general: [
     { name: 'Home', href: '/' },
     { name: 'Mainnet Roadmap', href: 'https://shardeum.org/roadmap/mainnet' },
-    { name: 'Claim Testnet SHM', href: '/docs/faucet/claim' },
+    { name: 'Claim Testnet SHM', href: '/docs/developer/faucet' },
     { name: 'Super Shardians', href: 'https://shm.gg/super-shardian-tasks' },
     { name: 'Blog', href: 'https://shardeum.org/blog/' },
   ],

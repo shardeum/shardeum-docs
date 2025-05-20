@@ -5,7 +5,7 @@ description: JSON-RPC API
 
 The Shardeum JSON-RPC API enables developers to interact directly with the Shardeum network. Shardeum aims to be completely Ethereum API compatible & this documentation provides an overview of the methods for querying network data, managing transactions, and more.
 
-For information on the RPC endpoint for the live network, visit [Shardeum Network Endpoints](https://docs.shardeum.org/docs/network/endpoints) or use the RPC endpoint for our beta network or local development version.
+For information on the RPC endpoint for the live network, visit [Shardeum Network Endpoints](/docs/developer/network-and-rpc) or use the RPC endpoint for our beta network or local development version.
 
 # Supported Methods
 
@@ -127,6 +127,7 @@ Returns a paginated list of active nodes in the Shardeum network.
 **Returns**
 
 `Object` - A node list response object containing:
+
 - `jsonrpc` - The JSON-RPC version ("2.0")
 - `id` - The request ID
 - `result` - Object containing:
@@ -160,6 +161,7 @@ None
 **Returns**
 
 `Object` - A response object containing:
+
 - `jsonrpc` - The JSON-RPC version ("2.0")
 - `id` - The request ID
 - `result` - Object containing:
@@ -187,12 +189,14 @@ None
   - `timestamp` - Timestamp of the network account data
 
 **Example**
+
 ```bash
 curl https://api.shardeum.org \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"shardeum_getNetworkAccount","params":[],"id":1,"jsonrpc":"2.0"}'
 ```
+
 ## shardeum_getCycleInfo
 
 Returns information about a specific cycle or the latest cycle in the network.
@@ -204,6 +208,7 @@ Returns information about a specific cycle or the latest cycle in the network.
 **Returns**
 
 `Object` - A response object containing:
+
 - `jsonrpc` - The JSON-RPC version ("2.0")
 - `id` - The request ID
 - `result` - Object containing cycle info:
@@ -450,10 +455,11 @@ Creates new message call transaction or a contract creation, if the data field c
 
 `result` - The transaction hash, or the zero hash if the transaction is not yet available.
 
-import { Callout } from 'fumadocs-ui/components/callout';
+import { Callout } from "fumadocs-ui/components/callout";
 
 <Callout title="Note" type="info">
-Use eth_getTransactionReceipt to get the contract address, after the transaction was proposed in a block, when you created a contract.
+  Use eth_getTransactionReceipt to get the contract address, after the
+  transaction was proposed in a block, when you created a contract.
 </Callout>
 
 **Example**
@@ -478,7 +484,8 @@ Creates new message call transaction or a contract creation for signed transacti
 `result` - The transaction hash, or the zero hash if the transaction is not yet available.
 
 <Callout title="Note" type="info">
-Use eth_getTransactionReceipt to get the contract address, after the transaction was proposed in a block, when you created a contract.
+  Use eth_getTransactionReceipt to get the contract address, after the
+  transaction was proposed in a block, when you created a contract.
 </Callout>
 
 **Example**
@@ -682,7 +689,7 @@ Returns the receipt of a transaction by transaction hash.
 - `blockNumber` - block number where this transaction was in.
 - `contractAddress ` - The contract address created, if the transaction was a contract creation, otherwise `null`.
 - `cumulativeGasUsed` - The total amount of gas used when this transaction was executed in the block.
-- `effectiveGasPrice`  - The sum of the base fee and tip paid per unit of gas.
+- `effectiveGasPrice` - The sum of the base fee and tip paid per unit of gas.
 - `from` - address of the sender.
 - `gasUsed ` - The amount of gas used by this specific transaction alone.
 - `logs` - Array of log objects, which this transaction generated.

@@ -29,7 +29,7 @@ const navItems = [
   { name: 'Connect to Shardeum', href: '/docs/network/endpoints' },
   { name: 'Report Bugs', href: 'https://github.com/shardeum/bug-reporting' },
   { name: 'Github', href: 'https://github.com/shardeum' },
-  { name: 'Claim Testnet SHM', href: '/docs/faucet/claim' },
+  { name: 'Claim Testnet SHM', href: '/docs/developer/faucet' },
   { name: 'Join Shardeum Discord', href: 'https://discord.com/invite/shardeum' },
 ];
 

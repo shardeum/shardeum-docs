@@ -16,12 +16,13 @@ This guide provides detailed instructions for setting up a Shardeum Validator us
 ### 1. Order VPS
 
 1. Go to Contabo's VPS page
-2. Select a plan that meets the [minimum requirements](/docs/node/run/validator/self-host#minimum-hardware-requirements)
+2. Select a plan that meets the [minimum requirements](/docs/run-a-node/self-host#minimum-hardware-requirements)
 3. Choose:
    - Location: Nearest to you
    - Operating System: Ubuntu 22.04 LTS
 
 ### 2. Complete Purchase
+
 - Select a payment method of your choice and complete the purchase.
 - Once the order is complete, you will receive an email to complete a KYC process.
 - After the KYC process is complete, you will receive an email with the details of your new VPS.
@@ -31,6 +32,7 @@ This guide provides detailed instructions for setting up a Shardeum Validator us
 Follow the instructions in the email to access your Contabo panel and configure firewall:
 
 Inbound Rules:
+
 - SSH (Port 22): Your IP
 - Custom TCP (Port 8080): Anywhere (Dashboard)
 - Custom TCP (Port 9001): Anywhere (P2P)
@@ -46,4 +48,4 @@ ssh root@your_server_ip
 
 ### 4. Install Shardeum
 
-Once your VPS is ready, follow our [Base Guide for Running a Shardeum Validator Node](/docs/node/run/validator/self-host#download-and-install-validator) for detailed installation instructions, including the steps to open the validator dashboard, stake SHM, start the validator, and more.
+Once your VPS is ready, follow our [Base Guide for Running a Shardeum Validator Node](/docs/run-a-node/validator/setup/self-host) for detailed installation instructions, including the steps to open the validator dashboard, stake SHM, start the validator, and more.

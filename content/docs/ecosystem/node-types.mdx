@@ -3,11 +3,11 @@ title: Types of Node
 description: Types of nodes in Shardeum Network
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+import { Callout } from "fumadocs-ui/components/callout";
 
 <Callout title="For Testnet" type="info">
-It is recommended to stake just 10 SHM per Validator node, 
-since rewards will be the same with 10 SHM or more staked for a Validator. 
+  It is recommended to stake just 10 SHM per Validator node, since rewards will
+  be the same with 10 SHM or more staked for a Validator.
 </Callout>
 
 ## Validator Nodes
@@ -19,7 +19,7 @@ These nodes validate the transactions in the network by participating in the con
 ### Standby
 
 <Callout title="Note" type="warn">
-Standby validators require staked SHM to become active.
+  Standby validators require staked SHM to become active.
 </Callout>
 
 These are validator nodes standing by in the network and not currently participating in consensus. Standby nodes help scale the Shardeum network quicker when more transactions are pending. At the end of every cycle, the oldest active validators in the network are rotated out for standby validators.
@@ -27,13 +27,13 @@ These are validator nodes standing by in the network and not currently participa
 ## RPC Nodes
 
 These nodes are able to access the EVM Based JSON RPC interface that is used to read and write data on the Shardeum blockchain.
-Wallets must be connected to an RPC URL to interact with blockchains for example. 
+Wallets must be connected to an RPC URL to interact with blockchains for example.
 
 Public Shardeum RPC URL endpoints:
 
 <Cards>
   <Card
-    href="https://docs.shardeum.org/docs/network/endpoints"
+    href="/docs/developer/network-and-rpc"
     title="Shardeum RPC URL Public endpoints"
     description="Checkout Shardeum's RPC URL"
   />
@@ -50,4 +50,4 @@ Read RPC method example:
 </Cards>
 ## Archive Nodes
 
-Archive nodes maintain the entire transaction history. 
+Archive nodes maintain the entire transaction history.

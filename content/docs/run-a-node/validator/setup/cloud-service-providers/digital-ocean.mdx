@@ -17,10 +17,11 @@ This guide provides detailed instructions for setting up a Shardeum Validator us
 
 1. Click "Create > Droplets" in the DigitalOcean dashboard
 2. Select the region closest to you
-3. Select the plan that meets the [minimum requirements](/docs/node/run/validator/self-host#minimum-hardware-requirements)
-4. Complete the purchase 
+3. Select the plan that meets the [minimum requirements](/docs/run-a-node/self-host#minimum-hardware-requirements)
+4. Complete the purchase
 
 ### 2. Configure Firewall
+
 After completing the purchase, set up the firewall to allow the inbound traffic:
 
 1. Navigate to Networking > Firewalls
@@ -38,10 +39,11 @@ After completing the purchase, set up the firewall to allow the inbound traffic:
 ### 3. Access Droplet
 
 Connect via SSH:
+
 ```bash
-ssh root@your-droplet-ip 
+ssh root@your-droplet-ip
 ```
 
 ### 4. Install Shardeum
 
-Once your Droplet is ready, follow our [Base Guide for Running a Shardeum Validator Node](/docs/node/run/validator/self-host#download-and-install-validator) for detailed installation instructions, including the steps to open the validator dashboard, stake SHM, start the validator, and more.
+Once your Droplet is ready, follow our [Base Guide for Running a Shardeum Validator Node](/docs/run-a-node/validator/setup/self-host) for detailed installation instructions, including the steps to open the validator dashboard, stake SHM, start the validator, and more.
