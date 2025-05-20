@@ -1,0 +1,282 @@
+---
+title: Staking & Unstaking Your Validator Node
+description: Staking & Unstaking Your Validator Node
+---
+
+Staking SHM enables your validator to actively participate in the Shardeum network and earn rewards. Unstaking allows you to withdraw your staked SHM along with any accumulated rewards. This guide provides step-by-step instructions for managing staking and unstaking operations using the `operator-cli` tool.
+
+## Step 1: Staking Your Node
+
+Once your validator node is running and in the `need-stake` state, you can stake SHM to it.
+
+**Command:**
+
+```bash
+operator-cli stake <AMOUNT>
+````
+
+* Replace `<AMOUNT>` with the amount of SHM you want to stake (e.g., `operator-cli stake 2400`).
+* The minimum stake amount is **2400 SHM** on stagenet. If you stake less, you'll receive an error like:
+
+> Stake amount is less than minimum required stake amount
+
+### Important Considerations for Staking
+
+1. **Cooldown Period**: A 30-minute cooldown follows a successful stake before staking again from the same wallet.
+    * `stakeable.restakeAllowed: false` and `stakeable.reason: 'Stake lock period active'` will indicate this.
+    * `stakeable.remainingTime` will show the remaining time in milliseconds.
+2. **Sufficient Funds**: Ensure your wallet has enough SHM for the stake plus transaction fees.
+3. **Network Health**: Network issues may cause timeouts such as `AxiosError: timeout of 2000ms exceeded`.
+
+### After Staking
+
+* Node state transitions: `need-stake → waiting-for-network → standby → active`.
+* Check `nominatorAddress` and `lockedStake` via `operator-cli status`.
+
+---
+
+## Unstaking Your Node
+
+Unstaking removes SHM from your validator and claims accumulated rewards.
+
+**Command:**
+
+```bash
+operator-cli unstake
+```
+
+### Correct Unstaking Sequence
+
+1. **Wait for Standby**:
+
+   * The node must be in `standby` state.
+   * If on a small test network, it may go directly to `active`. Wait for it to complete its cycle.
+
+2. **Stop the Node**:
+
+```bash
+operator-cli stop
+```
+
+Confirm: “Node process stopped”.
+
+3. **Check Stake Lock Time**: via `operator-cli status`:
+      - `stakeState.unlocked` should be `true`.
+      - `stakeState.remainingTime` should be `0`.
+
+4. **Unstake**:
+
+```bash
+operator-cli unstake
+```
+
+### Unstaking Considerations
+
+1. **Node State is Key**: Must be `standby` and stopped.
+2. **CLI Behavior**:
+    * Older versions may appear stuck due to retry logic.
+    * "No stake found" could mean a previous attempt succeeded.
+3. **Transaction Confirmation**:
+    * Transactions are not instant. Verify status via the explorer.
+4. **Force Unstaking**: Only for emergencies; may incur penalties.
+
+### Common Errors
+
+* **No stake found**: Wallet has no associated stake or previous unstake succeeded.
+* **Wrong node state**: Node not yet ready for unstaking.
+* **Timestamp out of range**: Possibly due to clock mismatch.
+* **RPC error (code 101)**: Inspect detailed error message.
+
+---
+
+## Recovering Stake from a Lost/Deleted Node
+
+* Stake is linked to the wallet and nominee public key.
+* Use another validator with the original wallet’s private key to unstake.
+* Refer to "Programmatic Unstaking & Disaster Recovery" for full instructions.
+
+---
+
+# Unstaking a Shardeum Node Without the App Interface
+
+This guide explains unstaking using direct API calls.
+
+## Prerequisites
+
+* Wallet’s private key and address
+* Tools: `curl`, Node.js, `ethers.js`
+
+## Step 1: Get Active Nodes
+
+```bash
+curl -X GET "ARCHIVER_IP:PORT/nodelist?activeOnly=true"
+```
+
+Example response:
+
+```json
+{
+  "nodeList": [
+    {
+      "id": "...",
+      "ip": "34.67.28.61",
+      "port": 9001,
+      "publicKey": "..."
+    }
+  ]
+}
+```
+
+## Step 2: Check Stake Info
+
+```bash
+curl -X GET "NODE_IP:NODE_PORT/account/YOUR_WALLET_ADDRESS"
+```
+
+## Step 3: Can You Unstake?
+
+```bash
+curl -X GET "NODE_IP:NODE_PORT/canUnstake/NOMINEE_ADDRESS/YOUR_WALLET_ADDRESS"
+```
+
+Response includes:
+
+* `stakeUnlocked.unlocked`
+* `stakeUnlocked.reason`
+* `stakeUnlocked.remainingTime`
+
+## Step 4: Submit Unstake Transaction
+
+```bash
+curl -X POST --data '{
+  "jsonrpc":"2.0",
+  "method":"eth_getTransactionCount",
+  "params":["YOUR_WALLET_ADDRESS", "latest"],
+  "id":1
+}' -H "Content-Type: application/json" RPC_ENDPOINT_URL
+
+curl -X POST --data '{
+  "jsonrpc":"2.0",
+  "method":"eth_gasPrice",
+  "params":[],
+  "id":1
+}' -H "Content-Type: application/json" RPC_ENDPOINT_URL
+```
+
+Create and sign transaction using a script.
+
+### Technical Details
+
+* **To address**: `0x0000000000000000000000000000000000010000`
+* **Transaction data**:
+
+```json
+{
+  "isInternalTx": true,
+  "internalTXType": 7,
+  "nominator": "your wallet address",
+  "timestamp": 123456789,
+  "nominee": "nominee public key",
+  "force": false
+}
+```
+
+---
+
+## Complete Script Example
+
+```javascript
+const { ethers } = require('ethers');
+const axios = require('axios');
+
+async function unstakeNode(config) {
+  try {
+    console.log('Starting unstake process...');
+    const nodeListResponse = await axios.get(`${config.archiverIp}:${config.archiverPort}/nodelist?activeOnly=true`);
+    const activeNode = nodeListResponse.data.nodeList[0];
+    const stakeInfoUrl = `http://${activeNode.ip}:${activeNode.port}/account/${config.walletAddress}`;
+    const stakeInfoResponse = await axios.get(stakeInfoUrl);
+    const nominee = stakeInfoResponse.data.account.operatorAccountInfo.nominee;
+    const canUnstakeUrl = `http://${activeNode.ip}:${activeNode.port}/canUnstake/${nominee}/${config.walletAddress}`;
+    const canUnstakeResponse = await axios.get(canUnstakeUrl);
+    const unstakeStatus = canUnstakeResponse.data.stakeUnlocked;
+
+    if (!unstakeStatus.unlocked && !config.force) {
+      throw new Error(`Unstaking not allowed: ${unstakeStatus.reason}`);
+    }
+
+    const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
+    const wallet = new ethers.Wallet(config.privateKey, provider);
+    const [gasPrice, from, nonce] = await Promise.all([
+      wallet.getGasPrice(),
+      wallet.getAddress(),
+      wallet.getTransactionCount(),
+    ]);
+
+    const unstakeData = {
+      isInternalTx: true,
+      internalTXType: 7,
+      nominator: wallet.address.toLowerCase(),
+      timestamp: Date.now(),
+      nominee: nominee,
+      force: config.force,
+    };
+
+    const transaction = {
+      from,
+      to: '0x0000000000000000000000000000000000010000',
+      gasPrice,
+      gasLimit: 30000000,
+      data: ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(unstakeData))),
+      nonce,
+    };
+
+    const { hash } = await wallet.sendTransaction(transaction);
+    console.log(`Transaction sent! Hash: ${hash}`);
+    const receipt = await provider.waitForTransaction(hash);
+    console.log('Transaction confirmed!');
+    console.log('Receipt:', receipt);
+
+    return { success: true, transactionHash: hash, receipt };
+  } catch (error) {
+    console.error('Unstake process failed:', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+const config = {
+  archiverIp: 'https://archiver.shardeum.org',
+  archiverPort: 4000,
+  walletAddress: '0xYourWalletAddress',
+  privateKey: 'yourPrivateKey',
+  rpcUrl: 'https://api-testnet.shardeum.org',
+  force: false
+};
+
+unstakeNode(config)
+  .then(result => {
+    if (result.success) {
+      console.log('Node successfully unstaked!');
+    } else {
+      console.log('Failed to unstake node:', result.error);
+    }
+  });
+```
+
+### To Use This Script
+
+1. Save as `unstake-shardeum.js`
+2. Install dependencies:
+
+```bash
+npm install ethers@5.7.2 axios
+```
+
+3. Update configuration
+4. Run:
+
+```bash
+node unstake-shardeum.js
+```
+
+By following these steps, you’ll be well equipped to manage staking and unstaking operations for your Shardeum validator node.

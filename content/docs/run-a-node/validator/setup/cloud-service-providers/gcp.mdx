@@ -1,0 +1,47 @@
+---
+title: Google Cloud Platform Setup Guide
+description: Steps to run a Shardeum Validator on Google Cloud Platform (GCP)
+---
+
+This guide provides detailed instructions for setting up a Shardeum Validator using Google Cloud Platform (GCP).
+
+## Prerequisites
+
+- A Google Cloud Platform account
+- GCP project created
+- Basic familiarity with GCP Compute Engine
+- gcloud CLI installed (optional)
+
+## Instance Setup
+
+### 1. GCP Account Setup
+- Visit [cloud.google.com](https://cloud.google.com)
+- Create a new account or sign in
+- Set up billing and claim your free credits
+
+### 2. Create a VM Instance
+- Navigate to "Compute Engine" > "VM instances"
+- Click "Create Instance"
+- Configure your instance:
+  - Name: shardeum-validator (or your preferred name)
+  - Region: Choose the closest to you
+  - Machine type: e2-medium (2 vCPU, 4 GB memory)
+  - Boot disk: Ubuntu 20.04 LTS (20 GB SSD)
+  - Allow HTTP and HTTPS traffic
+
+
+### 3. Configure Firewall Rules
+- Navigate to "VPC Network" > "Firewall" and create rules for:
+  - SSH (tcp:22)
+  - Dashboard (tcp:8080)
+  - P2P Communication (tcp:9001)
+  - P2P Communication (tcp:10001)
+
+### 4. Connect to Your Instance
+Click the SSH button in the GCP console to open the web-based SSH terminal or connect via command line:
+```bash
+gcloud compute ssh your-instance-name --zone your-zone
+```
+
+### 5. Install Shardeum
+Once your GCP instance is ready, follow our [Base Guide for Running a Shardeum Validator Node](/docs/node/run/validator/self-host#download-and-install-validator) for detailed installation instructions, including the steps to open the validator dashboard, stake SHM, start the validator, and more.
