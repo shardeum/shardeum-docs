@@ -5,16 +5,15 @@ description: Types of nodes in Shardeum Network
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-<Callout title="For Testnet" type="info">
-  It is recommended to stake just 10 SHM per Validator node, since rewards will
-  be the same with 10 SHM or more staked for a Validator.
+<Callout title="For Mainnet" type="info">
+  You must stake a minimum of 2400 SHM per Validator node, which is subject to periodic adjustments.
 </Callout>
 
 ## Validator Nodes
 
 ### Active
 
-These nodes validate the transactions in the network by participating in the consensus. They will have to stake SHM to be able to participate. Shardeum will reward them with SHM for participating (network rewards will come from predefined SHM emissions, and the transaction fees earned). Validator nodes don't store the whole history, so they are lightweight. The active validator network size grows and shrinks based on transactions pending that need validation consensus from validators.
+These nodes actively participate in consensus to validate transactions after transitioning from standby mode, earning SHM rewards in return. Validator nodes are lightweight, as they don’t store the full transaction history, and require only minimal hardware. The number of active validators dynamically adjusts based on network demand—scaling up or down depending on the volume of pending transactions. Nodes that misbehave or underperform may be evicted from the active set and risk forfeiting their staked SHM.
 
 ### Standby
 
@@ -22,7 +21,7 @@ These nodes validate the transactions in the network by participating in the con
   Standby validators require staked SHM to become active.
 </Callout>
 
-These are validator nodes standing by in the network and not currently participating in consensus. Standby nodes help scale the Shardeum network quicker when more transactions are pending. At the end of every cycle, the oldest active validators in the network are rotated out for standby validators.
+These are validator nodes standing by in the network and not currently participating in consensus. Standby validators require a minimum number of staked SHM to become active. They help scale the Shardeum network quicker when more transactions are pending. Additionally, at the end of each cycle, the oldest active validators are rotated out and replaced by randomly selected standby nodes, enhancing the network’s security.  Standby nodes will earn rewards only while actively participating in validation, not during standby periods. Once a node is installed and the required stake is added, it initially joins the network in standby mode by default before transitioning to active validation.
 
 ## RPC Nodes
 
@@ -50,4 +49,4 @@ Read RPC method example:
 </Cards>
 ## Archive Nodes
 
-Archive nodes maintain the entire transaction history.
+Although Shardeum is a blockless network, individual transactions processed by validator nodes are grouped into blocks at set intervals for EVM compatibility. These batches are then sent to archiver nodes, which store the full state and history of the network. Archivers can be considered as supernodes requiring significant storage, RAM, CPU, and bandwidth. They do not participate in consensus but play a critical role in preserving network data. Running an archiver is expected to yield ~10x the rewards of a validator, reflecting the higher hardware demands. Archivers may also be required to stake SHM and are subject to penalties for issues like ungraceful exits. More details will be shared once community participation in archiving is enabled at a later stage following the mainnet launch.
