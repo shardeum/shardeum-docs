@@ -1,4 +1,4 @@
 {
   "title": "Node Operations",
-  "pages": ["docker-setup", "node-states", "staking-unstaking", "unstaking-and-recovery", "rewards-and-key-security", "troubleshooting-guide"]
+  "pages": ["docker-setup", "node-states", "unstaking-and-recovery", "rewards-and-key-security", "troubleshooting-guide","staking-and-unstaking"]
 }
