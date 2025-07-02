@@ -1,4 +1,4 @@
 {
   "title": "Ecosystem",
-  "pages": ["json-rpc", "localdata-rpc", "advanced-operations", "node-types"]
+  "pages": ["json-rpc", "localdata-rpc", "node-operations", "node-types"]
 }
