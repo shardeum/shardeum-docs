@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 const navigation = {
   general: [
     { name: 'Home', href: '/' },
-    { name: 'Mainnet Roadmap', href: 'https://shardeum.org/roadmap/mainnet' },
+    { name: 'Shardeum Mainnet Roadmap', href: 'https://shardeum.org/roadmap/' },
     { name: 'Claim Testnet SHM', href: '/docs/developer/faucet' },
     { name: 'Super Shardians', href: 'https://shm.gg/super-shardian-tasks' },
     { name: 'Blog', href: 'https://shardeum.org/blog/' },
@@ -15,15 +15,15 @@ const navigation = {
     { name: 'GitHub', href: 'https://github.com/shardeum' },
   ],
   resources: [
-    { name: 'Explorer', href: 'https://explorer-testnet.shardeum.org/' },
+    { name: 'Explorer', href: 'https://explorer.shardeum.org/' },
     { name: 'Whitepaper', href: 'https://shardeum.org/Shardeum_Whitepaper.pdf' },
     { name: 'FAQs', href: 'https://shardeum.org/explore/faqs/general' },
-    { name: 'Brand Assets', href: 'https://drive.google.com/drive/folders/1jdjJNMajHG_QDu_uAXTRrqpXW3AUuiJu' },
+    { name: 'Brand Assets', href: 'https://drive.google.com/drive/folders/1Yi9HrgfO2_UrCJrLM27gPOqhTodmHydD' },
     { name: 'Public Drive', href: 'https://drive.google.com/drive/folders/1zal5vN3f67Ql-Q8jiSYsp6Nf0xoJuqNI' },
   ],
   contact: [
     { name: 'General Enquiries', href: 'mailto:hi@shardeum.org' },
-    { name: 'Partnership Enquiries', href: 'https://shm.gg/partnership-form' },
+    { name: 'Partnership Enquiries', href: 'https://docs.google.com/forms/d/e/1FAIpQLScrlxjRYCHp-wq96UXvnKIjcxY8bw6X11-kXj4A2iq6nqvg0g/viewform' },
   ],
   social: [
     {
@@ -101,7 +101,7 @@ export default function Footer({ isDarkMode }: { isDarkMode: boolean }) {
           <div className="space-y-8">
             <img
               className="h-7"
-              src={isDarkMode ? "shardeum_documentation_dark.png" : "shardeum_documentation_light.png"}
+              src={isDarkMode ? "/shardeum_documentation_light.png" : "/shardeum_documentation_dark.png"}
               alt="Company name"
             />
             <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
