@@ -1,6 +1,6 @@
 ---
-title: Deploy Smart Contracts with Remix
-description: Learn how to deploy smart contracts on Shardeum using Remix
+title: Deploy ERC-20 Tokens with Remix
+description: Learn how to deploy ERC-20 token contracts on Shardeum using Remix IDE
 ---
 
 import SmartContractWarningCallout from '../../../../../components/SmartContractWarningCallout';
@@ -12,78 +12,122 @@ import SmartContractDisclaimer from '../../../../../components/SmartContractDisc
 
 <SmartContractDisclaimer />
 
-Remix IDE is an open source web and desktop application. It fosters a fast development cycle and has a rich set of plugins with intuitive GUIs. Remix is used for the entire journey of contract development as well as act as a playground for learning and teaching Ethereum.
+Remix IDE is an open source web and desktop application that provides a fast development cycle with intuitive GUIs and a rich set of plugins. This guide will walk you through deploying an ERC-20 token contract on Shardeum using Remix.
 
-1. Visit https://remix.ethereum.org/
+## Prerequisites
 
-## Writing your smart contract
+Before you begin, ensure you have:
 
-2. Create a "New File" under contracts with name HelloWorld.sol.
+1. **MetaMask installed** and configured for Shardeum network
+2. **SHM tokens** in your wallet for gas fees
+3. **A test account** (recommended to use a separate browser for testing)
 
-![remix_1](/img/remix/remix_1.jpg)
+<Callout title="MetaMask Setup" type="info">
+If you haven't set up MetaMask for Shardeum yet, please refer to our [MetaMask setup guide](/docs/wallets/metamask/installing) first.
+</Callout>
 
-3. Copy and paste the code below to HelloWorld.sol file.
+## Step 1: Open Remix IDE
 
+1. Visit [https://remix.ethereum.org](https://remix.ethereum.org)
+
+## Step 2: Create ERC-20 Token Contract
+
+2. In the file explorer, create a new file under the `contracts` folder named `MyToken.sol`
+
+3. Copy and paste the following ERC-20 token contract code:
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17; // Specifies the version of Solidity, using semantic versioning.
+pragma solidity ^0.8.20;
 
-contract HelloWorld { // Defines a contract named `HelloWorld`
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
-   string public message; // Declares a state variable `message` of type `string`.
-
-   constructor(string memory initMessage) {    // Constructors are used to initialize the contract's data.
-      message = initMessage;      // Accepts a string argument `initMessage`.
-   }
-
-   function update(string memory newMessage) public { // A public function that accepts a string argument.
-      message = newMessage;
-   }
-
+contract MyToken is ERC20, ERC20Permit {
+    constructor() ERC20("MyToken2", "MT2") ERC20Permit("MyToken2") {
+        _mint(msg.sender, 5000 * 10 ** decimals());
+    }
 }
 ```
 
+<Callout title="Customizing Your Token" type="info">
+You can customize your token by changing:
+- `"MyToken2"` - The token name
+- `"MT2"` - The token symbol (appears in MetaMask, max 5 characters)
+- `5000` - The initial token supply minted to your wallet
+</Callout>
 
-## Compiling
+## Step 3: Compile the Contract
 
-4. Compile HelloWorld.sol.
+4. Go to the **Solidity Compiler** tab in the left sidebar
+5. Click **Compile MyToken.sol**
+6. Ensure you see a green checkmark indicating successful compilation
 
 ![remix_2](/img/remix/remix_2.jpg)
 
-## Deploying to Shardeum
+## Step 4: Deploy to Shardeum
 
-5. Select Injected Web3 for deploying to Shardeum.
+7. Navigate to the **Deploy & Run Transactions** tab
+8. In the **Environment** dropdown, select **Injected Provider - MetaMask**
 
-
-<Callout title="Injected Web3" type="warn">
-If Injected Web3 cannot detect the network, refresh the Remix IDE page, and then switch between networks in MetaMask.
+<Callout title="Network Detection" type="warn">
+If Injected Provider cannot detect the network, refresh the Remix IDE page and switch between networks in MetaMask.
 </Callout>
 
 ![remix_3](/img/remix/remix_3.jpg)
 
-6. Deploy the compiler contract.
+9. Select your **MyToken** contract from the dropdown
+10. Click **Deploy** to deploy your ERC-20 token contract
 
 ![remix_4](/img/remix/remix_4.jpg)
 
-7. Confirm the deploy transaction in MetaMask.
+11. Confirm the deployment transaction in MetaMask
 
 ![remix_5](/img/remix/remix_5.jpg)
 
-8. Find the deployed contract address in Remix.
+## Step 5: Get Contract Address
+
+12. After successful deployment, copy the **Contract Address** from Remix
 
 ![remix_6](/img/remix/remix_6.jpg)
 
-## Interacting
+## Step 6: Import Token to MetaMask
 
-9. Update the contract by interacting with the contract.
+13. In MetaMask, go to **Tokens** tab and click **Import Tokens**
+14. Paste the contract address from Remix into the **Token Contract Address** field
+15. The token information should auto-populate (Token Symbol and Decimals)
+16. Click **Add Custom Token** and then **Import Tokens**
 
-![remix_7](/img/remix/remix_7.jpg)
+## Step 7: Verify Token Balance
 
-10. Confirm the deploy transaction in MetaMask.
+17. Check your **Tokens** tab in MetaMask to see your newly minted tokens
+18. You should see 5000 tokens (or your custom amount) in your wallet
 
-![remix_8](/img/remix/remix_8.jpg)
+## Step 8: Transfer Tokens
 
-11. Check the contract has been updated.
+19. Select your token in MetaMask and click **Send**
+20. Enter the recipient address and amount
+21. Click **Next** and confirm the transaction
+22. Wait for the transaction to be confirmed
 
-![remix_9](/img/remix/remix_9.jpg)
+## Step 9: Verify on Block Explorer
+
+23. In MetaMask, click on the transaction and select **View on block explorer**
+24. Verify that the ERC-20 token transfer is displayed correctly on the explorer
+
+<Callout title="Testing Tips" type="info">
+- Test token transfers between different MetaMask accounts
+- Verify all transactions appear correctly on the block explorer
+- If you encounter issues, try resetting MetaMask via settings
+</Callout>
+
+## Troubleshooting
+
+If you encounter issues:
+
+- **Network not detected**: Refresh Remix and switch networks in MetaMask
+- **Transaction fails**: Ensure you have sufficient SHM for gas fees
+- **Token not appearing**: Double-check the contract address when importing
+- **MetaMask issues**: Reset MetaMask via settings if problems persist
+
+For more advanced smart contract development, check out our guides on [Hardhat](/docs/developer/smart-contracts/deploy/hardhat) and [Foundry](/docs/developer/smart-contracts/deploy/foundry) deployment.
