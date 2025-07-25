@@ -3,19 +3,17 @@ title: ERC-721 Token Standard
 description: Learn about the ERC-721 token standard on Shardeum
 ---
 
-import SmartContractDisclaimer from '../../../../../components/SmartContractDisclaimer.tsx';
-
-<SmartContractDisclaimer />
-
 # Deploy NFT Smart Contract (ERC721)
 
 ## What are NFTs?
 
 NFTs are individual tokens with valuable information stored in them. Because they hold a value primarily set by the market and demand, they can be bought and sold just like other physical types of art. NFTs' immutable data stored on technologies like blockchain makes it easy to assign/validate its ownership and transfer tokens between two parties transparently without any intermediary.
 
-NFT is a virtual digital asset that is typically unique and scarce similar to a Mona Lisa painting. An NFT is unique evidence of ownership of a virtual digital asset. You can read more about the use cases of NFTs like 'NFT for Causes' and 'Private Club Memberships' [here](https://shardeum.org/blog/top-10-nft-use-cases-in-2022/). And smart contracts are one of the best use cases/innovations of blockchain technology. It is a virtual settlement between two parties enforced through a computer program (code) instead of a third party. You can find more on smart contracts and their deployment on Shardeum using Hardhat [here](https://shardeum.org/blog/how-to-deploy-smart-contract-on-shardeum-testnet-hardhat/), which would have similar coding as below since we will be using Hardhat for this documentation of deploying an NFT smart contract.
+NFT is a virtual digital asset that is typically unique and scarce similar to a Mona Lisa painting. An NFT is unique evidence of ownership of a virtual digital asset. You can read more about the use cases of NFTs like 'NFT for Causes' and 'Private Club Memberships' [here](https://shardeum.org/blog/top-10-nft-use-cases-in-2022/). And smart contracts are one of the best use cases/innovations of blockchain technology. It is a virtual settlement between two parties enforced through a computer program (code) instead of a third party. 
 
 ## NFT Smart Contract Deployment Using Hardhat
+
+This is a step-by-step walkthrough created as a *reference* to help you understand how to create and deploy an ERC721 token/NFT smart contract on Shardeum. And, the networks referenced in this guide may include legacy beta networks such as Sphinx and Liberty, so be sure to use the appropriate network you intend to deploy to.
 
 ## Step 1 : Initialize Our Project
 
@@ -122,7 +120,7 @@ To keep our project organized, Hardhat creates two new folders. Navigate to the 
 Open up the shardeum-nft-dapp project in your favorite editor. Smart contracts are written in a language called Solidity which is what we will use to write our Domains.sol smart contract
 
 1. Navigate to the "contracts" folder and create a new file called Domains.sol
-2. Below is Domains smart contract from the [nft.shardeum.us](https://nft.shardeum.us/) that we will be using for this tutorial. Copy and paste in the contents below into your Domains.sol file.
+2. Below is Domains smart contract from a test NFT dApp that we will be using for this tutorial. Copy and paste in the contents below into your Domains.sol file.
 
 
 ```solidity
@@ -306,13 +304,13 @@ npm install @openzeppelin/contracts
 ```
 
 
-Now that we have created smart contract, we need to deploy this smart contract to the Shardeum Sphinx
+Now that we have created smart contract, we need to deploy this smart contract to the applicable Shardeum testnet
 
 ## Step 6 : Add the Shardeum Network to Metamask/Claim Token
 
 [MetaMask](https://metamask.io/) allows users to store and manage account keys, broadcast transactions, send and receive Ethereum-based cryptocurrencies and tokens, and securely connect to decentralized applications through a compatible web browser or the mobile app's built-in browser. Click [here](https://metamask.io/download/) to install the MetaMask extension on your browser.
 
-And follow these [instructions](https://docs.shardeum.org/docs/faucet/claim) to add Shardeum to MetaMask wallet and claim test 100 $SHM tokens from Sphinx faucet.
+And follow these [instructions](https://docs.shardeum.org/docs/faucet/claim) to add Shardeum to MetaMask wallet and claim test 100 $SHM tokens from the faucet.
 
 ## Step 7 : Connect MetaMask to Your Project
 
@@ -338,7 +336,7 @@ Note:
 Your .env should look like this:
 
 ```
-SHARDEUM_RPC=https://sphinx.shardeum.org/ 
+SHARDEUM_RPC=https://api-unstable.shardeum.org/
 PRIVATE_KEY= Your_Metamask_Private_Key
 ```
 
@@ -526,7 +524,7 @@ Now copy the data as selection shown above from the json and paste in new browse
 
 ![deploy_nft_smart_contract_2](/img/deploy_nft_smart_contract/deploy_nft_smart_contract_2.jpg)
 
-## Step 13 : Deploy to Shardeum Sphinx testnet
+## Step 13 : Deploy to Shardeum testnet
 
 In next line we are executing *(step 11) to deploy to Shardeum Network.
 
@@ -535,7 +533,13 @@ npx hardhat run scripts/deploy.js --network shardeum
 ```
 
 
-If we go to the [Shardeum explorer](https://explorer-sphinx.shardeum.org/) and search for our contract address we should able to see that it has been deployed successfully.
+If we go to the suitable active Shardeum explorers listed below and search for contract address and you should be able to see it there!
+
+[Shardeum Mainnet Explorer](https://explorer.shardeum.org/)
+
+[Shardeum Unstablenet Explorer](https://explorer-unstable.shardeum.org/)
+
+[Shardeum Testnet Explorer](https://explorer-testnet.shardeum.org/)
 
 ![deploy_nft_smart_contract_3](/img/deploy_nft_smart_contract/deploy_nft_smart_contract_3.jpg)
 
@@ -543,7 +547,7 @@ Click on Transaction hash to see the full details of contract creation:
 
 ![deploy_nft_smart_contract_4](/img/deploy_nft_smart_contract/deploy_nft_smart_contract_4.jpg)
 
-Congrats! You just deployed an NFT smart contract to the Shardeum Sphinx.
+Congrats! You just deployed an NFT smart contract to the Shardeum network.
 
 ## Video Tutorial
 
