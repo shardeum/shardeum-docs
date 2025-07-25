@@ -3,10 +3,6 @@ title: ERC-20 Token Standard
 description: Learn about the ERC-20 token standard on Shardeum
 ---
 
-import SmartContractDisclaimer from '../../../../../components/SmartContractDisclaimer.tsx';
-
-<SmartContractDisclaimer />
-
 # Deploy Your Own Crypto Token (ERC20)
 
 ## What is ERC-20 Token?
@@ -24,7 +20,7 @@ ERC 20 tokens are issued on the Ethereum network. They have emerged as the techn
 
 ## Create and Deploy your ERC-20 Token using Remix
 
-This step-by-step tutorial will teach you how to create and deploy an ERC-20 token on the Shardeum Sphinx network. We will use [Metamask](https://metamask.io/) and [Remix IDE](https://remix.ethereum.org/) for this tutorial.
+This is a step-by-step walkthrough created as a *reference* to help you understand how to create and deploy an ERC-20 token on Shardeum networks including testnet and mainnet. We will use [Metamask](https://metamask.io/) and [Remix IDE](https://remix.ethereum.org/) for this tutorial.
 
 ## Add Shardeum Network to Metamask/Claim Token
 
@@ -74,13 +70,15 @@ Compile the contract by going over to the 'Compiler' tab in Remix and selecting 
 
 ![mint_your_own_crypto_1](/img/mint_your_own_crypto/mint_your_own_crypto_1.jpg)
 
-## Deploying the Smart Contract on Shardeum Sphinx
+## Deploying the Smart Contract
+
+Please note that the networks referenced in this guide may include legacy beta networks such as Sphinx and Liberty, so be sure to use the appropriate network you intend to deploy to.
 
 Let's deploy a fixed supply of 10000 Tokens (You can change it to another supply at the code level).
 
 Go to the 'Deployer' tab in Remix.
 
-Select the 'Injected Web3' environment (make sure you select Shardeum Sphinx Network), and connect your MetaMask wallet.
+Select the 'Injected Web3' environment (selecting the appropriate network), and connect your MetaMask wallet.
 
 Now, select the 'ShardeumERC20Token.sol' contract, and enter values for the constructor arguments '_Name' and '_Symbol' as shown in the image below.
 
@@ -96,7 +94,13 @@ After deploying, click the 'Copy Address' button to copy the contract address.
 
 ![mint_your_own_crypto_4](/img/mint_your_own_crypto/mint_your_own_crypto_4.jpg)
 
-You can now go to [Shardeum Explorer](https://docs.shardeum.org/network/explorer) and search for contract address and you should be able to see it there!
+You can now go to the suitable active Shardeum explorers listed below and search for contract address and you should be able to see it there!
+
+[Shardeum Mainnet Explorer](https://explorer.shardeum.org/)
+
+[Shardeum Unstablenet Explorer](https://explorer-unstable.shardeum.org/)
+
+[Shardeum Testnet Explorer](https://explorer-testnet.shardeum.org/)
 
 ## Video Tutorial
 
