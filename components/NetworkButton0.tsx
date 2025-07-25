@@ -9,7 +9,7 @@ declare global {
 }
 
 interface ConnectToShardeumProps {
-  network: 'mainnet' | 'testnet';
+  network: 'mainnet' | 'testnet' | 'unstablenet';
 }
 
 export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
@@ -28,6 +28,13 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
       chainName: 'Shardeum Testnet',
       explorerURL: 'https://explorer-testnet.shardeum.org',
       networkVersion: 8083
+    },
+    unstablenet: {
+      rpcURL: 'https://api-unstable.shardeum.org/',
+      chainId: '0x1f90',
+      chainName: 'Shardeum Unstablenet',
+      explorerURL: 'https://explorer-unstable.shardeum.org/',
+      networkVersion: 8080
     }
   };
 
@@ -77,7 +84,7 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
       className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
       onClick={addNetwork}
     >
-      Connect to Shardeum {network === 'mainnet' ? 'Mainnet' : 'Testnet'}
+      Connect to Shardeum {network === 'mainnet' ? 'Mainnet' : network === 'testnet' ? 'Testnet' : 'UnstableNet'}
     </button>
   );
 }
