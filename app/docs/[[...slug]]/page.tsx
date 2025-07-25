@@ -3,16 +3,15 @@ import type { Metadata } from 'next';
 import { DocsPage, DocsBody } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 
+export const dynamicParams = false; // Prevent dynamic fallback generation
+
 export default async function Page({
   params,
 }: {
   params: { slug?: string[] };
 }) {
   const page = getPage(params.slug);
-
-  if (page == null) {
-    notFound();
-  }
+  if (page == null) notFound();
 
   const MDX = page.data.exports.default;
 
@@ -27,14 +26,25 @@ export default async function Page({
 }
 
 export async function generateStaticParams() {
-  return getPages().map((page) => ({
-    slug: page.slugs,
-  }));
+  const excluded = [
+    'developer/architecture/apis-and-interfaces',
+    'developer/smart-contracts/boilerplate',
+    'developer/smart-contracts/deploy/foundry',
+    'developer/smart-contracts/deploy/hardhat',
+    'developer/smart-contracts/eip-2930/multicall-contract',
+    'developer/smart-contracts/eip-2930/solidityInterfaces',
+    'developer/smart-contracts/events/poll-events',
+  ];
+
+  return getPages()
+    .filter((page) => !excluded.includes(page.slugs?.join('/')))
+    .map((page) => ({
+      slug: page.slugs,
+    }));
 }
 
 export function generateMetadata({ params }: { params: { slug?: string[] } }) {
   const page = getPage(params.slug);
-
   if (page == null) notFound();
 
   return {
