@@ -23,11 +23,11 @@ export default function ConnectToShardeum({ network }: ConnectToShardeumProps) {
       networkVersion: 8118
     },
     testnet: {
-      rpcURL: 'https://api-testnet.shardeum.org',
-      chainId: '0x1f93', // 8083 in decimal
-      chainName: 'Shardeum Testnet',
-      explorerURL: 'https://explorer-testnet.shardeum.org',
-      networkVersion: 8083
+      rpcURL: 'https://api-mezame.shardeum.org',
+      chainId: '0x1FB7', // 8119 in decimal
+      chainName: 'Shardeum EVM Testnet',
+      explorerURL: 'https://explorer-mezame.shardeum.org',
+      networkVersion: 8119
     },
     unstablenet: {
       rpcURL: 'https://api-unstable.shardeum.org/',
