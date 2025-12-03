@@ -1,18 +1,77 @@
 ---
-title: Ethereum Virtual Machine
-description: What is EVM?
+title: EVM Overview
+description: Ethereum Virtual Machine
 ---
 
-## What is the EVM?
+## EVM Overview
 
-EVM is short for Ethereum Virtual Machine. Let’s start with Virtual Machines in simple words. The purpose of a virtual machine is to virtualize the version of a host computer or server (like client APIs) and deploy that version on multiple (end-user) systems across the world with the help of software programs and automation. In Web 1.0 and Web 2.0, the software programs are typically installed and maintained by developers in centralized institutions for proprietary use.
+The Ethereum Virtual Machine (EVM) is the execution environment that powers smart contracts across the Ethereum ecosystem. By supporting the EVM, Shardeum enables Solidity-based applications to run seamlessly, using the same tools, libraries, and workflows that developers already rely on.
 
-Now let’s bring the Ethereum network into the mix. With EVM in Web 3.0, open-source blockchain is used to handle the virtualization of servers across multiple systems with the help of network protocols. The technology is primarily operated and maintained by unrelated nodes on the network resulting in high decentralization. Moreover, EVM was further developed to perform and execute any logical step of a computational function through its ‘smart contract’ with a level of automation that was never seen before.
+This makes it easy to deploy Ethereum-compatible smart contracts on Shardeum while benefiting from the network’s high performance, low fees, and scalable architecture. Here are some key aspects about the EVM:  
 
-We now have a state machine that virtualizes servers and interfaces of thousands of applications across multiple systems with an unbelievable level of automation. So, in effect, what you see with Ethereum is not just a decentralized ledger holding data on accounts and balances but also its capability to store an entire state data of a ton of scalable applications and other web 3.0 commercial services that sits on top of it.
+1. **Turing Completeness**: The EVM is fully Turing-complete, allowing developers to express any computable logic within a smart contract. This supports a broad range of use cases — from tokens and NFTs to DeFi protocols, gaming logic, and advanced automation.
 
-## Shardeum is EVM Compatible
+2. **Gas & Fees**: Every transaction and smart-contract execution consumes gas, which measures the computational work required. On Shardeum:
+  
+   - Gas fees are paid in SHM, the network’s native token
+   - Fees remain consistently low
+   - Gas protects the network from spam or inefficient code
 
-If you are one of those Ethereum or Ethereum-based developers, please note that Shardeum is EVM compatible. You don't need to change your application codes to launch various dApps you are building on Shardeum. Any smart contract written to run in EVM can be easily ported to the Shardeum network. You just need to deploy a smart contract written in Solidity or Vyper on Shardeum with a bonus that you will never have to worry about rising gas fees again.
+This ensures efficient use of resources and predictable transaction costs.
 
-<iframe width="750" height="400" src="https://www.youtube.com/embed/sTOcqS4msoU?si=Xg_0hytk_WrkM6I9" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+3. **Bytecode Execution**: Smart contracts are authored in high-level languages such as Solidity, compiled into EVM bytecode, and then deployed on the network. Once deployed:
+  
+   - The bytecode becomes immutable
+   - All nodes execute it deterministically
+   - Contract behavior is consistent across the network
+
+Because Shardeum maintains compatibility with the EVM, bytecode compiled for Ethereum or other EVM chains works equivalently on Shardeum.
+
+## Why EVM Support Matters?
+
+By adopting the EVM, Shardeum becomes instantly accessible to millions of developers already familiar with the Ethereum ecosystem. This enables:
+
+   - **Rapid dApp deployment** using frameworks like Hardhat, Foundry, Remix, and Truffle
+   - **Instant wallet compatibility**, including MetaMask and other popular wallets
+   - **Seamless migration** of existing Ethereum and EVM-based projects
+   - **Straightforward onboarding** for new developers entering the Shardeum ecosystem
+
+EVM support ensures that developers can build with familiar tooling while benefiting from Shardeum’s scalability, low fees, and modern infrastructure.
+
+## Smart Contract Languages
+
+The two primary languages for developing smart contracts on the EVM are **Solidity** and **Vyper**. Since Solidity is more widely used, let's see its features and an example smart contract using Solidity.
+
+### Solidity
+
+Solidity is the most widely used language for writing Ethereum smart contracts, and it is fully supported on Shardeum. It is statically typed, contract-oriented, and designed to express application logic like:
+
+   - Tokens (ERC-20, ERC-721, ERC-1155)
+   - DeFi protocols
+   - NFT marketplaces
+   - Governance systems
+   - Gaming and Automation logic
+
+Because Shardeum is EVM-compatible, **existing Solidity contracts can be deployed without modification.**
+
+#### Example: A simple storage contract (Solidity)
+
+```bash
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+    uint256 private value;
+
+    function store(uint256 newValue) public {
+        value = newValue;
+    }
+
+    function retrieve() public view returns (uint256) {
+        return value;
+    }
+}
+```
+
+You can compile and deploy this contract using Hardhat, Foundry, Remix, or any standard EVM tool.
+
