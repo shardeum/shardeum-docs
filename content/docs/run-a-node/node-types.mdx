@@ -14,21 +14,21 @@ The Shardeum network runs on two main types of nodes. Each node type serves a di
 
 - **Role**: Full nodes do not participate in consensus. They maintain and verify the blockchain state, functioning as a reliable “source of truth” for applications, wallets, and other network participants.
 - **Configuration**: Full nodes run with pruning enabled by default, storing only the most recent state needed for operation.
-- **Use Cases**:
-  - Running infrastructure for dApps
-  - Supporting RPC endpoints
-  - Improving network resilience
-  - Non-validating node participation
+- **Use cases include**:
+  1. Running infrastructure for dApps
+  2. Supporting RPC endpoints
+  3. Improving network resilience
+  4. Non-validating node participation
 
 ## Archive Nodes
 
 Archive nodes are a special configuration of full nodes.
 - **Role**: Archive nodes store all historical blockchain state from genesis to the present.
-- **When Needed**:
-  - Indexers
-  - Blockchain analytics
-  - Data providers
-  - Explorers and infra partners
+- **Use cases include:**:
+  1. Indexers
+  2. Blockchain analytics
+  3. Data providers
+  4. Explorers and infra partners
 - **Configuration**: Disable pruning so the node retains every historical state snapshot.
 - **Startup Flag**:
 
