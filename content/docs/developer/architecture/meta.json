@@ -1,5 +1,5 @@
 {
     "title": "Architecture",
-    "pages": ["high-level-architecture", "security", "node-lifecycle", "cyclic-operations","transaction-lifecycle","consensus-and-sharding-mechanism","validator-operations", "transaction-types"],
+    "pages": ["high-level-architecture", "security", "node-lifecycle", "transaction-lifecycle","consensus-and-sharding-mechanism", "transaction-types"],
     "excludedFiles": ["apis-and-interfaces"]
   }
