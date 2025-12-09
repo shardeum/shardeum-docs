@@ -26,7 +26,7 @@ const callsToAction = [
 ];
 
 const navItems = [
-  { name: 'Connect to Shardeum', href: '/docs/network/endpoints' },
+  { name: 'Connect to Shardeum', href: '/docs/overview/endpoints' },
   { name: 'Report Bugs', href: 'https://discord.com/channels/933959587462254612/1397861946421674114' },
   { name: 'Github', href: 'https://github.com/shardeum' },
   { name: 'Claim Testnet SHM', href: '/docs/developer/faucet' },
