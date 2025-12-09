@@ -1,0 +1,4 @@
+{
+  "title": "Advanced Operations",
+  "pages": ["overview", "backup-restore", "upgrades", "security", "performance-tuning", "networking", "disaster-recovery", "automation"]
+}

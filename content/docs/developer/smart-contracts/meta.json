@@ -1,4 +1,4 @@
 {
   "title": "Deploy Smart Contracts",
-  "pages": ["deploy","tokens"]
+  "pages": ["deploy-using-remix","deploy-using-foundry","deploy-using-hardhat","deploy-dapps"]
 }

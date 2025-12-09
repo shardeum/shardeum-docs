@@ -1,0 +1,4 @@
+{
+  "title": "Run an RPC Node",
+  "pages": ["overview", "prerequisites", "installation", "configuration", "monitoring", "troubleshooting"]
+}
