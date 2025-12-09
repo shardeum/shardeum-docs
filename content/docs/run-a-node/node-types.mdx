@@ -3,22 +3,37 @@ title: Node Types
 description: Understanding different node types on Shardeum
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+The Shardeum network runs on two main types of nodes. Each node type serves a different purpose, and operators can choose the configuration that best matches how they want to support the network.
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
-</Callout>
+## Validator Nodes
 
-# Node Types
+- **Role**: Validators are responsible for proposing blocks, participating in consensus, and securing the network.
+- **Requirements**: Requires staking SHM tokens and maintaining high uptime and performance.
 
-Learn about the different types of nodes you can run on Shardeum network.
+## Full Nodes
 
-## Overview
+- **Role**: Full nodes do not participate in consensus. They maintain and verify the blockchain state, functioning as a reliable “source of truth” for applications, wallets, and other network participants.
+- **Configuration**: Full nodes run with pruning enabled by default, storing only the most recent state needed for operation.
+- **Use cases include**:
+  1. Running infrastructure for dApps
+  2. Supporting RPC endpoints
+  3. Improving network resilience
+  4. Non-validating node participation
 
-Shardeum supports multiple node types, each serving different purposes in the network:
+## Archive Nodes
 
-- **Full Nodes**: Store complete blockchain data and validate transactions
-- **Validator Nodes**: Participate in consensus and earn rewards
-- **RPC Nodes**: Provide API endpoints for applications to interact with the network
+Archive nodes are a special configuration of full nodes.
+- **Role**: Archive nodes store all historical blockchain state from genesis to the present.
+- **Use cases include:**:
+  1. Indexers
+  2. Blockchain analytics
+  3. Data providers
+  4. Explorers and infra partners
+- **Configuration**: Disable pruning so the node retains every historical state snapshot.
+- **Startup Flag**:
 
-Choose the node type that best fits your needs and technical requirements.
+```
+--pruning nothing
+```
+
+**Note**: Running an archive node requires significantly more storage and may grow rapidly over time.
