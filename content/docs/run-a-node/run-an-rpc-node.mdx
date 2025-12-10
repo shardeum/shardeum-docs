@@ -1,40 +1,272 @@
 ---
 title: Run an RPC Node
-description: Guide to running an RPC node on Shardeum
+description: Guide to running an RPC node on Shardeum EVM Mainnet
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
+# Run an RPC Node — Shardeum EVM Mainnet
+
+An RPC node provides JSON-RPC and WebSocket endpoints for developers, dApps, indexers, infrastructure providers, and partners.
+RPC nodes do not validate blocks and do not require staking.
+
+<Callout type="warn">
+RPC nodes should not expose consensus ports publicly and must follow strict security practices.
 </Callout>
 
-# Run an RPC Node
+## 1. System Requirements
 
-Learn how to set up and run an RPC node on Shardeum network.
+**Recommended:**
 
-## What is an RPC Node?
+- **OS:** Ubuntu 22.04 LTS
+- **CPU:** 4 cores
+- **RAM:** 8–16 GB
+- **Storage:** 500 GB+ NVMe SSD
+- **Network:** High-bandwidth connection
+- **Dependencies:** git, jq, curl, make, build-essential, pkg-config
+- **Go:** v1.25+
 
-RPC (Remote Procedure Call) nodes provide API endpoints for applications to interact with the Shardeum blockchain. They serve as the gateway for dApps and wallets.
+### Install dependencies:
 
-## Prerequisites
+```bash
+sudo apt update
+sudo apt install git jq curl make build-essential pkg-config -y
+```
 
-- System requirements and hardware specifications
-- Network bandwidth and storage requirements
-- Technical knowledge of API management
+### Install Go:
 
-## Installation
+```bash
+curl -LO https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc
+go version
+```
 
-Step-by-step guide to install and configure your RPC node.
+## 2. Install Shardeum Node Binary
 
-## Configuration
+```bash
+git clone https://github.com/shardeum/shardeum-evm.git
+cd shardeum-evm
+make install
+```
 
-Configure your RPC node endpoints, security settings, and rate limiting.
+Verify:
 
-## Monitoring
+```bash
+shardeumd version
+command -v shardeumd
+```
 
-Monitor your RPC node's performance, request volume, and response times.
+## 3. Environment Variables
 
-## Troubleshooting
+```bash
+export SHARDEUM_CONFIG_DIR="$PWD/config"
+export SHARDEUM_NETWORK=mainnet
+export BINARY=$(command -v shardeumd)
+```
 
-Common issues and solutions for running an RPC node on Shardeum.
+## 4. Initialize the Node
+
+```bash
+NODE_ID="rpcnode"
+MONIKER="shardeum-rpc"
+
+shardeumd init "$MONIKER" \
+  --chain-id shardeum_8118-1 \
+  --home $HOME/.mainnet/$NODE_ID \
+  --overwrite
+```
+
+## 5. Copy Genesis File
+
+```bash
+cp config/mainnet-genesis.json $HOME/.mainnet/$NODE_ID/config/genesis.json
+jq -r '.chain_id' $HOME/.mainnet/$NODE_ID/config/genesis.json
+```
+
+## 6. Start and Sync the Node
+
+Start:
+
+```bash
+shardeumd start \
+  --home $HOME/.mainnet/$NODE_ID \
+  --chain-id shardeum_8118-1 \
+  --p2p.seeds a6b7640991e0d5070dc99ecc07f969275a130045@34.93.254.18:27656 \
+  --p2p.laddr tcp://0.0.0.0:26656 \
+  > $HOME/.mainnet/$NODE_ID/node.log
+```
+
+Monitor:
+
+```bash
+shardeumd status | jq '.SyncInfo'
+tail -f $HOME/.mainnet/$NODE_ID/node.log
+```
+
+Wait until fully synced.
+
+## 7. Enable JSON-RPC
+
+Edit `$HOME/.mainnet/$NODE_ID/config/app.toml`.
+
+Find the RPC section and set:
+
+```toml
+json-rpc.enable = true
+json-rpc.address = "0.0.0.0:8545"
+json-rpc.ws-address = "0.0.0.0:8546"
+```
+
+Restart your node if using systemd.
+
+## 8. Optional: Enable gRPC & REST Endpoints
+
+In `app.toml`:
+
+```toml
+grpc.enable = true
+grpc.address = "0.0.0.0:9090"
+
+api.enable = true
+api.address = "0.0.0.0:1317"
+```
+
+Enable these only if required by your infrastructure.
+
+## 9. Firewall Configuration
+
+Expose only RPC/WebSocket ports:
+
+```bash
+sudo ufw allow 8545/tcp   # JSON-RPC
+sudo ufw allow 8546/tcp   # WebSocket
+sudo ufw allow 9090/tcp   # gRPC (optional)
+sudo ufw allow 1317/tcp   # REST API (optional)
+sudo ufw allow 26656/tcp  # P2P
+sudo ufw enable
+```
+
+<Callout type="error">
+Do not expose port 26657 (Tendermint RPC) to the public.
+Restrict sensitive endpoints to localhost or trusted IPs.
+</Callout>
+
+## 10. systemd Service (Recommended)
+
+Create service:
+
+```bash
+sudo nano /etc/systemd/system/shardeumd-rpc.service
+```
+
+Example:
+
+```ini
+[Unit]
+Description=Shardeum RPC Node
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/shardeumd start --home /root/.mainnet/rpcnode
+Restart=on-failure
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable:
+
+```bash
+sudo systemctl enable shardeumd-rpc
+sudo systemctl start shardeumd-rpc
+```
+
+## 11. Pruning (Recommended for RPC Nodes)
+
+RPC nodes often use custom pruning.
+
+Edit `app.toml`:
+
+```toml
+pruning = "custom"
+pruning-keep-recent = "10000"
+pruning-interval = "50"
+```
+
+Restart the node.
+
+## 12. Scaling RPC Nodes (Optional)
+
+For high-traffic dApps:
+
+- Use load balancers (Nginx, HAProxy, AWS ELB)
+- Run multiple RPC nodes behind a reverse proxy
+- Rate-limit requests to avoid overload
+- Separate "public RPC" from "private infra RPC"
+- Run indexing services in parallel (The Graph, SubQuery, etc.)
+
+## 13. Useful Commands
+
+**Check sync:**
+
+```bash
+shardeumd status | jq '.SyncInfo'
+```
+
+**Check network peers:**
+
+```bash
+curl -s http://localhost:26657/net_info | jq '.result'
+```
+
+**Check logs:**
+
+```bash
+journalctl -u shardeumd-rpc -f
+```
+
+**Query RPC:**
+
+```bash
+curl -s http://<your-ip>:8545 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+```
+
+## 14. Troubleshooting
+
+### RPC endpoint not responding
+
+- Confirm RPC enabled in `app.toml`
+- Confirm IP binding is correct
+- Check firewall rules
+- Check node is fully synced
+
+### High latency
+
+- Reduce pruning window
+- Increase hardware resources
+- Add more RPC nodes behind a proxy
+
+### Node stuck catching up
+
+- Check peers
+- Restart node
+- Verify time sync (NTP)
+
+## RPC Node Setup Complete
+
+Your RPC node is operational and serving JSON-RPC / WebSocket traffic for the Shardeum EVM mainnet.
+
+Use this setup for:
+
+- dApp backend integrations
+- Indexing services
+- Developer environments
+- High-availability RPC infrastructure
