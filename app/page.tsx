@@ -4,15 +4,15 @@ import { ArrowUpRightIcon, CubeTransparentIcon, CurrencyDollarIcon, ViewfinderCi
 const features = [
   {
     name: 'Shardeum Overview',
-    description: 'Dive deep into the innovative features and architecture of Shardeum.',
+    description: 'Deep dive into Shardeum\'s features, how to connect to the network, and EVM-compatibility',
     icon: ViewfinderCircleIcon,
     link: '/docs/overview/what-is-shardeum'
   },
   {
-    name: 'Run a Validator Node',
-    description: 'Contribute to the security and decentralization of the Shardeum network by running a validator node.',
+    name: 'Run a Node',
+    description: 'Contribute to the security and decentralization of Shardeum network',
     icon: RocketLaunchIcon,
-    link: '/docs/run-a-node/run-a-validator-node'
+    link: '/docs/run-a-node/node-types'
   },
   {
     name: 'Smart Contracts',
@@ -50,7 +50,7 @@ export default function Home() {
               Shardeum Documentation
             </p>
             <p className="mt-4 text-lg leading-8 text-gray-700 dark:text-gray-300">
-              Shardeum is a scalable, secure, and efficient blockchain platform that enables developers to build and deploy decentralized applications. Dive into our documentation to learn more about Shardeum and how to get started with the network.
+              Shardeum is an EVM-compatible Layer 1 blockchain designed to bring India - and the world - onchain, with low fees, fast finality, and high scalability.
             </p>
           </div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-7xl">

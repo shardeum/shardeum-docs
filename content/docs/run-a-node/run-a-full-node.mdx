@@ -1,40 +1,323 @@
 ---
 title: Run a Full Node
-description: Guide to running a full node on Shardeum
+description: Guide to running a full node on Shardeum EVM Mainnet
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
+# Run a Full Node — Shardeum EVM Mainnet
+
+A full node verifies blocks, relays network data, and can optionally serve RPC endpoints for dApps and infrastructure partners. Full nodes do not participate in consensus and do not require staking.
+
+## 1. System Requirements
+
+**Recommended:**
+
+- **OS:** Ubuntu 22.04 LTS
+- **CPU:** 4 cores
+- **RAM:** 8–16 GB
+- **Storage:** 500 GB+ NVMe SSD
+- **Network:** 100 Mbps
+- **Dependencies:** git, jq, curl, make, build-essential, pkg-config
+- **Go:** v1.25+
+
+### Install dependencies:
+
+```bash
+sudo apt update
+sudo apt install git jq curl make build-essential pkg-config -y
+```
+
+### Install Go:
+
+```bash
+curl -LO https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc
+go version
+```
+
+## 2. Install Shardeum Node Binary
+
+```bash
+git clone https://github.com/shardeum/shardeum-evm.git
+cd shardeum-evm
+make install
+```
+
+Verify:
+
+```bash
+shardeumd version
+command -v shardeumd
+```
+
+## 3. Environment Variables
+
+```bash
+export SHARDEUM_CONFIG_DIR="$PWD/config"
+export SHARDEUM_NETWORK=mainnet
+export BINARY=$(command -v shardeumd)
+```
+
+## 4. Initialize the Node
+
+Choose a node ID and moniker (ASCII only):
+
+```bash
+NODE_ID="node0"
+MONIKER="shardeum-fullnode"
+
+shardeumd init "$MONIKER" \
+  --chain-id shardeum_8118-1 \
+  --home $HOME/.mainnet/$NODE_ID \
+  --overwrite
+```
+
+## 5. Copy Genesis File
+
+```bash
+cp config/mainnet-genesis.json $HOME/.mainnet/$NODE_ID/config/genesis.json
+ls -lh $HOME/.mainnet/$NODE_ID/config/genesis.json
+jq -r '.chain_id' $HOME/.mainnet/$NODE_ID/config/genesis.json
+```
+
+## 6. Start and Sync the Node
+
+**Start:**
+
+```bash
+shardeumd start \
+  --home $HOME/.mainnet/$NODE_ID \
+  --chain-id shardeum_8118-1 \
+  --p2p.seeds a6b7640991e0d5070dc99ecc07f969275a130045@34.93.254.18:27656 \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  > $HOME/.mainnet/$NODE_ID/node.log
+```
+
+**Monitor:**
+
+```bash
+shardeumd status | jq '.SyncInfo'
+```
+
+Or tail the log:
+
+```bash
+tail -f $HOME/.mainnet/$NODE_ID/node.log
+```
+
+Sync is complete when block height matches the explorer.
+
+## 7. Optional: Run as systemd Service
+
+Create service:
+
+```bash
+sudo nano /etc/systemd/system/shardeumd.service
+```
+
+Example content:
+
+```ini
+[Unit]
+Description=Shardeum Full Node
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/shardeumd start --home /root/.mainnet/node0
+Restart=on-failure
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable:
+
+```bash
+sudo systemctl enable shardeumd
+sudo systemctl start shardeumd
+sudo systemctl status shardeumd
+```
+
+## 8. Optional: Enable JSON-RPC
+
+Edit `config/app.toml` inside your node directory.
+
+Enable:
+
+```toml
+json-rpc.enable = true
+json-rpc.address = "0.0.0.0:8545"
+json-rpc.ws-address = "0.0.0.0:8546"
+```
+
+Restart the node if using systemd.
+
+## 9. Firewall Configuration
+
+```bash
+sudo ufw allow 26656/tcp   # P2P
+sudo ufw allow 8545/tcp    # JSON-RPC (optional)
+sudo ufw allow 8546/tcp    # WebSocket (optional)
+sudo ufw enable
+```
+
+<Callout type="warn">
+For production, restrict JSON-RPC to trusted IPs or localhost.
 </Callout>
 
-# Run a Full Node
+## 10. Optional: Pruning Settings
 
-Learn how to set up and run a full node on Shardeum network.
+Full nodes can reduce storage usage.
 
-## What is a Full Node?
+Edit `app.toml`:
 
-A full node stores the complete blockchain data and validates all transactions and blocks. Full nodes contribute to the network's decentralization and security.
+```toml
+pruning = "default"
+```
 
-## Prerequisites
+Or for higher performance:
 
-- System requirements and hardware specifications
-- Operating system compatibility
-- Network and storage requirements
+```toml
+pruning = "custom"
+pruning-keep-recent = "10000"
+pruning-interval = "50"
+```
 
-## Installation
+Restart node after making changes.
 
-Step-by-step guide to install and configure your full node.
+## 11. Node Management Commands
 
-## Configuration
+### Checking Node Status
 
-Configure your full node for optimal performance and reliability.
+**Sync status:**
 
-## Monitoring
+```bash
+shardeumd status | jq '.SyncInfo'
+```
 
-Monitor your full node's health, performance, and synchronization status.
+**Node ID:**
 
-## Troubleshooting
+```bash
+shardeumd comet show-node-id
+```
 
-Common issues and solutions for running a full node on Shardeum.
+**Check peers:**
+
+```bash
+curl -s http://localhost:26657/net_info | jq '.result'
+curl -s http://localhost:26657/net_info | jq '.result.n_peers'
+```
+
+**Check logs:**
+
+```bash
+journalctl -u shardeumd -f
+```
+
+Or if running without systemd:
+
+```bash
+tail -f $HOME/.mainnet/$NODE_ID/node.log
+```
+
+### Account and Balance Management
+
+**List all keys:**
+
+```bash
+shardeumd keys list
+```
+
+**Account balance:**
+
+```bash
+shardeumd query bank balances <address>
+```
+
+### Stopping the Node
+
+**Stop shardeumd process:**
+
+```bash
+pkill shardeumd
+```
+
+**If using systemd:**
+
+```bash
+sudo systemctl stop shardeumd
+```
+
+## 12. Troubleshooting
+
+### Node Won't Sync
+
+**Check peer connections:**
+
+```bash
+shardeumd status | jq '.SyncInfo.latest_block_height'
+curl -s http://localhost:26657/net_info | jq '.result.n_peers'
+```
+
+**Common fixes:**
+
+- Verify seeds in `config.toml`
+- Try adding more persistent peers
+- Check your time sync (NTP): `timedatectl status`
+- Check port 26656 is open
+
+### Out of Disk Space
+
+**Check disk usage:**
+
+```bash
+df -h
+```
+
+**Solutions:**
+
+- For full nodes: Enable pruning in `app.toml`:
+  ```toml
+  pruning = "default"
+  ```
+- Or use custom pruning:
+  ```toml
+  pruning = "custom"
+  pruning-keep-recent = "10000"
+  pruning-interval = "50"
+  ```
+- Increase disk space
+
+**Important:** If running as Archive Node with `--pruning nothing`, you need adequate storage for complete history.
+
+### RPC Not Responding
+
+- Check firewall rules: `sudo ufw status`
+- Verify RPC enabled in `app.toml`
+- Confirm bind address is correct (`0.0.0.0:8545` for external access)
+- Check node is fully synced
+- Restart the service: `sudo systemctl restart shardeumd`
+
+## 13. Important Notes
+
+- **Chain ID:** `shardeum_8118-1` (mainnet)
+- **EVM Chain ID:** `8118` (hex: `0x1fb6`) for MetaMask and EVM interactions
+- **Unbonding Period:** 21 days (if you later become a validator)
+- **Archive Node:** Use `--pruning nothing` flag to maintain complete history
+- **Backups:** Always back up `node_key.json` securely
+
+## Full Node Complete
+
+Your Shardeum full node is now running and contributing to network decentralization.
+
+You may proceed to:
+
+- Promote it to a validator, or
+- Enable RPC for dApps, or
+- Pair with a sentry node for validator security
