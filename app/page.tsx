@@ -6,25 +6,25 @@ const features = [
     name: 'Shardeum Overview',
     description: 'Dive deep into the innovative features and architecture of Shardeum.',
     icon: ViewfinderCircleIcon,
-    link: '/docs'
+    link: '/docs/overview/what-is-shardeum'
   },
   {
     name: 'Run a Validator Node',
     description: 'Contribute to the security and decentralization of the Shardeum network by running a validator node.',
     icon: RocketLaunchIcon,
-    link: '/docs/run-a-node/getting-started'
+    link: '/docs/run-a-node/run-a-validator-node'
   },
   {
-    name: 'RPC API',
-    description: 'Explore the Shardeum JSON-RPC API and learn how to interact with the Shardeum network.',
+    name: 'Smart Contracts',
+    description: 'Deploy smart contracts using Remix, Hardhat, or Foundry on Shardeum.',
     icon: NewspaperIcon,
-    link: '/docs/api/json-rpc'
+    link: '/docs/developer/smart-contracts'
   },
   {
     name: 'Network Setup',
     description: 'Easily add the Shardeum network to your wallet with just a few clicks.',
     icon: CubeTransparentIcon,
-    link: '/docs/endpoints'
+    link: '/docs/overview/endpoints'
   },
   {
     name: 'Faucet',
@@ -38,7 +38,7 @@ const features = [
     icon: ArrowUpRightIcon,
     link: '/docs/developer/architecture/high-level-architecture'
   },
-  
+
 ];
 
 export default function Home() {

@@ -27,6 +27,7 @@ const callsToAction = [
 
 const navItems = [
   { name: 'Connect to Shardeum', href: '/docs/network/endpoints' },
+  { name: 'Connect to Shardeum', href: '/docs/overview/endpoints' },
   { name: 'Github', href: 'https://github.com/shardeum' },
   { name: 'Claim Testnet SHM', href: '/docs/developer/faucet' },
   { name: 'Join Shardeum Discord', href: 'https://discord.com/invite/shardeum' },

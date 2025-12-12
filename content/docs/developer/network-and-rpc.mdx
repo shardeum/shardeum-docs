@@ -1,6 +1,6 @@
 ---
-title: Network & RPC Information
-description: Network & RPC Information
+title: Shardeum RPC Guide
+description: Shardeum RPC Guide
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -18,23 +18,21 @@ The live, production network where real value is transacted.
 - **RPC Endpoints:** `https://api.shardeum.org/` and
 `https://partner-api.shardeum.org/` (Often has higher rate limits for partners)
 - **Chain ID:** Typically `8118` (always verify with official sources for mainnet).
-- **Archivers:** (IPs/ports for archivers can change; these are examples and should be verified) `http://35.238.248.68:4000`, `http://34.23.94.188:4000`
 
-### **Unstablenet (Smart Contract Testnet)**
-Shardeum has launched Unstablenet, our dedicated smart contract testnet on July 24, 2025. By opening Unstablenet to our community early in the development cycle, we're empowering developers and users to test, build, and innovate alongside us - shaping the evolution of Shardeum as the world's first smart contract platform that is dynamically state sharded, with atomic and cross shard composability.
+### **Shardeum EVM Testnet**
+Shardeum has launched EVM Testnet, our dedicated smart contract testnet on October 3, 2025.
 
-- **Explorer:** [`https://explorer-unstable.shardeum.org/`](https://explorer-unstable.shardeum.org/)
-- **RPC Endpoint:** `https://api-unstable.shardeum.org`
-- **Chain ID:** e.g. `8080` (verify with announcements)
-- **Archivers:** (IPs/ports for archivers can change; these are examples and should be verified) `http://34.57.251.44:4000/cycleinfo/1`, `http://35.231.169.235:4000/cycleinfo/1`
+- **Explorer:** e.g. [`https://explorer-mezame.shardeum.org/`](https://explorer-mezame.shardeum.org/)
+- **RPC Endpoint:** e.g. `https://api-mezame.shardeum.org`
+- **Chain ID:** e.g. `8119` (verify with announcements)
 
-### **Testnet (General Purpose)**
+{/* ### **Testnet (General Purpose)**
 This is a general purpose testnet used for active development, testing new features, and public incentivized testing. These networks can be reset or have features change more frequently. Note, this  is different from the aforementioned smart contract testnet - Unstablenet.
 
 - **Explorer:** e.g. [`https://explorer-testnet.shardeum.org/`](https://explorer-testnet.shardeum.org/)
 - **RPC Endpoint:** e.g. `https://api-testnet.shardeum.org/`
 - **Chain ID:** e.g. `8083` (verify with announcements)
-- **Archivers:** (Example, verify) `http://104.197.117.164:4000`
+- **Archivers:** (Example, verify) `http://104.197.117.164:4000` */}
 
 **Key Takeaway:** Always use the RPC URL, Chain ID, and Archiver URLs specific to the network you intend to interact with. Using mismatched information (e.g. a testnet RPC with a mainnet Chain ID in MetaMask) will lead to errors. Official Shardeum documentation and announcements are the source of truth for current network details.
 

@@ -1,4 +1,4 @@
 {
-   "title": "Run a Node",
-   "pages": ["getting-started", "one-click-install", "self-host", "cloud-service-providers"]
-  }
+   "title": "Run a Node/Delegate SHM",
+   "pages": ["node-types", "run-a-full-node", "run-a-validator-node", "run-an-rpc-node", "delegate-shm", "advanced-operations"]
+}
