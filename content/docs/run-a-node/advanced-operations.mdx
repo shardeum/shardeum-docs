@@ -1,0 +1,421 @@
+---
+title: Advanced Operations
+description: Advanced node operations, monitoring, and production best practices
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Advanced Node Operations
+
+This guide covers advanced operational topics for running production-grade Shardeum nodes.
+
+<Callout type="info">
+While the current codebase supports advanced node operations, operators attempting advanced configurations should have a solid understanding of blockchain infrastructure and system administration.
+</Callout>
+
+## 1. Production Deployment Best Practices
+
+### Using systemd Service
+
+Create a systemd service file for automatic restarts and easier management:
+
+```bash
+sudo nano /etc/systemd/system/shardeumd.service
+```
+
+**Example service file:**
+
+```ini
+[Unit]
+Description=Shardeum Node
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/shardeumd start --home /root/.mainnet/node0
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Enable and start the service:**
+
+```bash
+sudo systemctl enable shardeumd
+sudo systemctl start shardeumd
+sudo systemctl status shardeumd
+```
+
+### Firewall Configuration
+
+**For Full Nodes / RPC Nodes:**
+
+```bash
+sudo ufw allow 26656/tcp  # P2P
+sudo ufw allow 26657/tcp  # RPC (optional, for local access only)
+sudo ufw allow 8545/tcp   # JSON-RPC
+sudo ufw allow 8546/tcp   # WebSocket
+sudo ufw enable
+```
+
+**For Validators:**
+
+```bash
+sudo ufw allow 26656/tcp  # P2P only
+sudo ufw enable
+```
+
+<Callout type="error">
+For validators, consider restricting RPC access to localhost only. Never expose validator RPC endpoints publicly.
+</Callout>
+
+## 2. Monitoring and Alerting
+
+### Enable Prometheus Metrics
+
+Edit `config.toml`:
+
+```toml
+prometheus = true
+prometheus_listen_addr = ":26660"
+```
+
+### Monitoring Stack Setup
+
+**Recommended tools:**
+- **Prometheus** - Metrics collection
+- **Grafana** - Visualization dashboards
+- **Alertmanager** - Alert notifications
+
+**Key metrics to monitor:**
+- Sync status
+- Block height
+- Validator jail status
+- Disk space usage
+- Memory usage
+- CPU usage
+- Missed blocks
+- Peer count
+- Network latency
+
+### Alert Conditions
+
+Set up alerts for:
+- Node falls behind by more than 100 blocks
+- Validator is jailed
+- Disk usage exceeds 80%
+- Memory usage exceeds 90%
+- Peer count drops below 5
+- Node stops producing blocks (for validators)
+
+## 3. Security Best Practices
+
+### Sentry Node Architecture
+
+A recommended production setup for validators:
+
+```
+Internet → Sentry Nodes (Public) → Validator (Private IP only)
+```
+
+**Benefits:**
+- Hides validator's IP address
+- Absorbs DDoS traffic
+- Reduces attack surface
+- Improves security
+
+**Configuration:**
+1. Run validator on private network
+2. Connect validator only to sentry nodes
+3. Configure sentry nodes with public IPs
+4. Update `persistent_peers` to point validator at sentries
+
+### Key Management System (KMS)
+
+For enhanced security, consider:
+- **Tendermint KMS** for validator key management
+- Hardware Security Modules (HSM) for key storage
+- YubiHSM2 integration
+- Remote signing capabilities
+
+<Callout type="warn">
+KMS setup requires advanced configuration. Thoroughly test in a non-production environment first.
+</Callout>
+
+### Security Checklist
+
+- ✅ Use firewall rules to restrict access
+- ✅ Disable SSH password authentication (use keys only)
+- ✅ Keep system packages updated
+- ✅ Use fail2ban or similar intrusion prevention
+- ✅ Implement DDoS protection
+- ✅ Regular security audits
+- ✅ Monitor logs for suspicious activity
+- ✅ Use VPN for administrative access
+
+## 4. Backup and Recovery
+
+### Critical Files to Back Up
+
+**Validator-specific:**
+```bash
+~/.mainnet/$NODE_ID/config/priv_validator_key.json
+~/.mainnet/$NODE_ID/data/priv_validator_state.json
+```
+
+**All nodes:**
+```bash
+~/.mainnet/$NODE_ID/config/node_key.json
+~/.mainnet/$NODE_ID/config/config.toml
+~/.mainnet/$NODE_ID/config/app.toml
+```
+
+**Wallet keys:**
+```bash
+# Mnemonic phrase (keep offline and secure)
+```
+
+### Backup Script Example
+
+```bash
+#!/bin/bash
+NODE_ID="node0"
+BACKUP_DIR="/secure/backup/location"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+# Create backup directory
+mkdir -p $BACKUP_DIR/$DATE
+
+# Backup critical files
+cp ~/.mainnet/$NODE_ID/config/priv_validator_key.json $BACKUP_DIR/$DATE/
+cp ~/.mainnet/$NODE_ID/config/node_key.json $BACKUP_DIR/$DATE/
+cp ~/.mainnet/$NODE_ID/config/*.toml $BACKUP_DIR/$DATE/
+
+# Create encrypted archive
+tar -czf $BACKUP_DIR/backup_$DATE.tar.gz -C $BACKUP_DIR $DATE
+rm -rf $BACKUP_DIR/$DATE
+
+echo "Backup completed: backup_$DATE.tar.gz"
+```
+
+### Disaster Recovery
+
+**If validator key is compromised:**
+1. Immediately unbond and remove validator
+2. Generate new keys
+3. Create new validator
+4. Report incident to network
+
+**If node fails:**
+1. Deploy new server with identical configuration
+2. Restore backup files
+3. Sync node to current block height
+4. Unjail validator if necessary
+
+## 5. Performance Optimization
+
+### Pruning Strategies
+
+**Full nodes (custom pruning):**
+```toml
+pruning = "custom"
+pruning-keep-recent = "10000"
+pruning-interval = "50"
+```
+
+**Archive nodes (no pruning):**
+```bash
+--pruning nothing
+```
+
+**Validators:**
+- Use minimal pruning or default settings
+- Avoid aggressive pruning to maintain full state
+
+### Database Optimization
+
+**Enable state sync for faster initial sync:**
+
+Edit `config.toml`:
+```toml
+[statesync]
+enable = true
+rpc_servers = "rpc1.shardeum.org:26657,rpc2.shardeum.org:26657"
+trust_height = <recent_height>
+trust_hash = "<block_hash>"
+```
+
+### Hardware Tuning
+
+**SSD optimization:**
+```bash
+# Enable TRIM
+sudo systemctl enable fstrim.timer
+
+# Check I/O scheduler
+cat /sys/block/nvme0n1/queue/scheduler
+```
+
+**Network tuning:**
+```bash
+# Increase network buffers
+sudo sysctl -w net.core.rmem_max=134217728
+sudo sysctl -w net.core.wmem_max=134217728
+```
+
+## 6. Scaling RPC Infrastructure
+
+### Load Balancing
+
+**For high-traffic dApps:**
+- Use Nginx, HAProxy, or AWS ELB
+- Run multiple RPC nodes behind a reverse proxy
+- Implement rate limiting to avoid overload
+- Separate "public RPC" from "private infra RPC"
+
+**Example Nginx configuration:**
+
+```nginx
+upstream rpc_backend {
+    least_conn;
+    server 10.0.1.10:8545;
+    server 10.0.1.11:8545;
+    server 10.0.1.12:8545;
+}
+
+server {
+    listen 80;
+    server_name rpc.example.com;
+
+    location / {
+        proxy_pass http://rpc_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+
+        # Rate limiting
+        limit_req zone=rpc_limit burst=10 nodelay;
+    }
+}
+```
+
+### Caching Strategies
+
+- Cache common queries (latest block, chain ID)
+- Use Redis for query caching
+- Implement CDN for static responses
+
+## 7. Logging and Debugging
+
+### Viewing Logs
+
+**If using systemd:**
+```bash
+journalctl -u shardeumd -f
+journalctl -u shardeumd --since "1 hour ago"
+```
+
+**If running manually:**
+```bash
+tail -f ~/.mainnet/$NODE_ID/node.log
+```
+
+### Debug Mode
+
+Enable verbose logging in `config.toml`:
+```toml
+log_level = "debug"
+```
+
+### Common Debug Commands
+
+```bash
+# Check sync status
+shardeumd status | jq '.SyncInfo'
+
+# Check peer connections
+curl -s http://localhost:26657/net_info | jq '.result.n_peers'
+
+# Query consensus state
+curl -s http://localhost:26657/consensus_state
+
+# Check validator signing info
+shardeumd query slashing signing-info $(shardeumd comet show-validator)
+```
+
+## 8. Upgrade Procedures
+
+### Coordinated Network Upgrades
+
+**Preparation:**
+1. Monitor official announcements for upgrade schedule
+2. Backup all critical files
+3. Test upgrade on testnet first
+4. Prepare rollback plan
+
+**Upgrade steps:**
+1. Stop the node: `sudo systemctl stop shardeumd`
+2. Backup current binary: `cp $(which shardeumd) shardeumd.backup`
+3. Download and install new binary
+4. Verify version: `shardeumd version`
+5. Start node: `sudo systemctl start shardeumd`
+6. Monitor logs for issues
+
+### Rollback Procedure
+
+If upgrade fails:
+```bash
+sudo systemctl stop shardeumd
+cp shardeumd.backup /usr/local/bin/shardeumd
+sudo systemctl start shardeumd
+```
+
+## 9. Troubleshooting Advanced Issues
+
+### High Memory Usage
+
+```bash
+# Check memory usage
+free -h
+htop
+
+# Restart node to clear memory
+sudo systemctl restart shardeumd
+```
+
+### Database Corruption
+
+```bash
+# Reset data (will require full resync)
+shardeumd tendermint unsafe-reset-all --home ~/.mainnet/$NODE_ID
+
+# Restore from snapshot (if available)
+# Download snapshot and extract to data directory
+```
+
+### Network Connectivity Issues
+
+```bash
+# Test peer connectivity
+telnet <peer-ip> 26656
+
+# Check firewall
+sudo ufw status verbose
+
+# Monitor network traffic
+sudo iftop -i eth0
+```
+
+## 10. Important Resources
+
+- **Chain ID:** `shardeum_8118-1` (mainnet)
+- **EVM Chain ID:** `8118` (hex: `0x1fb6`)
+- **Official Documentation:** [docs.shardeum.org](https://docs.shardeum.org)
+- **GitHub:** [github.com/shardeum](https://github.com/shardeum)
+- **Discord:** Community support and announcements
+
+<Callout type="info">
+Advanced operations require careful planning and testing. Always test configuration changes in a non-production environment first.
+</Callout>
