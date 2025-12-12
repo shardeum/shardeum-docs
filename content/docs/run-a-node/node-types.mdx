@@ -7,30 +7,30 @@ The Shardeum network runs on two main types of nodes. Each node type serves a di
 
 ## Validator Nodes
 
-- **Role**: Validators are responsible for proposing blocks, participating in consensus, and securing the network.
-- **Requirements**: Requires staking SHM tokens and maintaining high uptime and performance.
+1. **Role**: Validators are responsible for proposing blocks, participating in consensus, and securing the network.
+2. **Requirements**: Requires staking SHM tokens and maintaining high uptime and performance.
 
 ## Full Nodes
 
-- **Role**: Full nodes do not participate in consensus. They maintain and verify the blockchain state, functioning as a reliable "source of truth" for applications, wallets, and other network participants.
-- **Configuration**: Full nodes run with pruning enabled by default, storing only the most recent state needed for operation.
-- **Use cases include**:
-   1. Running infrastructure for dApps
-   2. Supporting RPC endpoints
-   3. Improving network resilience
-   4. Non-validating node participation
+1. **Role**: Full nodes do not participate in consensus. They maintain and verify the blockchain state, functioning as a reliable “source of truth” for applications, wallets, and other network participants.
+2. **Configuration**: Full nodes run with pruning enabled by default, storing only the most recent state needed for operation.
+3. **Use cases include**:
+   - Running infrastructure for dApps
+   - Supporting RPC endpoints
+   - Improving network resilience
+   - Non-validating node participation
 
 ### Archive Nodes
 
 Archive nodes are a special configuration of full nodes.
-- **Role**: Archive nodes store all historical blockchain state from genesis to the present.
-- **Use cases include:**:
-   1. Indexers
-   2. Blockchain analytics
-   3. Data providers
-   4. Explorers and infra partners
-- **Configuration**: Disable pruning so the node retains every historical state snapshot.
-- **Startup Flag**:
+1. **Role**: Archive nodes store all historical blockchain state from genesis to the present.
+2. **Use cases include:**:
+   - Indexers
+   - Blockchain analytics
+   - Data providers
+   - Explorers and infra partners
+3. **Configuration**: Disable pruning so the node retains every historical state snapshot.
+4. **Startup Flag**:
 
 ```
 --pruning nothing
