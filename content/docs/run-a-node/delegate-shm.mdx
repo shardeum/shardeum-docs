@@ -1,34 +1,19 @@
 ---
 title: Delegate SHM
-description: Guide to delegating SHM tokens on Shardeum
+description: Delegate SHM to validators and earn staking rewards.
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+Delegators play a crucial role in securing the network by staking their SHM tokens with trustworthy validators, without running or maintaining a node themselves. Delegators earn a portion (commission) of the validators' rewards.
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
-</Callout>
+## How to Delegate?
 
-# Delegate SHM
+Here is the step-by-step guide to delegate your SHM tokens to a validator.
 
-Learn how to delegate your SHM tokens to validators and earn rewards.
+1. All staking operations are managed through the [official dashboard](https://dashboard.shardeum.org)
+2. Available features include **Delegate**, **Undelegate**, and **Claim Rewards**
+3. Scroll down to the Validators section. Each [validator](https://dashboard.shardeum.org/validators) displays key information, including their commission rate. Click any validator to view their full profile and decide if you want to delegate your SHM to them. *(For best practice, consider splitting your SHM delegation across multiple validators. This helps reduce the impact of validator performance issues and maximize your rewards, while also contributing to the network’s overall decentralization.)*
+4. After selecting a validator, click **Delegate** on the right side of the validator’s row.
+5. Enter the amount of SHM you want to delegate, then click **Delegate** to confirm the transaction.
+6. Once delegated, you can view or claim rewards, add more delegation, or initiate an undelegation at any time from the [Staking section](https://dashboard.shardeum.org/staking) of the dashboard. 
 
-## What is Delegation?
-
-Delegation allows SHM token holders to stake their tokens with validators without running a node themselves. Delegators earn a portion of the validator's rewards.
-
-## How to Delegate
-
-Step-by-step guide to delegate your SHM tokens to a validator.
-
-## Choosing a Validator
-
-Learn how to evaluate and choose the right validator for delegation based on performance, commission rates, and reliability.
-
-## Delegation Rewards
-
-Understand how delegation rewards are calculated, distributed, and claimed.
-
-## Undelegating
-
-Learn about the undelegation process, unbonding periods, and how to withdraw your staked tokens.
+**Note**: Undelegation is the process of withdrawing your delegated SHM from a validator. You're signaling that you want them back - whether to redelegate them to another validator or to simply hold them in your wallet. Once undelegated, your tokens enter a **21-day unbonding period**, during which they are locked and not earning rewards. After the 21 days are complete, the SHM returns to your wallet.
