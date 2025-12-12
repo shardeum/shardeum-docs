@@ -11,11 +11,10 @@ import {
   Transition,
 } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
-import { ChevronDownIcon, PlayCircleIcon, DocumentIcon, CodeBracketIcon, ChatBubbleBottomCenterIcon, AcademicCapIcon, VideoCameraIcon, GlobeAltIcon } from '@heroicons/react/20/solid';
+import { ChevronDownIcon, PlayCircleIcon, DocumentIcon, ChatBubbleBottomCenterIcon, AcademicCapIcon, VideoCameraIcon, GlobeAltIcon } from '@heroicons/react/20/solid';
 
 const resources = [
   { name: 'Shardeum University', description: 'Learn about Shardeum and blockchain technology', href: 'https://university.shardeum.org', icon: AcademicCapIcon },
-  { name: 'Github', description: 'Explore and contribute to our open source projects', href: 'https://github.com/shardeum', icon: CodeBracketIcon },
   { name: 'Discord', description: 'Join our community and engage in discussions', href: 'https://discord.com/invite/shardeum', icon: ChatBubbleBottomCenterIcon },
   { name: 'YouTube', description: 'Watch tutorials and talks on our YouTube channel', href: 'https://www.youtube.com/@Shardeum', icon: VideoCameraIcon },
   { name: 'OSS Webpage', description: 'Visit our open source webpage for more information', href: 'https://shardeum.org/open-source/', icon: GlobeAltIcon },
@@ -27,10 +26,9 @@ const callsToAction = [
 
 const navItems = [
   { name: 'Connect to Shardeum', href: '/docs/overview/endpoints' },
-  { name: 'Github', href: 'https://github.com/shardeum' },
-  { name: 'Claim Testnet SHM', href: '/docs/developer/faucet' },
-  { name: 'Join Shardeum Discord', href: 'https://discord.com/invite/shardeum' },
   { name: 'Delegate Now', href: 'https://dashboard.shardeum.org/validators' },
+  { name: 'Github', href: 'https://github.com/shardeum' },
+  { name: 'Testnet SHM', href: '/docs/developer/faucet' },
 ];
 
 function classNames(...classes: string[]) {
@@ -62,8 +60,8 @@ export default function Header({ isDarkMode, setIsDarkMode }: HeaderProps) {
 
   return (
     <header className="bg-white dark:bg-black sticky top-0 z-50">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
-        <div className="flex items-center flex-1">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8" aria-label="Global">
+        <div className="flex">
           <a href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Shardeum</span>
             <img
@@ -85,7 +83,13 @@ export default function Header({ isDarkMode, setIsDarkMode }: HeaderProps) {
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
-        <PopoverGroup className="hidden lg:flex lg:gap-x-12">
+        <PopoverGroup className="hidden lg:flex lg:flex-1 lg:justify-center lg:gap-x-12">
+          {navItems.map((item) => (
+            <a key={item.name} href={item.href} className="text-md font-semibold leading-6 text-gray-900 dark:text-gray-300 hover:text-indigo-600 transition duration-200">
+              {item.name}
+            </a>
+          ))}
+
           <Popover className="relative" ref={popoverRef}>
             <PopoverButton
               className="flex items-center gap-x-1 text-md font-semibold leading-6 text-gray-900 dark:text-gray-300 hover:text-indigo-600 transition duration-200"
@@ -139,14 +143,8 @@ export default function Header({ isDarkMode, setIsDarkMode }: HeaderProps) {
               </PopoverPanel>
             </Transition>
           </Popover>
-
-          {navItems.map((item) => (
-            <a key={item.name} href={item.href} className="text-md font-semibold leading-6 text-gray-900 dark:text-gray-300 hover:text-indigo-600 transition duration-200">
-              {item.name}
-            </a>
-          ))}
         </PopoverGroup>
-        <div className="flex items-center lg:ml-6">
+        <div className="flex">
           <button
             type="button"
             className="p-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-200 rounded-md"
