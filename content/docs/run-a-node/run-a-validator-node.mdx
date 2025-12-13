@@ -13,13 +13,13 @@ This guide describes how to install, configure, and operate a validator node on 
 
 **Recommended:**
 
-- **OS:** Ubuntu 22.04 LTS
+- **Operating System:** Ubuntu 22.04 LTS (recommended)
 - **CPU:** 4 cores (8 threads)
-- **RAM:** 16 GB
-- **Storage:** 1 TB NVMe SSD
-- **Network:** 100 Mbps dedicated
+- **RAM:** 16GB
+- **Storage:** 1TB NVMe SSD (recommended for mainnet)
+- **Network:** 100 Mbps dedicated bandwidth
+- **Go:** Version 1.25+
 - **Dependencies:** git, jq, curl, make, build-essential, pkg-config
-- **Go:** v1.25+
 
 ### Install dependencies:
 
@@ -32,8 +32,8 @@ sudo apt install git jq curl make build-essential pkg-config -y
 
 ```bash
 curl -LO https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
+rm -rf /usr/local/go
+tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 source ~/.bashrc
 go version
@@ -44,17 +44,36 @@ go version
 ```bash
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
+```
+
+**Build binary (May take several minutes):**
+
+```bash
 make install
 ```
 
-Verify:
+**Add Go bin directory to PATH:**
+
+```bash
+echo 'export PATH=$PATH:/root/go/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Verify installation:**
 
 ```bash
 shardeumd version
+```
+
+**Verify binary is accessible:**
+
+```bash
 command -v shardeumd
 ```
 
-## 3. Environment Variables
+## 3. Set Environment Variables
+
+Set the config from the base folder of the source code (shardeum-evm):
 
 ```bash
 export SHARDEUM_CONFIG_DIR="$PWD/config"
@@ -64,131 +83,217 @@ export BINARY=$(command -v shardeumd)
 
 ## 4. Initialize the Node
 
-Choose identifiers:
+<Callout type="warn">
+**PLEASE ENSURE YOUR KEYS ARE SECURED PROPERLY**
+</Callout>
+
+**Choose identifiers:**
 
 ```bash
-NODE_ID="node0"
-MONIKER="shardeum-validator"
+NODE_ID="<validator-id>"  # node0, node1, shardeumnode
+MONIKER="<validator-name>"  # choose your validator name which is easy to remember
 ```
 
-Initialize:
+**Initialize:**
 
 ```bash
-shardeumd init "$MONIKER" \
-  --chain-id shardeum_8118-1 \
-  --home $HOME/.mainnet/$NODE_ID \
-  --overwrite
+shardeumd init "$MONIKER" --chain-id shardeum_8118-1 --home $HOME/.mainnet/$NODE_ID --overwrite
 ```
 
 ## 5. Copy Genesis File
 
+Copy the genesis file from the repository:
+
 ```bash
 cp config/mainnet-genesis.json $HOME/.mainnet/$NODE_ID/config/genesis.json
+```
+
+Check that the genesis file has been copied correctly:
+
+```bash
 ls -lh $HOME/.mainnet/$NODE_ID/config/genesis.json
+```
+
+Validate the genesis file and check chain ID:
+
+```bash
 jq -r '.chain_id' $HOME/.mainnet/$NODE_ID/config/genesis.json
+```
+
+The expected chain ID value is:
+
+```
+shardeum_8118-1
 ```
 
 ## 6. Start and Sync the Node
 
-Start:
+Start the node:
 
 ```bash
-shardeumd start \
-  --home $HOME/.mainnet/$NODE_ID \
-  --chain-id shardeum_8118-1 \
-  --p2p.seeds a6b7640991e0d5070dc99ecc07f969275a130045@34.93.254.18:27656 \
-  --p2p.laddr tcp://0.0.0.0:27656 \
-  > $HOME/.mainnet/$NODE_ID/node.log
+shardeumd start --home $HOME/.mainnet/$NODE_ID --chain-id shardeum_8118-1 --p2p.seeds a6b7640991e0d5070dc99ecc07f969275a130045@34.93.254.18:27656,d04dd653ff79799263f1bd1df8ce61071d798880@34.31.69.40:27656 --p2p.laddr tcp://0.0.0.0:27656 --rpc.laddr tcp://127.0.0.1:26657 --pruning nothing > $HOME/.mainnet/$NODE_ID/node.log
 ```
 
-Monitor sync:
+## 7. Check Sync Status
+
+Open another terminal and confirm the node directory exists:
 
 ```bash
-shardeumd status | jq '.SyncInfo'
+ls $HOME/.mainnet/$NODE_ID
 ```
 
-Or use:
+If `node.log` appears in the list, you can monitor the sync by streaming the log:
 
 ```bash
 tail -f $HOME/.mainnet/$NODE_ID/node.log
 ```
 
-Sync is complete when block height matches the explorer.
+Look for lines similar to:
 
-## 7. Create the Validator Key (After Sync)
+```
+indexed block events height=2897690
+```
 
-Create:
+If the number after `height` keeps increasing, your node is syncing correctly.
+
+<img src="/validator-sync.png" alt="Validator Sync Logs" width="800" height="400" />
+
+When the height matches the latest block shown on the [explorer](https://explorer.shardeum.org/), your node is fully synced.
+
+<img src="/validator-blocks.png" alt="Latest Blocks" width="400" height="400" />
+
+## 8. Create the Validator Key (After Sync)
+
+<Callout type="error">
+**IMPORTANT:** Perform this step only after the node is fully synced.
+
+**PLEASE ENSURE YOUR KEYS ARE SECURED PROPERLY**
+</Callout>
+
+Open a new terminal and move into the repo:
+
+```bash
+cd shardeum-evm
+```
+
+Set the required environment variables:
+
+```bash
+export SHARDEUM_CONFIG_DIR="$PWD/config"
+export SHARDEUM_NETWORK=mainnet
+export BINARY=$(command -v shardeumd)
+```
+
+**Create a new validator key:**
 
 ```bash
 shardeumd keys add validator-key
 ```
 
-Or recover:
+You will be prompted to set a password:
+
+```
+Enter keyring passphrase: {Setup a new password here}
+```
+
+**To restore an existing key instead, use:**
 
 ```bash
 shardeumd keys add validator-key --recover
 ```
 
-View address:
+<Callout type="warn">
+**CRITICAL:** Save your mnemonic phrase securely. It is the only way to recover your validator account.
+</Callout>
+
+**Retrieve your validator address:**
 
 ```bash
 shardeumd keys show validator-key -a
 ```
 
-<Callout type="warn">
-Store your mnemonic securely. Do not share validator keys.
-</Callout>
+Make sure you store your validator keys using a secure method you trust and follow a backup process you are comfortable with.
 
-## 8. Fund Your Validator Account
+## 9. Fund Validator Account
 
-Your validator account must have enough SHM for:
+Your validator account must have enough SHM to complete the staking transaction.
 
-- **Minimum stake:** 1 SHM
-- **Gas fees for create-validator:** ~1024 SHM
-- **Total recommended:** 1025 SHM or more
+**Required amounts:**
+- Minimum stake: 1 SHM
+- Gas fees for create-validator: ~1024 SHM
+- **Total recommended: 1025 SHM or more**
 
-Send funds from:
+**Funding Options:**
+- **MetaMask** (RPC: https://api.shardeum.org)
+- **Keplr:** Add Shardeum to Keplr (https://chains.keplr.app/) wallet and transfer tokens
+- **Exchange:** Withdraw SHM to your validator address
 
-- MetaMask (RPC: https://api.shardeum.org)
-- Keplr
-- Exchanges
-
-Verify balance:
+**Verify your balance:**
 
 ```bash
 shardeumd query bank balances $(shardeumd keys show validator-key -a)
 ```
 
-## 9. Get Validator Consensus Key
+Example output:
+
+```
+balances:
+- amount: "1025000000000000000000"
+  denom: ashm
+pagination:
+  total: "1"
+```
+
+## 10. Create Your Validator and Stake Tokens
+
+### Get your validator public key:
+
+```bash
+shardeumd keys show validator-key -a
+```
+
+### Get your validator consensus key:
 
 ```bash
 shardeumd comet show-validator --home $HOME/.mainnet/$NODE_ID
 ```
 
-Copy the "key" value.
+If your node ID is `node0`, replace `$NODE_ID` with `node0`.
 
-## 10. Create validator.json
+Example output:
 
-Create configuration file:
+```json
+{"@type":"/cosmos.crypto.ed25519.PubKey","key":"PA1zbDr+0Z9cVlHTqR9t263t4j2voBRovvaKfiBnzds="}
+```
+
+Copy the value inside the `key`. You will need it in the next step.
+
+### Create the validator.json file
+
+Open the file:
 
 ```bash
 nano validator.json
 ```
 
-Example:
+Paste the following template and replace the key and details as needed:
+
+<Callout type="info">
+**Optional:** Add identity, website, and details
+</Callout>
 
 ```json
 {
   "pubkey": {
     "@type": "/cosmos.crypto.ed25519.PubKey",
-    "key": "<your_consensus_key>"
+    "key": "<your validator consensus key>"
   },
   "amount": "1000000000000000000ashm",
-  "moniker": "your-validator",
-  "identity": "",
-  "website": "",
-  "security": "",
-  "details": "",
+  "moniker": "<Your validator name>",
+  "identity": "<keybase-identity>",
+  "website": "<https://your-website.com>",
+  "security": "<contact email, optional>",
+  "details": "<short description of your validator>",
   "commission-rate": "0.10",
   "commission-max-rate": "0.20",
   "commission-max-change-rate": "0.01",
@@ -196,9 +301,14 @@ Example:
 }
 ```
 
-Save and exit (Ctrl+O, Enter, Ctrl+X).
+**Save and exit:**
+- Control O
+- Enter
+- Control X
 
-## 11. Create the Validator
+### Create your validator
+
+Run:
 
 ```bash
 shardeumd tx staking create-validator validator.json \
@@ -209,331 +319,41 @@ shardeumd tx staking create-validator validator.json \
   --gas-prices="2048130280389041ashm"
 ```
 
-Confirm when prompted.
+Enter your keyring passphrase when asked.
 
-A successful result contains:
+You will see a full preview of the transaction. The system will then ask:
+
+```
+confirm transaction before signing and broadcasting [y/N]:
+```
+
+Type `y` and press Enter.
+
+A successful result shows:
 
 ```
 code: 0
-txhash: <hash>
+txhash: <your transaction hash>
 ```
 
-## 12. Verify Validator Status
+## 11. Verify Your Validator Status
 
-View validator:
+Check that the validator is registered:
 
 ```bash
 shardeumd query staking validator $(shardeumd keys show validator-key --bech val -a)
 ```
 
-You should see:
+You should see output containing:
 
 ```
 status: BOND_STATUS_BONDED
+moniker: <your moniker>
+tokens: <your voting power>
+delegator_shares: <your voting power>
 ```
 
-View voting power:
-
-```bash
-shardeumd status | jq '.ValidatorInfo.VotingPower'
-```
-
-List validator set:
-
-```bash
-shardeumd query comet-validator-set
-```
-
-## 13. Validator Operations
-
-<Callout type="info">
-At this step, your validator is set up and should be contributing to the network. It should also be earning rewards.
-
-Below commands are for informational purposes. You can execute them as required.
-</Callout>
-
-### Checking Validator Status
-
-**Validator info:**
-
-```bash
-shardeumd status | jq '.ValidatorInfo'
-```
-
-**View validator:**
-
-```bash
-shardeumd query staking validator $(shardeumd keys show validator-key --bech val -a)
-```
-
-**Voting power:**
-
-```bash
-shardeumd status | jq '.ValidatorInfo.VotingPower'
-```
-
-**Check delegations:**
-
-```bash
-shardeumd query staking delegations <delegator-address>
-```
-
-**Check rewards:**
-
-```bash
-shardeumd query distribution rewards <delegator-address>
-```
-
-### Delegate More Stake
-
-```bash
-shardeumd tx staking delegate \
-  $(shardeumd keys show validator-key --bech val -a) \
-  1000000000000000000ashm \
-  --from=validator-key \
-  --chain-id=shardeum_8118-1 \
-  --gas="auto" \
-  --gas-adjustment="1.5" \
-  --gas-prices="2048130280389041ashm"
-```
-
-### Unbond (21-day wait)
-
-```bash
-shardeumd tx staking unbond \
-  $(shardeumd keys show validator-key --bech val -a) \
-  1000000000000000000ashm \
-  --from=validator-key \
-  --chain-id=shardeum_8118-1 \
-  --gas="auto" \
-  --gas-adjustment="1.5" \
-  --gas-prices="2048130280389041ashm"
-```
-
-<Callout type="warn">
-**Important:** Once you initiate the undelegate action, your funds enter a lock-up period. They will not be available in your wallet until the 21-day cycle is complete.
-</Callout>
-
-### Withdraw Rewards
-
-```bash
-shardeumd tx distribution withdraw-all-rewards \
-  --from=validator-key \
-  --chain-id=shardeum_8118-1 \
-  --gas="auto" \
-  --gas-adjustment="1.5" \
-  --gas-prices="2048130280389041ashm"
-```
-
-### Unjail Validator
-
-```bash
-shardeumd tx slashing unjail \
-  --from=validator-key \
-  --chain-id=shardeum_8118-1 \
-  --gas="auto" \
-  --gas-adjustment="1.5" \
-  --gas-prices="2048130280389041ashm"
-```
-
-### Edit Validator Details
-
-```bash
-shardeumd tx staking edit-validator \
-  --moniker="<new-moniker>" \
-  --website="<new-website>" \
-  --identity="" \
-  --details="" \
-  --from=validator-key \
-  --chain-id=shardeum_8118-1 \
-  --gas="auto" \
-  --gas-adjustment="1.5" \
-  --gas-prices="2048130280389041ashm"
-```
-
-## 14. Production Recommendations
-
-### systemd Service
-
-```bash
-sudo nano /etc/systemd/system/shardeumd.service
-```
-
-Enable:
-
-```bash
-sudo systemctl enable shardeumd
-sudo systemctl start shardeumd
-```
-
-### Firewall
-
-```bash
-sudo ufw allow 26656/tcp   # P2P
-sudo ufw enable
-```
-
-<Callout type="warn">
-Do not expose RPC on a validator. Leave all RPC interfaces on localhost.
-</Callout>
-
-### Monitoring and Alerts
-
-Enable Prometheus in `config.toml`:
-
-```toml
-prometheus = true
-prometheus_listen_addr = ":26660"
-```
-
-**Set up monitoring for:**
-
-- Sync status
-- Validator jail status
-- Disk space usage
-- Memory usage
-- Missed blocks
-- Peer count
-
-**Recommended monitoring stack:**
-
-- **Prometheus** - Metrics collection
-- **Grafana** - Visualization dashboards
-- **Alertmanager** - Alert notifications
-
-Use Prometheus and Grafana for comprehensive monitoring to prevent downtime and slashing.
-
-### Sentry Node Architecture (Recommended)
-
-A common layout:
-
-```
-Internet → Sentry Nodes → Validator (private IP only)
-```
-
-Sentry nodes:
-
-- Hide validator's IP
-- Absorb traffic
-- Reduce DDoS risk
-
-### Security Considerations
-
-**For validators, consider:**
-
-- **Key Management System (KMS)** like Tendermint KMS
-- **Sentry node architecture** (validators behind full nodes)
-- Regular security updates
-- Secure key backup procedures
-- DDoS protection
-- Reference: [Cosmos Security Documentation](https://docs.cosmos.network/)
-
-### Backup Important Files
-
-**Always back up:**
-
-- **Validator private key:** `~/.mainnet/$NODE_ID/config/priv_validator_key.json`
-- **Node key:** `~/.mainnet/$NODE_ID/config/node_key.json`
-- **Mnemonic phrase** (keep offline and secure)
-
-<Callout type="error">
-**NEVER share your `priv_validator_key.json` or mnemonic phrase!**
-
-Store backups securely offline. Loss of these files means loss of validator access.
-</Callout>
-
-## 15. Troubleshooting
-
-### Node Won't Sync
-
-**Check peer connections:**
-
-```bash
-shardeumd status | jq '.SyncInfo.latest_block_height'
-curl -s http://localhost:26657/net_info | jq '.result.n_peers'
-```
-
-**Common fixes:**
-
-- Verify seeds in `config.toml`
-- Try adding more persistent peers
-- Check your time sync (NTP): `timedatectl status`
-
-### Validator is Jailed
-
-**Check jail reason:**
-
-```bash
-shardeumd query slashing signing-info $(shardeumd comet show-validator)
-```
-
-**Common reasons:**
-
-- Downtime (missed too many blocks)
-- Double signing
-
-**To unjail:**
-
-1. Fix the underlying issue (restart node, check connectivity)
-2. Wait for node to sync completely
-3. Run the unjail command:
-
-```bash
-shardeumd tx slashing unjail \
-  --from=validator-key \
-  --chain-id=shardeum_8118-1 \
-  --gas="auto" \
-  --gas-adjustment="1.5" \
-  --gas-prices="2048130280389041ashm"
-```
-
-### Insufficient Gas Errors
-
-**Increase gas adjustment:**
-
-```bash
---gas="auto" --gas-adjustment="2.0"
-```
-
-**Or specify explicit gas amount:**
-
-```bash
---gas="300000"
-```
-
-### Out of Disk Space
-
-**Check disk usage:**
-
-```bash
-df -h
-```
-
-**Solutions:**
-
-- For validators: Increase disk space (pruning not recommended for active validators)
-- Adjust pruning settings carefully in `app.toml`
-- Monitor disk usage regularly to prevent issues
-
-## 16. Important Notes
-
-- **Chain ID:** `shardeum_8118-1` (mainnet)
-- **EVM Chain ID:** `8118` (hex: `0x1fb6`) for MetaMask and EVM interactions
-- **Minimum Stake:** 1 SHM (verify current governance parameters)
-- **Unbonding Period:** 21 days (tokens are locked during this period)
-- **Slashing:** Validators can be slashed for downtime or double-signing
-- **Commission:** Set thoughtfully as `max-rate` cannot be increased later
-- **Backups:** Always back up keys and mnemonic phrase securely
-- **Gas Fees:** Approximately 1024 SHM for create-validator transaction
-
-## Validator Setup Complete
-
-Your node is now validating Shardeum EVM mainnet and participating in consensus.
-
-**Key responsibilities:**
-
-- Maintain high uptime to avoid jailing
-- Monitor metrics regularly (sync, voting power, missed blocks)
-- Secure your validator keys
-- Keep software updated
-- Respond quickly to any issues to prevent slashing
+**Success indicators:**
+- Status: `BOND_STATUS_BONDED`
+- Voting power: > 0
+- Jailed: `false`
