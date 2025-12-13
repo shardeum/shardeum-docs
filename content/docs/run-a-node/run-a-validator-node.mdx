@@ -11,15 +11,13 @@ This guide describes how to install, configure, and operate a validator node on 
 
 ## 1. System Requirements
 
-**Recommended:**
-
-- **Operating System:** Ubuntu 22.04 LTS (recommended)
+- **Operating System:** Ubuntu 22.04 LTS
 - **CPU:** 4 cores (8 threads)
 - **RAM:** 16GB
-- **Storage:** 1TB NVMe SSD (recommended for mainnet)
-- **Network:** 100 Mbps dedicated bandwidth
-- **Go:** Version 1.25+
+- **Storage:** 1TB NVMe SSD
+- **Network:** 100 Mbps dedicated
 - **Dependencies:** git, jq, curl, make, build-essential, pkg-config
+- **Go:** Version 1.25+
 
 ### Install dependencies:
 
@@ -32,8 +30,8 @@ sudo apt install git jq curl make build-essential pkg-config -y
 
 ```bash
 curl -LO https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
-rm -rf /usr/local/go
-tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 source ~/.bashrc
 go version
@@ -90,14 +88,17 @@ export BINARY=$(command -v shardeumd)
 **Choose identifiers:**
 
 ```bash
-NODE_ID="<validator-id>"  # node0, node1, shardeumnode
+NODE_ID="<validator-id>"  # pick a short id like node0, node1 or shardeumnode
 MONIKER="<validator-name>"  # choose your validator name which is easy to remember
 ```
 
 **Initialize:**
 
 ```bash
-shardeumd init "$MONIKER" --chain-id shardeum_8118-1 --home $HOME/.mainnet/$NODE_ID --overwrite
+shardeumd init "$MONIKER" \
+  --chain-id shardeum_8118-1 \
+  --home $HOME/.mainnet/$NODE_ID \
+  --overwrite
 ```
 
 ## 5. Copy Genesis File
@@ -131,7 +132,14 @@ shardeum_8118-1
 Start the node:
 
 ```bash
-shardeumd start --home $HOME/.mainnet/$NODE_ID --chain-id shardeum_8118-1 --p2p.seeds a6b7640991e0d5070dc99ecc07f969275a130045@34.93.254.18:27656,d04dd653ff79799263f1bd1df8ce61071d798880@34.31.69.40:27656 --p2p.laddr tcp://0.0.0.0:27656 --rpc.laddr tcp://127.0.0.1:26657 --pruning nothing > $HOME/.mainnet/$NODE_ID/node.log
+shardeumd start \
+  --home $HOME/.mainnet/$NODE_ID \
+  --chain-id shardeum_8118-1 \
+  --p2p.seeds a6b7640991e0d5070dc99ecc07f969275a130045@34.93.254.18:27656,d04dd653ff79799263f1bd1df8ce61071d798880@34.31.69.40:27656 \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657 \
+  --pruning nothing \
+  > $HOME/.mainnet/$NODE_ID/node.log
 ```
 
 ## 7. Check Sync Status
@@ -139,6 +147,7 @@ shardeumd start --home $HOME/.mainnet/$NODE_ID --chain-id shardeum_8118-1 --p2p.
 Open another terminal and confirm the node directory exists:
 
 ```bash
+export NODE_ID="<your node id>"   # add the same node id you used during setup
 ls $HOME/.mainnet/$NODE_ID
 ```
 
@@ -190,16 +199,16 @@ export BINARY=$(command -v shardeumd)
 shardeumd keys add validator-key
 ```
 
+**or restore an existing key instead, use:**
+
+```bash
+shardeumd keys add validator-key --recover
+```
+
 You will be prompted to set a password:
 
 ```
 Enter keyring passphrase: {Setup a new password here}
-```
-
-**To restore an existing key instead, use:**
-
-```bash
-shardeumd keys add validator-key --recover
 ```
 
 <Callout type="warn">
@@ -214,16 +223,16 @@ shardeumd keys show validator-key -a
 
 Make sure you store your validator keys using a secure method you trust and follow a backup process you are comfortable with.
 
-## 9. Fund Validator Account
+## 9. Fund Your Validator Account
 
-Your validator account must have enough SHM to complete the staking transaction.
+Your validator account must have enough SHM for:
 
-**Required amounts:**
 - Minimum stake: 1 SHM
 - Gas fees for create-validator: ~1024 SHM
-- **Total recommended: 1025 SHM or more**
+- Total recommended: 1025 SHM or more
 
 **Funding Options:**
+
 - **MetaMask** (RPC: https://api.shardeum.org)
 - **Keplr:** Add Shardeum to Keplr (https://chains.keplr.app/) wallet and transfer tokens
 - **Exchange:** Withdraw SHM to your validator address
@@ -302,9 +311,10 @@ Paste the following template and replace the key and details as needed:
 ```
 
 **Save and exit:**
-- Control O
-- Enter
-- Control X
+
+- Ctrl+O
+- Press Enter
+- Ctrl+X
 
 ### Create your validator
 
