@@ -5,10 +5,79 @@ description: IceCream Swap on Shardeum ecosystem
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
-</Callout>
-
 # IceCream Swap
 
 Information about IceCream Swap on Shardeum.
+
+## Integrating Token Swaps with the Nordstern.Finance Aggregator API
+
+Projects building on Shardeum can easily enable on-chain token swaps without having to deploy or manage their own routing or liquidity logic.
+
+The **Nordstern.Finance Aggregator API** provides a simple and production-ready way to access optimal swap routes across all decentralized exchanges on Shardeum through a single endpoint.
+
+### Overview
+
+The Nordstern Aggregator API acts as a unified entry point to Shardeum's DEX liquidity.
+
+It automatically finds the most efficient swap routes between any two tokens, taking into account pool liquidity, price impact, and gas costs.
+
+**This allows developers to:**
+
+- Offer seamless token swaps directly in their apps, wallets, or dApps
+- Avoid maintaining complex routing or price-discovery infrastructure
+- Keep users' swaps fully on-chain and transparent
+- Integrate in minutes using simple REST API calls
+
+### API Endpoint
+
+For the Shardeum network, use the following API endpoint:
+
+```
+https://api.nordstern.finance/aggregator/8118
+```
+
+All requests and responses follow standard JSON formats and can be integrated with any backend or frontend framework.
+
+### Example Request
+
+To get a swap route between two tokens:
+
+```bash
+curl "https://api.nordstern.finance/aggregator/8118?fromToken=0x...&toToken=0x...&amount=1000000000000000000"
+```
+
+### Example Response
+
+```json
+{
+  "dst": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "fromAmount": "1000000000000000000",
+  "src": "0x4200000000000000000000000000000000000006",
+  "toAmount": "4441628141",
+  "tx": {
+    "data": "0x3f0bde256e9ee578184bc88eb48485bba23a37b5509578d2ae3800000000000000000de0b6b3a76400000000...",
+    "from": "0xYourWalletAddress",
+    "to": "0xC87De04e2EC1F4282dFF2933A2D58199f688fC3d",
+    "value": "0"
+  }
+}
+```
+
+The returned transaction object (`tx`) can be sent directly to the user's wallet or relayed by your backend.
+
+### Integration Flow
+
+1. Query the API for a swap route using your desired input and output tokens
+2. Display the quote or expected output amount to the user
+3. Send the transaction using the encoded data returned by the API
+4. Monitor the transaction hash for confirmation on Shardeum
+
+This approach keeps your integration lightweight — no need to manage liquidity sources, gas estimation, or router logic.
+
+### Benefits for Shardeum Builders
+
+- **Instant access** to on-chain swaps via a single REST API
+- **Optimized routing** across all liquidity sources on Shardeum
+- **No infrastructure overhead** — just call the API and execute the transaction
+- **Fully compatible** with Web3 wallets and SDKs
+- **Simple integration** into both web and mobile dApps
