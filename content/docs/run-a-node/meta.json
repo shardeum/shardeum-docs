@@ -1,4 +1,4 @@
 {
    "title": "Run a Node/Delegate SHM",
-   "pages": ["node-types", "run-a-full-node", "run-a-validator-node", "run-an-rpc-node", "delegate-shm", "advanced-operations"]
+   "pages": ["node-types", "run-a-full-node", "run-a-validator-node", "advanced-operations", "run-an-rpc-node", "delegate-shm"]
 }
