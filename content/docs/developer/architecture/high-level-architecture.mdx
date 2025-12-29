@@ -5,171 +5,221 @@ description: Shardeum's high level architecture
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
-</Callout>
+# Architecture Overview
 
-![Shardeum Core Frame](/img/new/coreframe1.png)
+Shardeum is an EVM-compatible Layer 1 blockchain built on the Cosmos SDK, designed to bring India - and the world - onchain with low fees, fast finality, and high scalability.
 
-### **1. What the Core Protocol does**:
+## Core Technology Stack
 
-* **Handling sharding and consensus:** Shardus Core Protocol focuses on managing sharding and making sure that all parts of the network agree (consensus). It's designed to not worry about the specific details of what's happening in transactions on the dapps that run on Shardeum.
-* **Staying neutral:** The protocol doesn’t deal directly with the data or actions of transactions in dapps. It uses a set of simple commands (APIs) that help it stay out of the specifics, meaning it doesn’t know or need to know what each transaction is about.
+Shardeum's architecture is built on three foundational technologies:
 
+### 1. Cosmos SDK
 
-### 2. **DApps and their interaction with Shardus Core Protocol**
+Shardeum leverages the **Cosmos SDK**, the leading development framework for building interoperable sovereign blockchains. The Cosmos SDK provides:
 
-* **Connecting through APIs:** Dapps on Shardeum, especially those that work like Ethereum Dapps, talk to the core protocol using a specific set of commands known as an API. This lets the Dapps use important features like agreement and data accuracy, while they can still do their own thing for their specific needs. [Here you can see all of them.](/docs/architecture/apis-and-interfaces)
-* **DApps keep their own rules:** Each dapp on Shardeum has its own set of rules and logic that fit what the dapp is designed to do. This setup means that even if dapps change or update, they don’t mess with the core protocol. This makes it easier to add new features to dapps without complicating things.
+- **Modular architecture** that allows new features to be added without disrupting the network
+- **Battle-tested consensus** with proven security and stability
+- **IBC compatibility** enabling future cross-chain communication
+- **Flexible governance** mechanisms for protocol upgrades
 
-### 3. **Benefits of Shardeum’s design**:
+### 2. EVM Compatibility Layer
 
-* **Freedom to create:** Developers can build new and varied dapps without being limited by the system underneath. This freedom means they can quickly adapt to new needs and ideas.
-* **Easy to grow:** Because the core protocol stays out of the dapp details, Shardeum can grow and improve without being bogged down by changes in individual dapps.
-* **Safe and stable:** Keeping the core system separate from the dapps means the whole network is safer and more stable. It protects the core from any risky or poorly made dapp code.
+Shardeum implements **full EVM (Ethereum Virtual Machine) compatibility**, enabling seamless deployment of Ethereum dApps and smart contracts:
 
-### **4. More about how it works**:
+- **Solidity & Vyper support** - Deploy existing Ethereum smart contracts without modification
+- **Ethereum tooling** - Compatible with MetaMask, Hardhat, Foundry, Remix, and other Ethereum tools
+- **Web3 API** - Standard JSON-RPC endpoints for seamless integration
+- **Leading dApps** - Run Uniswap, Aave, and other major Ethereum protocols natively
 
-* **Handling data:** The core protocol takes care of the big picture stuff like making sure all parts of the network are working together. It doesn’t store or deal with specific dapp data; dapps handle their own data and only talk to the core protocol for making sure everyone agrees.
-* **Managing nodes:** The rules about how nodes (the individual parts of the network) operate are detailed in the protocol's documentation. [The core protocol manages whether nodes are active or on standby](/docs/architecture/apis-and-interfaces), but it doesn’t get involved in the specific data that nodes deal with for dapps.
+The EVM layer is implemented through a custom integration that bridges Ethereum execution with Cosmos SDK state management, providing developers with the familiarity of Ethereum while benefiting from Cosmos infrastructure.
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------
+### 3. Consensus Mechanism
 
-## Overview
+Shardeum uses **Proof-of-Stake (PoS) consensus** with:
 
-Shardeum is an EVM based L1 that uses dynamic state sharding to achieve linearly scalability while attaining atomic composability across shards. This means Shardeum can increase its TPS capacity with each validator added to the network to retain low fees forever.
+- **Fast finality** - Transaction confirmation in seconds
+- **Delegated staking** - Token holders can delegate SHM to validators
+- **Validator network** - Decentralized set of validators securing the network
+- **Slashing protection** - Economic security through stake-based penalties
 
-Shardeum provides the highest throughput capacity of any EVM based L1 without sacrificing on decentralization. Developers can deploy and interact with Solidity or Vyper contracts without special considerations for sharding, since contracts are deployed to unique shards automatically while retaining atomic composability across all shards.
+## Network Architecture
 
-Shardeum is the solution to the blockchain trilemma. As blockchain tries to achieve scalability, decentralization and security, it will only be able to attain two. There must be a trade-off between decentralization and scalability with security an essential element. Shardeum achieves scalability, decentralization and still maintains security.
+### Chain Specifications
 
-Shardeum’s auto-scaling feature allows the network to automatically adjust the number and size of shards based on the current workload. This allows the system to optimize performance and maintain high levels of scalability as it grows and evolves.
+- **Chain ID (Cosmos):** `shardeum_8118-1`
+- **Chain ID (EVM):** `8118` (hex: `0x1fb6`)
+- **Native Token:** SHM
+- **Block Time:** ~2-3 seconds
+- **Consensus:** Tendermint BFT
 
+### Key Components
 
-### 1. Integration
+**1. Application Layer (EVM)**
+- Smart contract execution environment
+- State management for accounts and contracts
+- Transaction processing and validation
+- Gas metering and fee collection
 
-* Shardeum is built on the foundation of the Shardus Core Protocol, presenting itself as the first [EVM](https://ethereum.org/en/developers/docs/evm/)-compliant Layer 1 blockchain, optimized for dynamic sharding.
-* This architecture uniquely enables the network to scale transaction throughput linearly with the addition of nodes, addressing the scalability issues commonly faced by traditional blockchains.
-* Shardeum is designed to support a diverse array of DApps, making it a versatile platform for developers and businesses.
+**2. Consensus Layer (Tendermint)**
+- Block proposal and validation
+- Byzantine Fault Tolerant consensus
+- Network synchronization
+- Fork resolution
 
-### 2. Shardeum's Features
+**3. State Management**
+- Account state (balances, nonces)
+- Contract storage
+- Validator set tracking
+- Staking and delegation records
 
-* **Dynamic State Sharding:** This is the most advanced and complex way to shard the state of a network because it shards the State, Network, and Transactions dynamically, as opposed to a pre-determined way.
-* **Linear Scalability:** Specifically refers to the fact that a system can increase its throughput as more resources are provided, and the relationship between throughput and resources is linear.
-* **Low Transaction Fees:** The minimal costs associated with processing and confirming transactions on a blockchain network. These fees are paid by users to incentivize miners or validators to include their transactions in the next block of the blockchain.
-* **EVM-based Smart Contract Platform:** Refers to the compatibility of a blockchain network with the Ethereum Virtual Machine (EVM), allowing it to execute smart contracts and transactions that are compatible with Ethereum's existing ecosystem.
-* **Solves Scalability Trilemma:** Achieves a balance between decentralization, security, and scalability. Typically, enhancing scalability can compromise either decentralization or security, but innovative solutions like sharding, layer 2 protocols, and consensus algorithm improvements aim to address all three aspects simultaneously.
-* **Auto Scaling:** Adjusts computational resources automatically based on demand, ensuring optimal performance and cost efficiency. It handles traffic spikes efficiently, providing a seamless user experience without manual intervention.
-* **Security:** Ensures the protection of data integrity, transaction authenticity, and network resilience against attacks. Strong cryptographic protocols and consensus mechanisms are fundamental to maintaining high security in blockchain systems.
-* **Immediate Finality:** Ensures that once a transaction is confirmed, it cannot be altered, reversed, or double-spent. This is crucial for applications requiring quick and definite transaction settlements.
-* **Low Latency:** Refers to the minimal delay between the initiation of a transaction and its confirmation, essential for applications needing quick transaction processing and user responsiveness.
-* **Low Bandwidth:** Operates efficiently with minimal data transmission requirements, reducing operational costs and enabling access in regions with limited internet infrastructure.
-* **High Fairness:** Ensures that all participants have equal opportunities to validate transactions and propose new blocks, maintaining fairness through decentralized consensus mechanisms and transparent protocols.
-* **High Capacity:** The network's ability to handle a large volume of transactions per second (TPS), crucial for scalability, enabling the network to support a growing number of users and applications without performance degradation.
+## Network Participants
 
-### **3. Shardus Core Protocol**
-* **Base protocol:** [The Shardus Core Protocol](https://shardus.com/) handles sharding and consensus without needing to know the specifics of application-level transactions. This separation ensures modularity and security, allowing the protocol to function independently of the DApps running on top of it. 
-  Here, you can [take a look](https://github.com/shardeum/shardeum/blob/cd230c50859d28d17b3d013fee52923ba6c495aa/src/index.ts#L3354-L7347) at how we successfully integrate the Shardus software.
+### Validators
 
-```
-const shardusSetup = (): void => {
-  /**
-   * interface tx {
-   *   type: string
-   *   from: string,
-   *   to: string,
-   *   amount: number,
-   *   timestamp: number
-   * }
-   */
-  shardus.setup({
-    sync: sync(shardus, evmCommon),
-    validateTransaction: validateTransaction(shardus),
-    validateTxnFields: validateTxnFields(shardus, debugAppdata),
-    isInternalTx,
-    async apply(timestampedTx: ShardusTypes.OpaqueTransaction, wrappedStates, originalAppData) {
-```
+Validators are responsible for:
+- Proposing and validating blocks
+- Maintaining network consensus
+- Processing transactions
+- Securing the network through staked SHM
 
+**Minimum stake:** 1 SHM
+**Unbonding period:** 21 days
 
-* **API interaction:** DApps interact with the Shardus Core Protocol through a [defined API](/docs/architecture/apis-and-interfaces). This abstraction ensures that the core protocol does not directly access or manipulate application data, maintaining a clear boundary between the protocol and the applications.
+### Delegators
 
+Token holders can participate in network security by:
+- Delegating SHM to validators
+- Earning staking rewards
+- Participating in governance (future)
 
-### **4. EVM Compliance**
+### Full Nodes
 
+Full nodes support the network by:
+- Maintaining complete blockchain history
+- Serving RPC requests for dApps
+- Relaying transactions
+- Providing data to light clients
 
-* **Smart contracts:** Shardeum supports the execution of [Ethereum](https://ethereum.org/en/developers/docs/) smart contracts, allowing developers to deploy their existing contracts without modification.&#x20;
-* **Tool compatibility:** All tools and applications built for Ethereum can run on Shardeum, facilitating easy migration and adoption.
-* **Execution environment:** By maintaining EVM compatibility, Shardeum leverages the robustness and familiarity of the Ethereum ecosystem, making it accessible for developers.
-* **EVM Initialization:** [Click here to examine the code in our repos.](https://github.com/shardeum/shardeum/blob/cd230c50859d28d17b3d013fee52923ba6c495aa/src/index.ts#L405-L512)
+## Developer Integration
 
-```typescript
-if (ShardeumFlags.UseDBForAccounts === true) {
-  AccountsStorage.init(config.server.baseDir, `${FilePaths.SHARDEUM_DB}`)
-  if (isServiceMode()) AccountsStorage.lazyInit()
+### Smart Contract Development
+
+Developers can deploy smart contracts using:
+
+```solidity
+// Standard Solidity contracts work without modification
+pragma solidity ^0.8.0;
+
+contract Example {
+    function hello() public pure returns (string memory) {
+        return "Hello Shardeum";
+    }
 }
-
-const appliedTxs = {} 
-const shardusTxIdToEthTxId = {}
-
-const defaultBalance = isDebugMode() ? oneSHM * BigInt(100) : BigInt(0)
-
-
-const ERC20TokenBalanceMap: {
-  to: string
-  data: unknown
-  timestamp: number
-  result: unknown
-}[] = []
-const ERC20TokenCacheSize = 1000
-
-interface RunStateWithLogs extends RunState {
-  logs?: []
-}
-
-let EVM: { -readonly [P in keyof VM] }
-let shardeumBlock: ShardeumBlock
-
-let shardeumStateTXMap: Map<string, ShardeumState>
-
-let shardusAddressToEVMAccountInfo: Map<string, EVMAccountInfo>
-
-export let evmCommon
-
-let debugAppdata: Map<string, unknown>
-
-async function initEVMSingletons(): Promise<void> {
-  const chainIDBN = BigInt(ShardeumFlags.ChainID)
-
-  evmCommon = new Common({ chain: 'mainnet', hardfork: Hardfork.Istanbul, eips: [3855] })
-
-  evmCommon.chainId = (): bigint => {
-    return BigInt(chainIDBN.toString(10))
-  }
-
-  shardeumBlock = new ShardeumBlock({ common: evmCommon })
-
-  if (ShardeumFlags.useShardeumVM) {
-    const customEVM = new EthereumVirtualMachine({
-      common: evmCommon,
-      stateManager: undefined,
-    })
-    EVM = await VM.create({
-      common: evmCommon,
-      stateManager: undefined,
-      evm: customEVM,
-    })
-  }
-
-  shardeumStateTXMap = new Map<string, ShardeumState>()
-
-  shardusAddressToEVMAccountInfo = new Map<string, EVMAccountInfo>()
-
-  debugAppdata = new Map<string, unknown>()
-}
-
-initEVMSingletons()
 ```
 
+### Network Connection
 
+Connect to Shardeum using standard Ethereum tools:
+
+**RPC Endpoint:** `https://api.shardeum.org`
+**Chain ID:** `8118`
+**Block Explorer:** `https://explorer.shardeum.org`
+
+### Transaction Processing
+
+1. User submits transaction via Web3 wallet or dApp
+2. Transaction is broadcast to validator nodes
+3. Validators include transaction in proposed block
+4. Consensus is reached on block validity
+5. Block is committed and transaction is finalized
+6. State is updated and receipt is generated
+
+## Key Features
+
+### 1. EVM Compatibility
+
+- **Seamless migration** from Ethereum and other EVM chains
+- **No code changes** required for existing smart contracts
+- **Familiar tooling** for developers (Hardhat, Truffle, Foundry)
+- **Standard interfaces** (ERC-20, ERC-721, ERC-1155)
+
+### 2. Low Transaction Fees
+
+- **Predictable costs** through efficient consensus
+- **SHM-denominated gas** with stable pricing
+- **Optimized execution** reducing computational overhead
+
+### 3. Fast Finality
+
+- **Instant confirmation** for better user experience
+- **No reorganizations** after block finalization
+- **Reliable state** for time-sensitive applications
+
+### 4. High Throughput
+
+- **Efficient block production** with ~2-3 second block times
+- **High gas limit** supporting complex transactions
+- **Optimized state management** for scalability
+
+### 5. Modular Design
+
+- **Upgradeable components** through governance
+- **Plugin architecture** for new features
+- **Flexible module system** inherited from Cosmos SDK
+
+## Security Model
+
+### Economic Security
+
+- **Proof-of-Stake** with validator slashing for misbehavior
+- **Stake-weighted voting** in consensus
+- **Penalty mechanisms** for downtime and double-signing
+
+### Technical Security
+
+- **Audited codebase** built on proven Cosmos SDK foundation
+- **EVM security** leveraging Ethereum's battle-tested execution layer
+- **Byzantine Fault Tolerance** protecting against malicious validators
+
+### Operational Security
+
+- **Distributed validator set** preventing single points of failure
+- **Monitoring and alerting** for validator operators
+- **Regular security updates** and patches
+
+## Network Phases
+
+### Phase 1 (Current)
+
+Shardeum EVM mainnet with core features:
+- Full EVM smart contract support
+- Proof-of-Stake consensus
+- Validator network and delegation
+- Low fees and fast finality
+
+**Goal:** Achieve 10 million users
+
+### Phase 2 (Future)
+
+Advanced scaling features to support global adoption:
+- Enhanced throughput optimizations
+- Additional scaling technologies
+- Expanded ecosystem integrations
+
+## Further Reading
+
+- [Consensus and Sharding Mechanism](/docs/developer/architecture/consensus-and-sharding-mechanism)
+- [Transaction Lifecycle](/docs/developer/architecture/transaction-lifecycle)
+- [Node Lifecycle](/docs/developer/architecture/node-lifecycle)
+- [Security](/docs/developer/architecture/security)
+- [Transaction Types](/docs/developer/architecture/transaction-types)
+
+## Resources
+
+- [GitHub Repository](https://github.com/shardeum)
+- [Cosmos SDK Documentation](https://docs.cosmos.network/)
+- [Ethereum EVM Documentation](https://ethereum.org/en/developers/docs/evm/)
+
+---
 
 <iframe width="750" height="400" src="https://www.youtube.com/embed/97yFJYDF9x8" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen id='svideo'></iframe>
