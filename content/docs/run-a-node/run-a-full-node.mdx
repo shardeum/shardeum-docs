@@ -161,7 +161,7 @@ Restart the node if using systemd.
 ## 9. Firewall Configuration
 
 ```bash
-sudo ufw allow 26656/tcp   # P2P
+sudo ufw allow 27656/tcp   # P2P
 sudo ufw allow 8545/tcp    # JSON-RPC (optional)
 sudo ufw allow 8546/tcp    # WebSocket (optional)
 sudo ufw enable
@@ -270,7 +270,7 @@ curl -s http://localhost:26657/net_info | jq '.result.n_peers'
 - Verify seeds in `config.toml`
 - Try adding more persistent peers
 - Check your time sync (NTP): `timedatectl status`
-- Check port 26656 is open
+- Check port 27656 is open
 
 ### Out of Disk Space
 
