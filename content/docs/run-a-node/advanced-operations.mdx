@@ -52,17 +52,18 @@ sudo systemctl status shardeumd
 **For Full Nodes / RPC Nodes:**
 
 ```bash
-sudo ufw allow 26656/tcp  # P2P
-sudo ufw allow 26657/tcp  # RPC (optional, for local access only)
-sudo ufw allow 8545/tcp   # JSON-RPC
-sudo ufw allow 8546/tcp   # WebSocket
+sudo ufw allow 27656/tcp   # P2P
+sudo ufw allow 8545/tcp    # JSON-RPC (optional)
+sudo ufw allow 8546/tcp    # WebSocket (optional)
 sudo ufw enable
 ```
 
 **For Validators:**
 
 ```bash
-sudo ufw allow 26656/tcp  # P2P only
+sudo ufw allow 27656/tcp   # P2P
+sudo ufw allow 8545/tcp    # JSON-RPC (optional)
+sudo ufw allow 8546/tcp    # WebSocket (optional)
 sudo ufw enable
 ```
 

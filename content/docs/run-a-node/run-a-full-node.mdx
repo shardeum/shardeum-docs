@@ -90,9 +90,11 @@ jq -r '.chain_id' $HOME/.mainnet/$NODE_ID/config/genesis.json
 shardeumd start \
   --home $HOME/.mainnet/$NODE_ID \
   --chain-id shardeum_8118-1 \
-  --p2p.seeds a6b7640991e0d5070dc99ecc07f969275a130045@34.93.254.18:27656 \
+  --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 \
   --p2p.laddr tcp://0.0.0.0:27656 \
-  > $HOME/.mainnet/$NODE_ID/node.log
+  --rpc.laddr tcp://127.0.0.1:26657 \
+  --pruning nothing \
+  > $HOME/.mainnet/$NODE_ID/node.log &
 ```
 
 **Monitor:**
@@ -159,7 +161,7 @@ Restart the node if using systemd.
 ## 9. Firewall Configuration
 
 ```bash
-sudo ufw allow 26656/tcp   # P2P
+sudo ufw allow 27656/tcp   # P2P
 sudo ufw allow 8545/tcp    # JSON-RPC (optional)
 sudo ufw allow 8546/tcp    # WebSocket (optional)
 sudo ufw enable
@@ -268,7 +270,7 @@ curl -s http://localhost:26657/net_info | jq '.result.n_peers'
 - Verify seeds in `config.toml`
 - Try adding more persistent peers
 - Check your time sync (NTP): `timedatectl status`
-- Check port 26656 is open
+- Check port 27656 is open
 
 ### Out of Disk Space
 
