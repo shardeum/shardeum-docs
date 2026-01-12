@@ -5,100 +5,147 @@ description: Shardeum's high level architecture
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Architecture Overview
-
-Shardeum is an EVM-compatible Layer 1 blockchain built on the Cosmos SDK, designed to bring India - and the world - onchain with low fees, fast finality, and high scalability.
+Shardeum is an EVM-compatible Layer 1 blockchain built to bring India onchain - the world’s largest untapped on-chain market - by offering low fees, fast finality, and scalable performance for both developers and end users. 
 
 ## Core Technology Stack
 
-Shardeum's architecture is built on three foundational technologies:
+Shardeum is a sovereign blockchain designed with a layered internal architecture, where core responsibilities such as execution, consensus, networking, and state management are cleanly separated while operating as a single, cohesive system.
 
-### 1. Cosmos SDK
+This design allows each layer to be independently optimized without fragmenting security, execution, or state ownership. By combining tight system integration with clear separation of concerns, Shardeum achieves high performance, operational resilience, and long-term extensibility - without relying on external execution or shared security models.
 
-Shardeum leverages the **Cosmos SDK**, the leading development framework for building interoperable sovereign blockchains. The Cosmos SDK provides:
+### 1. Execution Layer (EVM Compatibility)
 
-- **Modular architecture** that allows new features to be added without disrupting the network
-- **Battle-tested consensus** with proven security and stability
-- **IBC compatibility** enabling future cross-chain communication
-- **Flexible governance** mechanisms for protocol upgrades
+Shardeum uses a mature, open-source EVM execution environment as its execution layer, enabling full compatibility with established Ethereum tooling and developer workflows. This layer is responsible for:
 
-### 2. EVM Compatibility Layer
+- smart contract execution,
+- transaction validation logic, and
+- deterministic state transitions.
 
-Shardeum implements **full EVM (Ethereum Virtual Machine) compatibility**, enabling seamless deployment of Ethereum dApps and smart contracts:
+By maintaining strong EVM compatibility, Shardeum allows developers to deploy applications with minimal friction while ensuring predictable behavior and production-grade reliability.
 
 - **Solidity & Vyper support** - Deploy existing Ethereum smart contracts without modification
 - **Ethereum tooling** - Compatible with MetaMask, Hardhat, Foundry, Remix, and other Ethereum tools
 - **Web3 API** - Standard JSON-RPC endpoints for seamless integration
-- **Leading dApps** - Run Uniswap, Aave, and other major Ethereum protocols natively
+- **Leading dApps** - Enable EVM-compatible deployments of widely used Ethereum protocols, supporting applications inspired by systems such as Uniswap and Aave for high-growth markets like India.
 
-The EVM layer is implemented through a custom integration that bridges Ethereum execution with Cosmos SDK state management, providing developers with the familiarity of Ethereum while benefiting from Cosmos infrastructure.
+### 2. Consensus and Networking Layer
 
-### 3. Consensus Mechanism
+The consensus and networking layer is responsible for validator coordination, transaction ordering, and block finality across the network. This layer is optimized for:
 
-Shardeum uses **Proof-of-Stake (PoS) consensus** with:
+- fast and predictable finality,
+- strong safety and liveness guarantees,
+- efficient peer-to-peer communication across a distributed validator set,
+- delegation of SHM by token holders to validators, and
+- economic security through slashing protection and other penalties
 
-- **Fast finality** - Transaction confirmation in seconds
-- **Delegated staking** - Token holders can delegate SHM to validators
-- **Validator network** - Decentralized set of validators securing the network
-- **Slashing protection** - Economic security through stake-based penalties
+Separating consensus and networking from execution enables the protocol to scale validator participation and network throughput without coupling performance directly to application logic.
+
+### 3. State and Data Management Layer
+
+Shardeum includes a dedicated layer for state storage, access, and synchronization, ensuring that account balances, contract state, and historical data remain consistent and verifiable across the network. This layer is designed to:
+
+- efficiently manage on-chain state growth,
+- support fast read/write access for applications, and
+- maintain consistency across validators under real-world load.
+
+By treating state as a first-class architectural component, Shardeum improves performance predictability while preserving correctness and security.
+
+### 4. Protocol Modularity and Upgradeability
+
+While Shardeum operates as a single sovereign network, its internal components are designed with protocol-level modularity in mind. This approach enables:
+
+- upgrades without disruptive redesigns,
+- targeted performance improvements at specific layers, and
+- long-term evolution of the protocol as usage scales.
+
+By integrating proven open-source components within a cohesive architecture, Shardeum balances innovation with operational stability - allowing the network to evolve without compromising reliability.
 
 ## Network Architecture
 
 ### Chain Specifications
 
-- **Chain ID (Cosmos):** `shardeum_8118-1`
+- **Chain ID (Protocol):** `shardeum_8118-1`
 - **Chain ID (EVM):** `8118` (hex: `0x1fb6`)
 - **Native Token:** SHM
 - **Block Time:** ~2-3 seconds
-- **Consensus:** Tendermint BFT
+- **Consensus:** Proof of Stake (Tendermint BFT)
 
 ### Key Components
 
 **1. Application Layer (EVM)**
-- Smart contract execution environment
-- State management for accounts and contracts
-- Transaction processing and validation
-- Gas metering and fee collection
 
-**2. Consensus Layer (Tendermint)**
-- Block proposal and validation
-- Byzantine Fault Tolerant consensus
-- Network synchronization
-- Fork resolution
+The application layer provides a fully EVM-compatible execution environment responsible for processing transactions and executing smart contracts. Key responsibilities include:
 
-**3. State Management**
-- Account state (balances, nonces)
-- Contract storage
-- Validator set tracking
-- Staking and delegation records
+- deterministic smart contract execution,
+- state transitions for accounts and contracts,
+- transaction validation and ordering inputs, and
+- gas metering and fee accounting.
+
+This layer ensures compatibility with existing Ethereum tooling while maintaining predictable execution behavior and performance.
+
+**2. Consensus Layer (Tendermint BFT)**
+
+The consensus layer coordinates validators and ensures agreement on the canonical state of the network. Its responsibilities include:
+
+- block proposal and validation,
+- Byzantine Fault Tolerant consensus with deterministic finality,
+- validator communication and network synchronization, and
+- fork prevention and resolution.
+
+This layer provides strong safety and liveness guarantees under adversarial conditions.
+
+**3. State Management Layer**
+
+The state management layer is responsible for maintaining and persisting the canonical on-chain state across the network. It manages:
+
+- account state, including balances and nonces,
+- smart contract storage,
+- validator set information, and
+- staking and delegation records.
 
 ## Network Participants
 
+Shardeum’s network is operated and secured by distinct participant roles, each contributing to the network’s security, availability, and decentralization.
+
 ### Validators
 
-Validators are responsible for:
-- Proposing and validating blocks
-- Maintaining network consensus
-- Processing transactions
-- Securing the network through staked SHM
+Validators are responsible for operating the core infrastructure of the network and maintaining consensus. Their responsibilities include:
 
-**Minimum stake:** 1 SHM
+- proposing and validating blocks,
+- participating in network consensus,
+- processing and validating transactions, and
+- securing the network by staking SHM
+
+Validators must stake SHM to be eligible for consensus participation, with voting power proportional to the amount staked.
+
+**Minimum stake (current):** 1 SHM
+
 **Unbonding period:** 21 days
 
 ### Delegators
 
-Token holders can participate in network security by:
-- Delegating SHM to validators
-- Earning staking rewards
-- Participating in governance (future)
+Delegators are SHM holders who contribute to network security by staking indirectly through validators. Delegators can:
+
+- delegate SHM to active validators,
+- earn a share of staking rewards, and
+- participate in governance as governance features are introduced.
+
+Delegation allows token holders to support decentralization without operating validator infrastructure.
 
 ### Full Nodes
 
-Full nodes support the network by:
-- Maintaining complete blockchain history
-- Serving RPC requests for dApps
-- Relaying transactions
-- Providing data to light clients
+Full nodes support the network by maintaining a complete and independently verifiable copy of the blockchain. Their functions include:
+
+- maintaining the full blockchain state and history,
+- serving RPC requests for applications and tooling,
+- relaying transactions and blocks across the network, and
+- providing data services to light clients and external systems.
+
+While full nodes do not participate in consensus, they play a critical role in improving network reliability, decentralization, and data availability.
+
+**RPC nodes** are full nodes configured to expose JSON-RPC interfaces for wallets, dApps, and developer tooling, enabling application connectivity and transaction submission.
+
+**Archive nodes** are specialized full nodes that retain an unpruned, complete history of the blockchain, supporting explorers, analytics, and historical data queries.
 
 ## Developer Integration
 
@@ -125,7 +172,9 @@ Connect to Shardeum using standard Ethereum tools:
 **Chain ID:** `8118`
 **Block Explorer:** `https://explorer.shardeum.org`
 
-### Transaction Processing
+### Transaction Lifecycle (High-Level)
+
+The following illustrates the high-level lifecycle of a transaction on the Shardeum network.
 
 1. User submits transaction via Web3 wallet or dApp
 2. Transaction is broadcast to validator nodes
@@ -134,92 +183,78 @@ Connect to Shardeum using standard Ethereum tools:
 5. Block is committed and transaction is finalized
 6. State is updated and receipt is generated
 
-## Key Features
+## What Developers Can Rely On
 
-### 1. EVM Compatibility
+Shardeum is designed to provide the following protocol-level reliabilities to developers, users, and operators:
 
-- **Seamless migration** from Ethereum and other EVM chains
-- **No code changes** required for existing smart contracts
-- **Familiar tooling** for developers (Hardhat, Truffle, Foundry)
-- **Standard interfaces** (ERC-20, ERC-721, ERC-1155)
-
-### 2. Low Transaction Fees
-
-- **Predictable costs** through efficient consensus
-- **SHM-denominated gas** with stable pricing
-- **Optimized execution** reducing computational overhead
-
-### 3. Fast Finality
-
-- **Instant confirmation** for better user experience
-- **No reorganizations** after block finalization
-- **Reliable state** for time-sensitive applications
-
-### 4. High Throughput
-
-- **Efficient block production** with ~2-3 second block times
-- **High gas limit** supporting complex transactions
-- **Optimized state management** for scalability
-
-### 5. Modular Design
-
-- **Upgradeable components** through governance
-- **Plugin architecture** for new features
-- **Flexible module system** inherited from Cosmos SDK
+- **Deterministic Execution** - Smart contract execution is deterministic and verifiable across validators, ensuring consistent outcomes for identical transactions.
+- **Finality and State Consistency** - Once a block is finalized, transactions are irreversible and state is immediately consistent across the network, enabling reliable application logic and time-sensitive use cases.
+- **EVM Compatibility** - Shardeum preserves standard EVM behavior and interfaces, allowing developers to deploy existing Solidity contracts and use familiar tooling without modification.
+- **Predictable Transaction Costs** - Transaction fees are denominated in SHM and designed to remain predictable under normal network conditions, supporting sustainable application economics.
+- **Availability and Fault Tolerance** - The network is designed to tolerate validator failures and adversarial conditions while maintaining liveness and data availability.
 
 ## Security Model
 
+Shardeum’s security model combines economic incentives, protocol-level safeguards, and operational best practices to protect the network against malicious behavior, failures, and unintended disruptions.
+
 ### Economic Security
 
-- **Proof-of-Stake** with validator slashing for misbehavior
-- **Stake-weighted voting** in consensus
-- **Penalty mechanisms** for downtime and double-signing
+The network is secured through a Proof-of-Stake model that economically aligns validators with the long-term health of the protocol. Key mechanisms include:
+
+- stake-backed validator participation in consensus,
+- stake-weighted voting power, and
+- penalty mechanisms for protocol violations such as downtime and double-signing.
+
+These incentives ensure that validators are financially motivated to behave honestly and maintain high availability.
 
 ### Technical Security
 
-- **Audited codebase** built on proven Cosmos SDK foundation
-- **EVM security** leveraging Ethereum's battle-tested execution layer
-- **Byzantine Fault Tolerance** protecting against malicious validators
+Shardeum’s protocol design incorporates multiple layers of technical protection to ensure correctness, finality, and fault tolerance. These include:
+
+- a rigorously reviewed and audited codebase built on proven, battle-tested open-source components,
+- a secure and deterministic EVM execution environment aligned with established Ethereum security assumptions, and
+- Byzantine Fault Tolerant consensus ensuring safety and liveness in the presence of faulty or malicious validators.
 
 ### Operational Security
 
-- **Distributed validator set** preventing single points of failure
-- **Monitoring and alerting** for validator operators
-- **Regular security updates** and patches
+Operational resilience is achieved through decentralization, observability, and ongoing maintenance. This includes:
+
+- a distributed validator set to avoid single points of failure,
+- monitoring and alerting practices to help operators detect and respond to issues quickly, and
+- regular protocol updates and security patches to address emerging risks.
+
+Together, these layers form a defense-in-depth approach to securing the network.
 
 ## Network Phases
 
+Shardeum’s network roadmap is structured into progressive phases, with each phase focusing on stability, adoption, and long-term scalability.
+
 ### Phase 1 (Current)
 
-Shardeum EVM mainnet with core features:
-- Full EVM smart contract support
-- Proof-of-Stake consensus
-- Validator network and delegation
-- Low fees and fast finality
+The current phase focuses on operating a stable EVM-compatible mainnet with core protocol functionality. Key capabilities include:
 
-**Goal:** Achieve 10 million users
+- full EVM smart contract support,
+- Proof-of-Stake consensus with validator delegation,
+- a decentralized validator network, and
+- low transaction fees with fast and deterministic finality.
 
-### Phase 2 (Future)
+**Objective**: Establish a strong user and developer base, with an initial focus on India as a primary market.
 
-Advanced scaling features to support global adoption:
-- Enhanced throughput optimizations
-- Additional scaling technologies
-- Expanded ecosystem integrations
+### Phase 2 (Planned)
 
-## Further Reading
+Future phases focus on expanding network capacity and supporting broader global adoption. Planned directions include:
 
-- [Consensus and Sharding Mechanism](/docs/developer/architecture/consensus-and-sharding-mechanism)
-- [Transaction Lifecycle](/docs/developer/architecture/transaction-lifecycle)
-- [Node Lifecycle](/docs/developer/architecture/node-lifecycle)
-- [Security](/docs/developer/architecture/security)
-- [Transaction Types](/docs/developer/architecture/transaction-types)
+- throughput and performance optimizations,
+- additional scalability enhancements at the protocol level, and
+- ecosystem expansion beyond initial regional focus.
+
+This phase is designed to evolve the network as usage grows, while preserving security, decentralization, and developer experience.
+
+Detailed specifications for validator operations, node lifecycle management, and protocol internals are covered in dedicated validator and developer documentation.
 
 ## Resources
 
 - [GitHub Repository](https://github.com/shardeum)
-- [Cosmos SDK Documentation](https://docs.cosmos.network/)
 - [Ethereum EVM Documentation](https://ethereum.org/en/developers/docs/evm/)
 
 ---
-
-<iframe width="750" height="400" src="https://www.youtube.com/embed/97yFJYDF9x8" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen id='svideo'></iframe>
