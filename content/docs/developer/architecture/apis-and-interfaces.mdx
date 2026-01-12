@@ -5,184 +5,491 @@ description: Learn about various Shardeum APIs and interfaces
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
-</Callout>
+# APIs and Interfaces
 
-### 1. **API Endpoints**
+Shardeum provides multiple API layers to support different types of interactions with the network. As an EVM-compatible blockchain built on Cosmos SDK, developers can use familiar Ethereum APIs alongside Cosmos-native endpoints.
 
-![API](/img/new/i61.png)
+## API Architecture
 
-Shardeum provides a variety of API endpoints designed to facilitate network interaction. These endpoints can be categorized into several main types:
+Shardeum's API stack consists of three main layers:
 
-**Node Management APIs:**
+1. **EVM JSON-RPC API** - Standard Ethereum-compatible interface
+2. **Cosmos SDK API** - REST and gRPC endpoints for chain operations
+3. **Explorer API** - Blockchain data indexing and querying
 
-* **Node Registration:** APIs for registering new nodes to join the network. This includes providing necessary credentials and passing authentication checks.
-* **Node Status:** APIs to check the status of nodes, including whether they are active, in standby, or undergoing synchronization.
-* **Node Configuration:** Endpoints to configure node parameters and operational settings.
+## 1. EVM JSON-RPC API
 
-**Transaction APIs:**
+### Overview
 
-* **Submit Transaction:** APIs for submitting transactions to the network. These handle various transaction types, including coin transfers and smart contract executions.
-* **Transaction Status:** APIs to query the status of submitted transactions, including pending, confirmed, or failed states.
-* **Transaction History:** Endpoints to retrieve the historical data of transactions associated with specific accounts.
+The JSON-RPC API provides full Ethereum compatibility, allowing developers to interact with Shardeum using standard Web3 libraries like ethers.js, web3.js, and viem.
 
-**Consensus and Validation APIs:**
+**Mainnet RPC Endpoint:**
+```
+https://api.shardeum.org
+```
 
-* **Submit Vote:** APIs for validators to submit their votes during the consensus process.
-* **Consensus Status:** Endpoints to retrieve the current status of the consensus process and quorum details.
-* **Slashing Events:** APIs to report and query slashing events, detailing penalized nodes and the reasons for penalties.
+**Chain ID:** `8118` (hex: `0x1fb6`)
 
-**Smart Contract APIs:**
+### Supported Methods
 
-* **Deploy Contract:** Endpoints for deploying smart contracts to the Shardeum network.
-* **Invoke Contract:** APIs to call functions on deployed smart contracts, allowing interaction with dApps.
-* **Query Contract:** APIs for querying data from smart contracts without executing state-changing operations.
+Shardeum supports all standard Ethereum JSON-RPC methods:
 
-### **2. Interaction Models**
+#### Account Methods
 
-![Models](/img/new/i62.png)
+```javascript
+// Get account balance
+eth_getBalance
 
-Shardeum supports several interaction models to cater to different types of network participants, from developers and dApp users to validators and node operators.
+// Get transaction count (nonce)
+eth_getTransactionCount
 
-[**JSON-RPC APIs**](https://github.com/shardeum/json-rpc-server)
+// Get code at address
+eth_getCode
+```
 
-    For Ethereum-compatible interactions, Shardeum offers JSON-RPC endpoints, allowing developers to use familiar tools and libraries to interact with the network. The Shardeum JSON-RPC Server repository enables developers to interact with the Shardeum blockchain network using JSON-RPC over HTTP.
+#### Block Methods
 
-    **API and Routes**
+```javascript
+// Get latest block number
+eth_blockNumber
 
-    * `src/api.ts`: Defines the methods available for the JSON-RPC server. (Content not retrieved, but typically contains the core RPC methods.)
-    * `src/routes/authenticate.ts`: Handles authentication routes, allowing users to authenticate using a passphrase and JWT tokens.
-    * `src/routes/log.ts`: Manages logging endpoints for capturing and retrieving various logs and statistics.
+// Get block by number or hash
+eth_getBlockByNumber
+eth_getBlockByHash
+```
 
-    **Server Setup**
+#### Transaction Methods
 
-    * `src/server.ts`: Sets up the main server, integrating various middlewares, routes, and WebSocket connections. It handles the initialization of different services and configurations.
-    * `src/logger.ts`: Manages logging functionality, including saving interface statistics and transaction statuses.
+```javascript
+// Send raw transaction
+eth_sendRawTransaction
 
-    **Middlewares**
+// Get transaction by hash
+eth_getTransactionByHash
 
-    * `src/middlewares/authorize.ts`: Middleware for authorizing requests using JWT tokens.
-    * `src/middlewares/injectIP.ts`: Middleware for injecting the IP address into specific transaction requests.
-    * `src/middlewares/rejectSubscription.ts`: Middleware to reject HTTP subscription methods, which are not allowed.
+// Get transaction receipt
+eth_getTransactionReceipt
 
-    **Utilities**
+// Estimate gas
+eth_estimateGas
 
-    * `src/utils.ts`: Contains utility functions used across the server.
-    * `package.json`: Lists dependencies and scripts for building and running the server.
-    * `tsconfig.json`: TypeScript configuration file (not retrieved, file does not exist).
+// Get gas price
+eth_gasPrice
+```
 
+#### Smart Contract Methods
 
-**Setup Instructions**
+```javascript
+// Call contract (read-only)
+eth_call
 
-Docker Setup:
+// Get logs/events
+eth_getLogs
 
-To start the server using Docker: docker compose up -d
-To check logs: docker compose logs -f
-To clean up: docker compose down
-NPM Setup:
+// Get storage at position
+eth_getStorageAt
+```
 
-- Clone the repository and switch to the dev branch.
-- Install dependencies: npm install
-- Start the server: npm run start
-- Modify configuration in src/config.ts for chainId and port settings.
-- Debug Endpoints
+#### Network Methods
 
-The server includes several debug endpoints, protected by authentication, for monitoring and managing the server:
+```javascript
+// Get chain ID
+eth_chainId
 
-- /log/api-stats: Retrieves API call counts and TPS.
-- /log/txs: Returns transactions made through the RPC server.
-- /log/status: Returns the status of logging.
-- Additional endpoints for starting/stopping logging and cleaning tables.
-- RESTful APIs
+// Get network version
+net_version
 
-Shardeum’s primary interaction model is REST-based, offering a simple and widely compatible way to interact with the network. Each API endpoint follows REST principles, allowing for standard HTTP methods like GET, POST, PUT, and DELETE to perform various operations.
+// Get peer count
+net_peerCount
+```
 
-WebSocket APIs
+### Example: Connecting with ethers.js
 
-For real-time updates and event-driven interactions, Shardeum provides WebSocket endpoints. These are particularly useful for receiving live updates on transaction statuses, node events, and consensus activities.
+```javascript
+import { ethers } from 'ethers';
 
-Polling
+// Create provider
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
 
-Reading smart contract events can also be done using Shardeum cycles (we listen to blocks/bundles to do this).
-    **Reading events with Shardeum Cycles**
+// Get block number
+const blockNumber = await provider.getBlockNumber();
+console.log('Current block:', blockNumber);
 
-    1. To get the current cycle: get the latest block, then divide by 10, and round down.
-    2.  Build the JSON URL with:
+// Get account balance
+const balance = await provider.getBalance('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+console.log('Balance:', ethers.formatEther(balance), 'SHM');
 
-        Example with ([explorer sphinx](https://explorer-sphinx.shardeum.org/api/transaction?startCycle=19020\&endCycle=19045\&address=0x245E2395712F888CeD1033C924115105dC32e388)):
+// Send transaction
+const wallet = new ethers.Wallet(privateKey, provider);
+const tx = await wallet.sendTransaction({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  value: ethers.parseEther('1.0')
+});
+await tx.wait();
+```
 
-        ```
-        startCycle = endCycle = 49
-        address = 0x23FF65f07cAbAd1643440a0114d71260F2Bb6352
-        ```
-    3. Filter for transactions per page \[note, 10 transactions per page] ([ge=1](https://explorer-sphinx.shardeum.org/api/transaction?startCycle=19020\&endCycle=19045\&address=0x245E2395712F888CeD1033C924115105dC32e388\&page=1)
+### Example: Deploying Contract
 
-    **JSON URL Filter Variables**
+```javascript
+// Deploy ERC-20 token
+const Contract = await ethers.getContractFactory('MyToken', wallet);
+const token = await Contract.deploy();
+await token.waitForDeployment();
 
-    ```
-    ?startCycle=latestCycle
-    &endCycle=latestCycle
-    &address=addressToListenTo
-    &page=1
-    ```
-**GraphQL APIs**
+console.log('Token deployed to:', await token.getAddress());
+```
 
-    Shardeum also supports GraphQL, providing a flexible and efficient way to query the network. This is particularly useful for complex queries where clients can specify exactly what data they need, reducing the amount of data transferred and processed.
+### WebSocket Support
 
-### 3. Network:
+For real-time event subscriptions:
 
+```javascript
+const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
 
-#### Shardeum Explorer Server
+// Subscribe to new blocks
+ws.on('block', (blockNumber) => {
+  console.log('New block:', blockNumber);
+});
 
-The Shardeum Explorer Server allows users to interact with the Shardeum blockchain network through a set of RESTful APIs. This server provides endpoints to query blockchain data, such as blocks, transactions, and account information.
+// Subscribe to pending transactions
+ws.on('pending', (txHash) => {
+  console.log('Pending tx:', txHash);
+});
+```
 
-#### Installation and Setup
+## 2. Cosmos SDK APIs
 
-1.  **Clone the Repository:** To get started, you need to clone the repository to your local machine using the following command:
+### REST API (LCD)
 
-    ```bash
-    git clone <https://github.com/shardeum/explorer-server.git>
-    ```
-2.  **Navigate to the Project Directory:**
+The Cosmos SDK REST API (Light Client Daemon) provides access to chain state and Cosmos-specific operations.
 
-    ```bash
-    cd explorer-server
-    ```
-3.  **Install Dependencies:** Use npm to install the necessary dependencies.
+**Mainnet LCD Endpoint:**
+```
+https://lcd.shardeum.org
+```
 
-    ```bash
-    npm install
-    ```
-4. **Configuration:** Configure the server by setting environment variables. You will need to specify details such as the network you are connecting to, the port the server will run on, and other relevant configurations.
-5.  **Run the Server:** Start the server using npm.
+#### Common Endpoints
 
-    ```bash
-    npm start
-    ```
+**Bank Module (Token Transfers)**
 
-#### API Endpoints
+```bash
+# Get account balance
+GET /cosmos/bank/v1beta1/balances/{address}
 
-The Explorer Server provides several API endpoints categorized into different groups:
+# Get total supply
+GET /cosmos/bank/v1beta1/supply
+```
 
-* **Blocks:** Retrieve information about blocks.
-* **Transactions:** Fetch details about specific transactions.
-* **Accounts:** Query information related to specific accounts on the blockchain.
+**Staking Module (Validators & Delegation)**
 
-#### Example API Usage
+```bash
+# List validators
+GET /cosmos/staking/v1beta1/validators
 
- **Get Block Information:** To retrieve information about a specific block, you can use the endpoint:
+# Get validator details
+GET /cosmos/staking/v1beta1/validators/{validatorAddr}
 
-    ```
-    GET /api/block/:blockNumber
-    ```
- **Get Transaction Details:** To get details about a specific transaction:
+# Get delegations for address
+GET /cosmos/staking/v1beta1/delegations/{delegatorAddr}
 
-    ```
-    GET /api/transaction/:transactionHash
-    ```
- **Get Account Information:** For account details, use:
+# Get validator delegations
+GET /cosmos/staking/v1beta1/validators/{validatorAddr}/delegations
+```
 
-    ```
-    GET /api/account/:address
-    ```
+**Distribution Module (Rewards)**
+
+```bash
+# Get delegation rewards
+GET /cosmos/distribution/v1beta1/delegators/{delegatorAddr}/rewards
+
+# Get validator commission
+GET /cosmos/distribution/v1beta1/validators/{validatorAddr}/commission
+```
+
+**Governance Module (Proposals)**
+
+```bash
+# List proposals
+GET /cosmos/gov/v1beta1/proposals
+
+# Get proposal details
+GET /cosmos/gov/v1beta1/proposals/{proposalId}
+
+# Get votes for proposal
+GET /cosmos/gov/v1beta1/proposals/{proposalId}/votes
+```
+
+### gRPC API
+
+For high-performance applications, use gRPC endpoints:
+
+**Mainnet gRPC Endpoint:**
+```
+grpc.shardeum.org:9090
+```
+
+#### Example: Query with grpcurl
+
+```bash
+# List validators
+grpcurl grpc.shardeum.org:9090 cosmos.staking.v1beta1.Query/Validators
+
+# Get account balance
+grpcurl -d '{"address": "shardeum1..."}' \
+  grpc.shardeum.org:9090 \
+  cosmos.bank.v1beta1.Query/AllBalances
+```
+
+#### Example: JavaScript gRPC Client
+
+```javascript
+import { StargateClient } from '@cosmjs/stargate';
+
+const client = await StargateClient.connect('https://rpc.shardeum.org');
+
+// Get account
+const account = await client.getAccount('shardeum1...');
+console.log(account);
+
+// Get balance
+const balance = await client.getAllBalances('shardeum1...');
+console.log(balance);
+```
+
+## 3. Explorer API
+
+The Shardeum Explorer provides REST endpoints for querying indexed blockchain data.
+
+**Mainnet Explorer API:**
+```
+https://explorer.shardeum.org/api
+```
+
+### Endpoints
+
+#### Blocks
+
+```bash
+# Get latest blocks
+GET /api/blocks
+
+# Get block by number
+GET /api/block/{blockNumber}
+
+# Get block transactions
+GET /api/block/{blockNumber}/transactions
+```
+
+#### Transactions
+
+```bash
+# Get transaction by hash
+GET /api/transaction/{txHash}
+
+# Get transactions for address
+GET /api/transactions?address={address}&page={page}
+
+# Get transactions in cycle range
+GET /api/transaction?startCycle={start}&endCycle={end}&address={address}
+```
+
+#### Accounts
+
+```bash
+# Get account information
+GET /api/account/{address}
+
+# Get account transactions
+GET /api/account/{address}/transactions
+
+# Get account token balances
+GET /api/account/{address}/tokens
+```
+
+#### Contracts
+
+```bash
+# Get contract information
+GET /api/contract/{address}
+
+# Verify contract source code
+POST /api/contract/verify
+```
+
+### Example: Fetch Transaction
+
+```javascript
+async function getTransaction(txHash) {
+  const response = await fetch(
+    `https://explorer.shardeum.org/api/transaction/${txHash}`
+  );
+  const data = await response.json();
+  return data;
+}
+
+const tx = await getTransaction('0x123...');
+console.log(tx);
+```
+
+### Example: Monitor Address Activity
+
+```javascript
+async function getAddressTransactions(address, page = 1) {
+  const response = await fetch(
+    `https://explorer.shardeum.org/api/transactions?address=${address}&page=${page}`
+  );
+  const data = await response.json();
+  return data;
+}
+
+const txs = await getAddressTransactions('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+console.log(txs);
+```
+
+## 4. Event Listening
+
+### Using eth_getLogs (EVM Events)
+
+Monitor smart contract events using standard Ethereum logs:
+
+```javascript
+// Listen for ERC-20 Transfer events
+const filter = {
+  address: '0x...', // Token contract address
+  topics: [
+    ethers.id('Transfer(address,address,uint256)') // Event signature
+  ],
+  fromBlock: 'latest'
+};
+
+const logs = await provider.getLogs(filter);
+console.log('Transfer events:', logs);
+```
+
+### WebSocket Subscriptions
+
+Real-time updates via WebSocket:
+
+```javascript
+const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
+
+// Subscribe to new pending transactions
+const filter = { address: contractAddress };
+ws.on(filter, (log) => {
+  console.log('New event:', log);
+});
+```
+
+### Polling with Cycles
+
+For applications needing historical event data, use the Explorer API with cycle-based queries:
+
+```javascript
+// Get current cycle (latest block / 10, rounded down)
+const latestBlock = await provider.getBlockNumber();
+const currentCycle = Math.floor(latestBlock / 10);
+
+// Query transactions in cycle range
+const url = `https://explorer.shardeum.org/api/transaction?startCycle=${currentCycle}&endCycle=${currentCycle}&address=${address}`;
+const response = await fetch(url);
+const transactions = await response.json();
+```
+
+## Network Information
+
+### Mainnet Endpoints
+
+| Service | Endpoint |
+|---------|----------|
+| **JSON-RPC** | `https://api.shardeum.org` |
+| **WebSocket** | `wss://api.shardeum.org` |
+| **LCD (REST)** | `https://lcd.shardeum.org` |
+| **gRPC** | `grpc.shardeum.org:9090` |
+| **Explorer** | `https://explorer.shardeum.org` |
+| **Explorer API** | `https://explorer.shardeum.org/api` |
+
+### Chain Configuration
+
+```javascript
+{
+  "chainId": "8118",        // EVM chain ID (hex: 0x1fb6)
+  "chainName": "Shardeum",
+  "nativeCurrency": {
+    "name": "SHM",
+    "symbol": "SHM",
+    "decimals": 18
+  },
+  "rpcUrls": ["https://api.shardeum.org"],
+  "blockExplorerUrls": ["https://explorer.shardeum.org"]
+}
+```
+
+## Rate Limits
+
+Public RPC endpoints have the following rate limits:
+
+- **Requests per second:** 10
+- **Requests per minute:** 600
+- **Concurrent connections:** 5
+
+For higher limits, consider running your own [RPC node](/docs/run-a-node/run-an-rpc-node).
+
+## Best Practices
+
+### 1. Use Appropriate API Layer
+
+- **EVM interactions** → Use JSON-RPC
+- **Staking/delegation** → Use Cosmos LCD/gRPC
+- **Historical queries** → Use Explorer API
+
+### 2. Handle Errors Gracefully
+
+```javascript
+try {
+  const balance = await provider.getBalance(address);
+} catch (error) {
+  if (error.code === 'TIMEOUT') {
+    // Retry logic
+  }
+  console.error('Error fetching balance:', error);
+}
+```
+
+### 3. Batch Requests
+
+For multiple queries, use batch RPC calls:
+
+```javascript
+const batch = [
+  { method: 'eth_getBalance', params: [address1, 'latest'] },
+  { method: 'eth_getBalance', params: [address2, 'latest'] }
+];
+
+// Implementation depends on your RPC client
+```
+
+### 4. Cache Results
+
+Cache frequently accessed data to reduce API calls:
+
+```javascript
+const cache = new Map();
+
+async function getBlockWithCache(blockNumber) {
+  if (cache.has(blockNumber)) {
+    return cache.get(blockNumber);
+  }
+
+  const block = await provider.getBlock(blockNumber);
+  cache.set(blockNumber, block);
+  return block;
+}
+```
+
+## Further Reading
+
+- [EVM Compatibility](/docs/overview/what-is-shardeum)
+- [Running an RPC Node](/docs/run-a-node/run-an-rpc-node)
+- [Smart Contract Development](/docs/developer/smart-contracts/deploy)
+- [Cosmos SDK Documentation](https://docs.cosmos.network/)
+- [Ethereum JSON-RPC Specification](https://ethereum.org/en/developers/docs/apis/json-rpc/)
