@@ -1,108 +1,117 @@
 ---
-title: Using Remix
+title: Deploy ERC-20 Token Using Remix
 description: Learn how to deploy ERC-20 tokens using Remix IDE on Shardeum
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Deploy Your Own Crypto Token (ERC20)
+## What is an ERC-20 Token?
 
-## What is ERC-20 Token?
+ERC-20 is a widely adopted token standard originally defined for Ethereum-compatible blockchains. 'ERC' stands for 'Ethereum Request for Comment. It specifies a common set of functions and events that enable tokens to be transferred, approved, and integrated seamlessly across wallets, exchanges, and applications.
 
-ERC 20 tokens are issued on the Ethereum network. They have emerged as the technical standard on the Ethereum blockchain for token implementation and provide a list of rules that all Ethereum-based tokens must follow. Side note: Ethereum is a layer 1 blockchain that carries several independent and dependent L1 and L2 blockchains due to its highly automated/virtualized [EVM](https://shardeum.org/blog/ethereum-virtual-machine-evm-simplified/).
+Because Shardeum is EVM-compatible, smart contracts that follow the ERC-20 standard can be deployed and used on Shardeum without modification.
 
-'ERC' stands for 'Ethereum Request for Comment.' ERC-20 specifically has six different coding functions. In terms of implementation of the coding for ERC-20 tokens, the six basic coding functions are as follows:
+At a minimum, an ERC-20 token exposes the following core functionality:
 
-1. Total supply
-2. Balance of
-3. Allowance
-4. Transfer
-5. Approve
-6. Transfer from
+1. totalSupply
+2. balanceOf
+3. allowance
+4. transfer
+5. approve
+6. transferFrom
 
-## Create and Deploy your ERC-20 Token using Remix
+## Deployment Guide
 
-This is a step-by-step walkthrough created as a *reference* to help you understand how to create and deploy an ERC-20 token on Shardeum networks including testnet and mainnet. We will use [Metamask](https://metamask.io/) and [Remix IDE](https://remix.ethereum.org/) for this tutorial.
+This guide walks through deploying a simple ERC-20 token on Shardeum using Remix IDE and MetaMask. It is intended as a reference for developers who want a quick, browser-based way to deploy contracts on Shardeum testnet or mainnet.
 
-## Add Shardeum Network to Metamask/Claim Token
+For production workflows, automated deployments, or advanced testing, refer to the Hardhat and Foundry guides. These functions ensure consistent behavior across tooling such as wallets, explorers, and dApps.
 
-[Metamask](https://metamask.io/) allows users to store and manage account keys, broadcast transactions, send and receive Ethereum-based cryptocurrencies and tokens, and securely connect to decentralized applications through a compatible web browser or the mobile app's built-in browser. Click [here](https://metamask.io/download/) to install the MetaMask extension on your browser.
+### Prerequisites
 
-Connect to Shardeum with Metamask automatically by following this link and clicking the add network button:
+Before continuing, ensure you have: 
 
-[Connect Metamask to Shardeum](/docs/network/endpoints#Connect-Wallet)
+- MetaMask or other EVM-compatible wallets installed and set up
+- A Shardeum network added to MetaMask
+- SHM tokens available to pay for transaction fees
 
-Once you are connected to Shardeum in Metamask, claim SHM from a faucet to pay for transaction fees:
+### Add Shardeum Network to Metamask
 
-[Claim SHM from faucets](/docs/faucet/claim)
+Connect MetaMask to Shardeum testnet by following the instructions here:
 
-## Writing the Code Using Remix
+[Connect Metamask to Shardeum](/docs/wallets/metamask/add-shardeum-network)
 
-We are using [Remix IDE](https://remix.ethereum.org/) for writing the smart contract as mentioned above. In Remix, create a new contract file and name it 'ShardeumERC20Token.sol' (you can name it anything you want). And, in the contract, write the following code:
+Once connected, claim test SHM from a faucet to cover deployment gas fees:
+
+[Claim SHM from faucet](/docs/developer/faucet)
+
+### Writing the ERC-20 Contract
+
+Open Remix IDE and create a new file named 'ShardeumERC20Token.sol' (you can name it anything you want). And, in the contract, paste the following code:
 
 
 ```solidity
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
 
 contract ShardeumERC20Token is ERC20 {
-
-   constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol){
-       _mint(msg.sender, 10000 * 10 ** 18);
-
-   }
+    constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {
+        _mint(msg.sender, 10_000 * 10 ** decimals());
+    }
 }
 ```
 
-
 Code explanation in brief for reference:
 
-1. **pragma solidity ^0.8.0** – This line specifies the compiler version of Solidity to be used. ^0.8.0 means any version greater than 0.8.0.
-2. **import** – This line imports the ERC-20 token standard from OpenZeppelin (OZ).
-3. **contract ShardeumERC20Token is ERC20** – This specifies a new contract, named LW3Token, in our Solidity file. Also, it says that this contract is an instance of ERC20.
-4. **constructor** – Essentially, we created constructor function that is called when the smart contract is first deployed.
-5. **_mint** – An internal function within the ERC20 standard contract, which means that it can only be called by the contract itself. External users cannot call this function.
-6. __10000 * 10 ** 18__ – (which is actually 10 ^ 18) specifies that you want 10000 full tokens to be minted to your address.
+1. **pragma solidity ^0.8.0** – Specifies that the contract uses Solidity version 0.8.x or higher.
+2. **import..ERC20.sol** – Imports the standard ERC-20 implementation from OpenZeppelin.
+3. **contract ShardeumERC20Token is ERC20** – Declares a new ERC-20 token contract that inherits OpenZeppelin’s implementation.
+4. **constructor** – Runs once at deployment and sets the token name and symbol.
+5. **_mint** – Mints a fixed supply of tokens to the deployer’s address.
+6. **10_000 * 10 ** decimals() – Mints 10,000 full tokens using the standard ERC-20 decimal precision.
 
-## Compiling the Smart Contract
+### Compiling the Contract
 
-Compile the contract by going over to the 'Compiler' tab in Remix and selecting 'ShardeumERC20Token.sol', and then hit 'Compile'.
+1. Open the Solidity Compiler tab in Remix
+2. Select the appropriate compiler version (≥ 0.8.0)
+3. Click Compile ShardeumERC20Token.sol
 
 ![mint_your_own_crypto_1](/img/mint_your_own_crypto/mint_your_own_crypto_1.jpg)
 
-## Deploying the Smart Contract
-
-Please note that the networks referenced in this guide may include legacy beta networks such as Sphinx and Liberty, so be sure to use the appropriate network you intend to deploy to.
+### Deploying the Contract
 
 Let's deploy a fixed supply of 10000 Tokens (You can change it to another supply at the code level).
 
-Go to the 'Deployer' tab in Remix.
+Note: Some screenshots may reference legacy test networks such as Sphinx or Liberty. Always ensure MetaMask is connected to the Shardeum network you intend to deploy to.
 
-Select the 'Injected Web3' environment (selecting the appropriate network), and connect your MetaMask wallet.
-
-Now, select the 'ShardeumERC20Token.sol' contract, and enter values for the constructor arguments '_Name' and '_Symbol' as shown in the image below.
+1. Open the **Deploy & Run Transactions** tab
+2. Set **Environment** to `Injected Provider - MetaMask`
+3. Confirm MetaMask is connected to the correct Shardeum network
+4. Select `ShardeumERC20Token` from the contract dropdown
+5. Enter values for:
+   - `name_` (e.g., `Vaiju's ERC20 Token`)
+   - `symbol_` (e.g., `VSHM`)
 
 ![mint_your_own_crypto_2](/img/mint_your_own_crypto/mint_your_own_crypto_2.jpg)
 
-Proceed to click 'Transact' and approve the transaction in 'Metamask' to deploy your contract!
+Proceed to click 'Transact' or 'Deploy' and approve the transaction in 'Metamask' to deploy your contract!
 
 ![mint_your_own_crypto_3](/img/mint_your_own_crypto/mint_your_own_crypto_3.jpg)
 
-You have now successfully deployed ERC-20 Token on Shardeum Sphinx!
-
-After deploying, click the 'Copy Address' button to copy the contract address.
+You have now successfully deployed ERC-20 Token on Shardeum testnet!
 
 ![mint_your_own_crypto_4](/img/mint_your_own_crypto/mint_your_own_crypto_4.jpg)
 
-You can now go to the suitable active Shardeum explorers listed below and search for contract address and you should be able to see it there!
+Copy the contract address and search for it on a Shardeum explorer:
 
-[Shardeum Mainnet Explorer](https://explorer.shardeum.org/)
+- [Shardeum Testnet Explorer](https://explorer-mezame.shardeum.org/)
+- [Shardeum Mainnet Explorer](https://explorer.shardeum.org/)
 
-[Shardeum Testnet Explorer](https://explorer-mezame.shardeum.org/)
 
-{/* ## Video Tutorial
+
+{/* 
+## Video Tutorial
 
 <iframe id="ytplayer" type="text/html"
   class="video"
