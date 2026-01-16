@@ -1,25 +1,33 @@
 ---
-title: Build Your First dApp on Shardeum
-description: Complete tutorial for building and deploying a decentralized application on Shardeum
+title: Build a Frontend dApp on Shardeum
+description: A frontend-first tutorial to connect wallets, read blockchain data, and send transactions on Shardeum
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Build Your First dApp on Shardeum
+*This tutorial uses a single frontend architecture based on React Context. Follow all frontend steps in order to avoid duplication*.
 
-This tutorial guides you through building a complete decentralized application on Shardeum, from smart contract deployment to a fully functional React frontend.
+This tutorial walks you through building a complete decentralized application (dApp) on Shardeum — from deploying a sample smart contract to interacting with it through a React-based frontend.
 
-## What You'll Build
+You will: 
 
-We'll create a **Token Interface dApp** that allows users to:
-- Connect their MetaMask wallet
-- Check token balances
-- Transfer tokens to other addresses
-- View transaction history
+- Deploy a sample ERC20 token contract on Shardeum
+- Connect a wallet (MetaMask)
+- Read on-chain data (balances)
+- Send transactions (token transfers)
+- View transactions on the Shardeum explorer
 
-By the end, you'll have a production-ready dApp template you can customize for your own projects.
+This guide is fully self-contained and does not assume prior deployments.
 
-## Prerequisites
+## Let's Build
+
+Let's build a token interface dApp that allows users to:
+- Connect their wallet
+- View token balances
+- Transfer tokens to another address
+- Track transactions using the Shardeum explorer
+
+### Prerequisites
 
 Before starting, ensure you have:
 
@@ -27,56 +35,74 @@ Before starting, ensure you have:
 - **MetaMask** wallet extension - [Install](https://metamask.io/)
 - **Test SHM** tokens - [Get from faucet](/docs/developer/faucet)
 - **Code Editor** - VS Code recommended
-- **Basic knowledge** of React and TypeScript
+- **Basic familiarity** with React and JavaScript or TypeScript
 
 <Callout type="info">
 **Testing First:** Always deploy to testnet before mainnet. Use Shardeum EVM Testnet for development.
 </Callout>
 
-## Part 1: Smart Contract Development
+### Part 1: Deploy a Sample Smart Contract
 
-### Step 1: Create the Token Contract
+To interact with the blockchain, we first need something deployed on-chain. For this tutorial, we’ll deploy a simple ERC20 token contract.
 
-First, let's create a simple ERC20 token contract.
+#### 1. Create the Contract
 
-Create a new file `MyToken.sol`:
+Create a file called `MyToken.sol`. You will create this file after initializing the Hardhat project in the next step.
+
+Create `contracts/MyToken.sol` and paste the code below:
 
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC20, Ownable {
-    constructor(string memory name, string memory symbol)
-        ERC20(name, symbol)
-        Ownable(msg.sender)
-    {
-        // Mint 1 million tokens to contract deployer
-        _mint(msg.sender, 1000000 * 10 ** decimals());
-    }
-
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
+contract MyToken is ERC20 {
+    constructor() ERC20("My Token", "MTK") {
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
     }
 }
 ```
 
-### Step 2: Deploy the Contract
+This contract:
+- Mints 1 million tokens to the deployer
+- Supports balance checks
+- Supports token transfers
 
-Create a deployment script using Hardhat:
+#### 2. Deploy the Contract with Hardhat
+
+Initialize a Hardhat project:
 
 ```bash
-npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
-npx hardhat init
+mkdir shardeum-contract
+cd shardeum-contract
+npm init -y
+npm install --save-dev hardhat
 ```
 
-**hardhat.config.ts:**
+When Hardhat prompts, choose “TypeScript project”. If `npx hardhat init` doesn’t work on your version, run `npx hardhat` and choose “Create a TypeScript project” instead.
 
-```typescript
+```bash
+npx hardhat init
+npm install --save-dev @nomicfoundation/hardhat-toolbox
+npm install @openzeppelin/contracts
+npm install dotenv
+```
+
+You can now create `contracts/MyToken.sol` and paste the contract code from Step 1.
+
+Next, create a `.env` file:
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+```
+
+Update `hardhat.config.ts`:
+
+```ts
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import "dotenv/config";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
@@ -84,118 +110,79 @@ const config: HardhatUserConfig = {
     shardeumTestnet: {
       url: "https://api-mezame.shardeum.org",
       chainId: 8119,
-      accounts: [process.env.PRIVATE_KEY!]
+      accounts: [process.env.PRIVATE_KEY!],
     },
-    shardeumMainnet: {
-      url: "https://api.shardeum.org",
-      chainId: 8118,
-      accounts: [process.env.PRIVATE_KEY!]
-    }
-  }
+  },
 };
 
 export default config;
 ```
 
-**scripts/deploy.ts:**
+Create `scripts/deploy.ts`:
 
-```typescript
+```ts
 import { ethers } from "hardhat";
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
-
-  console.log("Deploying contracts with account:", deployer.address);
-
-  const MyToken = await ethers.getContractFactory("MyToken");
-  const token = await MyToken.deploy("My Token", "MTK");
-
+  const Token = await ethers.getContractFactory("MyToken");
+  const token = await Token.deploy();
   await token.waitForDeployment();
 
-  const address = await token.getAddress();
-  console.log("Token deployed to:", address);
+  console.log("Token deployed to:", await token.getAddress());
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
 });
 ```
 
-**Deploy to testnet:**
+Deploy
 
 ```bash
-# Create .env file with your private key
-echo "PRIVATE_KEY=your_private_key_here" > .env
-
-# Install dependencies
-npm install dotenv @openzeppelin/contracts
-
-# Deploy
 npx hardhat run scripts/deploy.ts --network shardeumTestnet
 ```
 
-<Callout type="warn">
-**Security:** Never commit your `.env` file. Add it to `.gitignore`.
-</Callout>
+**Save the deployed contract address**. You’ll need it in the frontend.
 
-Save the deployed contract address - you'll need it for the frontend!
+### Part 2: Build the Frontend dApp
 
-## Part 2: Frontend Development
+Now we’ll build a frontend that interacts with the deployed contract.
 
-### Step 1: Create React Project
+#### 1. Create a React App
 
 ```bash
 npm create vite@latest shardeum-dapp -- --template react-ts
 cd shardeum-dapp
 npm install
-```
-
-### Step 2: Install Dependencies
-
-```bash
 npm install ethers
-npm install -D @types/node
 ```
 
-### Step 3: Configure Network
+#### 2. Configure the Shardeum Network
 
 Create `src/config/networks.ts`:
 
-```typescript
+```ts
 export const SHARDEUM_TESTNET = {
-  chainId: '0x1fb7', // 8119 in hex
-  chainName: 'Shardeum EVM Testnet',
+  chainId: "0x1fb7", // 8119
+  chainName: "Shardeum EVM Testnet",
   nativeCurrency: {
-    name: 'SHM',
-    symbol: 'SHM',
-    decimals: 18
+    name: "SHM",
+    symbol: "SHM",
+    decimals: 18,
   },
-  rpcUrls: ['https://api-mezame.shardeum.org'],
-  blockExplorerUrls: ['https://explorer-mezame.shardeum.org']
+  rpcUrls: ["https://api-mezame.shardeum.org"],
+  blockExplorerUrls: ["https://explorer-mezame.shardeum.org"],
 };
 
-export const SHARDEUM_MAINNET = {
-  chainId: '0x1fb6', // 8118 in hex
-  chainName: 'Shardeum Mainnet',
-  nativeCurrency: {
-    name: 'SHM',
-    symbol: 'SHM',
-    decimals: 18
-  },
-  rpcUrls: ['https://api.shardeum.org'],
-  blockExplorerUrls: ['https://explorer.shardeum.org']
-};
-
-// Your deployed token address
-export const TOKEN_ADDRESS = '0xYourTokenAddressHere';
+export const TOKEN_ADDRESS = "0xYOUR_CONTRACT_ADDRESS_HERE";
 ```
 
-### Step 4: Create ERC20 ABI
+#### 3. Contract ABI
 
 Create `src/config/erc20Abi.ts`:
 
-```typescript
+```ts
 export const ERC20_ABI = [
   "function name() view returns (string)",
   "function symbol() view returns (string)",
@@ -206,7 +193,7 @@ export const ERC20_ABI = [
 ];
 ```
 
-### Step 5: Create Wallet Context
+#### 4: Create Wallet Context
 
 Create `src/context/WalletContext.tsx`:
 
@@ -352,12 +339,12 @@ export function useWallet() {
 // Extend Window type for TypeScript
 declare global {
   interface Window {
-    ethereum?: any;
+    ethereum?: Eip1193Provider;
   }
 }
 ```
 
-### Step 6: Create Token Interface Component
+#### 5: Create Token Interface Component
 
 Create `src/components/TokenInterface.tsx`:
 
@@ -511,7 +498,7 @@ export function TokenInterface() {
 }
 ```
 
-### Step 7: Create Main App Component
+#### 6: Create Main App Component
 
 Update `src/App.tsx`:
 
@@ -564,7 +551,7 @@ function App() {
 export default App;
 ```
 
-### Step 8: Update Main Entry Point
+#### 7: Update Main Entry Point
 
 Update `src/main.tsx`:
 
@@ -584,7 +571,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 );
 ```
 
-### Step 9: Add Styling
+#### 8: Add Styling
 
 Create `src/App.css`:
 
@@ -723,7 +710,7 @@ button[type="submit"]:disabled {
 }
 ```
 
-### Step 10: Run the dApp
+#### 9: Run the dApp
 
 ```bash
 npm run dev
@@ -731,43 +718,37 @@ npm run dev
 
 Open `http://localhost:5173` in your browser!
 
-## Testing Your dApp
+### Testing Your dApp
 
-### 1. Connect MetaMask
+#### 1. Connect MetaMask
 
 Click "Connect Wallet" and approve the connection in MetaMask.
 
-### 2. Switch to Shardeum Testnet
+#### 2. Switch to Shardeum Testnet
 
 If prompted, approve adding and switching to Shardeum Testnet.
 
-### 3. Get Test Tokens
+#### 3. Get Test Tokens
 
 Visit the [Shardeum Faucet](/docs/developer/faucet) to get test SHM tokens.
 
-### 4. Transfer Tokens
+#### 4. Transfer Tokens
 
-Try transferring tokens to another address and verify the transaction on the explorer.
+Use a valid recipient address (for example, your second wallet address). If you paste an invalid address, the transaction will fail.
 
-## Production Deployment
+### Production Deployment
 
-### 1. Update Configuration
+#### 1. Update Configuration
 
-Change `TOKEN_ADDRESS` in `src/config/networks.ts` to your mainnet contract address.
+Change `TOKEN_ADDRESS` in `src/config/networks.ts` to your mainnet or testnet contract address as needed.
 
-Update network configuration to use mainnet:
-
-```typescript
-export const ACTIVE_NETWORK = SHARDEUM_MAINNET;
-```
-
-### 2. Build for Production
+#### 2. Build for Production
 
 ```bash
 npm run build
 ```
 
-### 3. Deploy
+#### 3. Deploy
 
 Deploy the `dist` folder to your hosting provider:
 
@@ -786,7 +767,7 @@ netlify deploy --prod --dir=dist
 **IPFS (Decentralized Hosting):**
 ```bash
 npm install -g ipfs-deploy
-ipd dist
+ipfs-deploy dist
 ```
 
 ## Best Practices
@@ -862,8 +843,6 @@ Now that you have a working dApp, you can:
 ## Additional Resources
 
 - [Smart Contract Development](/docs/developer/smart-contracts/deploy) - Deploy contracts
-- [Network & RPC Methods](/docs/developer/network-and-rpc) - Complete RPC reference
-- [APIs and Interfaces](/docs/developer/architecture/apis-and-interfaces) - API documentation
 - [Hardhat Documentation](https://hardhat.org/docs) - Contract deployment tool
 - [Ethers.js Documentation](https://docs.ethers.org/) - Web3 library
 
