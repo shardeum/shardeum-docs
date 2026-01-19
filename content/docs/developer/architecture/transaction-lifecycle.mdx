@@ -82,3 +82,77 @@ These receipts can be queried through standard RPC methods and are commonly used
 
 This predictable lifecycle simplifies application logic, especially for financial, gaming, and real-time use cases.
 
+
+### 1. Transaction Creation
+
+A transaction is created by a user or application using a standard Ethereum-compatible tool such as a wallet, SDK, or backend service.
+
+At this stage, the transaction includes:
+
+- sender and recipient addresses,
+- transaction data (value transfer or contract call),
+- gas limit and gas price parameters, and
+- a cryptographic signature from the sender.
+
+Shardeum accepts standard EVM transaction formats, allowing existing Ethereum tooling to work without modification.
+
+### 2. Transaction Submission
+
+The signed transaction is submitted to the network through a JSON-RPC endpoint, typically via:
+
+- a Web3 wallet,
+- a frontend dApp, or
+- a backend service.
+
+Once submitted, the transaction enters the network’s transaction pool, where it awaits validation and inclusion by validators.
+
+### 3. Validation and Ordering
+
+Validators perform initial checks to ensure the transaction is valid, including:
+
+- signature verification,
+- nonce correctness,
+- sufficient balance to cover fees, and
+- compliance with protocol rules.
+
+Valid transactions are ordered and considered for inclusion in the next proposed block.
+
+### 4. Block Proposal and Consensus
+
+A validator proposes a block containing a set of valid transactions. Other validators participate in consensus to verify the block’s correctness.
+
+During this phase:
+
+- transactions are executed deterministically,
+- state transitions are computed, and
+- validators agree on the resulting state.
+
+Shardeum’s consensus mechanism provides deterministic finality, meaning that once a block is finalized, it cannot be reverted.
+
+### 5. Block Finalization
+
+After consensus is reached:
+
+- the block is committed to the canonical chain,
+- all transactions in the block are finalized, and
+- the updated state becomes immediately authoritative.
+
+At this point, applications can safely rely on the transaction outcome without waiting for additional confirmations.
+
+### 6. State Update and Receipts
+
+The finalized transaction produces:
+
+- updated account and contract state, and
+- a transaction receipt containing execution results, gas usage, and logs.
+
+These receipts can be queried through standard RPC methods and are commonly used by dApps to update UI state or trigger follow-up actions.
+
+## What Developers Should Take Away
+
+- Transactions follow a single, deterministic path from submission to finality.
+- Finalized transactions are irreversible under normal network operation.
+- Applications can safely act on transaction results immediately after finalization.
+
+This predictable lifecycle simplifies application logic, especially for financial, gaming, and real-time use cases.
+

@@ -39,8 +39,861 @@ Before starting, ensure you have:
 
 <Callout type="info">
 **Testing First:** Always deploy to testnet before mainnet. Use Shardeum EVM Testnet for development.
+*This tutorial uses a single frontend architecture based on React Context. Follow all frontend steps in order to avoid duplication*.
+
+This tutorial walks you through building a complete decentralized application (dApp) on Shardeum — from deploying a sample smart contract to interacting with it through a React-based frontend.
+
+You will: 
+
+- Deploy a sample ERC20 token contract on Shardeum
+- Connect a wallet (MetaMask)
+- Read on-chain data (balances)
+- Send transactions (token transfers)
+- View transactions on the Shardeum explorer
+
+This guide is fully self-contained and does not assume prior deployments.
+
+## Let's Build
+
+Let's build a token interface dApp that allows users to:
+- Connect their wallet
+- View token balances
+- Transfer tokens to another address
+- Track transactions using the Shardeum explorer
+
+### Prerequisites
+
+Before starting, ensure you have:
+
+- **Node.js** (v18 or later) - [Download](https://nodejs.org/)
+- **MetaMask** wallet extension - [Install](https://metamask.io/)
+- **Test SHM** tokens - [Get from faucet](/docs/developer/faucet)
+- **Code Editor** - VS Code recommended
+- **Basic familiarity** with React and JavaScript or TypeScript
+
+<Callout type="info">
+**Testing First:** Always deploy to testnet before mainnet. Use Shardeum EVM Testnet for development.
 </Callout>
 
+### Part 1: Deploy a Sample Smart Contract
+
+To interact with the blockchain, we first need something deployed on-chain. For this tutorial, we’ll deploy a simple ERC20 token contract.
+
+#### 1. Create the Contract
+
+Create a file called `MyToken.sol`. You will create this file after initializing the Hardhat project in the next step.
+
+Create `contracts/MyToken.sol` and paste the code below:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+    constructor() ERC20("My Token", "MTK") {
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+}
+```
+
+This contract:
+- Mints 1 million tokens to the deployer
+- Supports balance checks
+- Supports token transfers
+
+#### 2. Deploy the Contract with Hardhat
+
+Initialize a Hardhat project:
+
+```bash
+mkdir shardeum-contract
+cd shardeum-contract
+npm init -y
+npm install --save-dev hardhat
+```
+
+When Hardhat prompts, choose “TypeScript project”. If `npx hardhat init` doesn’t work on your version, run `npx hardhat` and choose “Create a TypeScript project” instead.
+
+```bash
+npx hardhat init
+npm install --save-dev @nomicfoundation/hardhat-toolbox
+npm install @openzeppelin/contracts
+npm install dotenv
+```
+
+You can now create `contracts/MyToken.sol` and paste the contract code from Step 1.
+
+Next, create a `.env` file:
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+```
+
+Update `hardhat.config.ts`:
+
+```ts
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import "dotenv/config";
+
+const config: HardhatUserConfig = {
+  solidity: "0.8.20",
+  networks: {
+    shardeumTestnet: {
+      url: "https://api-mezame.shardeum.org",
+      chainId: 8119,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+  },
+};
+
+export default config;
+```
+
+Create `scripts/deploy.ts`:
+
+```ts
+import { ethers } from "hardhat";
+
+async function main() {
+  const Token = await ethers.getContractFactory("MyToken");
+  const token = await Token.deploy();
+  await token.waitForDeployment();
+
+  console.log("Token deployed to:", await token.getAddress());
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+```
+
+Deploy
+
+```bash
+npx hardhat run scripts/deploy.ts --network shardeumTestnet
+```
+
+**Save the deployed contract address**. You’ll need it in the frontend.
+
+### Part 2: Build the Frontend dApp
+
+Now we’ll build a frontend that interacts with the deployed contract.
+
+#### 1. Create a React App
+
+```bash
+npm create vite@latest shardeum-dapp -- --template react-ts
+cd shardeum-dapp
+npm install
+npm install ethers
+```
+
+#### 2. Configure the Shardeum Network
+
+Create `src/config/networks.ts`:
+
+```ts
+export const SHARDEUM_TESTNET = {
+  chainId: "0x1fb7", // 8119
+  chainName: "Shardeum EVM Testnet",
+  nativeCurrency: {
+    name: "SHM",
+    symbol: "SHM",
+    decimals: 18,
+  },
+  rpcUrls: ["https://api-mezame.shardeum.org"],
+  blockExplorerUrls: ["https://explorer-mezame.shardeum.org"],
+};
+
+export const TOKEN_ADDRESS = "0xYOUR_CONTRACT_ADDRESS_HERE";
+```
+
+#### 3. Contract ABI
+
+Create `src/config/erc20Abi.ts`:
+
+```ts
+export const ERC20_ABI = [
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function balanceOf(address) view returns (uint256)",
+  "function transfer(address to, uint256 amount) returns (bool)",
+  "event Transfer(address indexed from, address indexed to, uint256 value)"
+];
+```
+
+#### 4: Create Wallet Context
+
+Create `src/context/WalletContext.tsx`:
+
+```typescript
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { ethers, BrowserProvider, Eip1193Provider } from 'ethers';
+import { SHARDEUM_TESTNET } from '../config/networks';
+
+interface WalletContextType {
+  account: string | null;
+  chainId: string | null;
+  provider: BrowserProvider | null;
+  connectWallet: () => Promise<void>;
+  disconnectWallet: () => void;
+  switchNetwork: () => Promise<void>;
+}
+
+const WalletContext = createContext<WalletContextType | undefined>(undefined);
+
+export function WalletProvider({ children }: { children: ReactNode }) {
+  const [account, setAccount] = useState<string | null>(null);
+  const [chainId, setChainId] = useState<string | null>(null);
+  const [provider, setProvider] = useState<BrowserProvider | null>(null);
+
+  // Check if wallet is connected on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum as Eip1193Provider);
+        const accounts = await provider.send('eth_accounts', []);
+
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+          setProvider(provider);
+
+          const network = await provider.getNetwork();
+          setChainId('0x' + network.chainId.toString(16));
+        }
+      }
+    };
+
+    checkConnection();
+
+    // Listen for account changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+        } else {
+          disconnectWallet();
+        }
+      });
+
+      window.ethereum.on('chainChanged', (chainId: string) => {
+        setChainId(chainId);
+        window.location.reload();
+      });
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeAllListeners('accountsChanged');
+        window.ethereum.removeAllListeners('chainChanged');
+      }
+    };
+  }, []);
+
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      alert('Please install MetaMask!');
+      return;
+    }
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum as Eip1193Provider);
+      const accounts = await provider.send('eth_requestAccounts', []);
+
+      setAccount(accounts[0]);
+      setProvider(provider);
+
+      const network = await provider.getNetwork();
+      setChainId('0x' + network.chainId.toString(16));
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+    }
+  };
+
+  const disconnectWallet = () => {
+    setAccount(null);
+    setProvider(null);
+    setChainId(null);
+  };
+
+  const switchNetwork = async () => {
+    if (!window.ethereum) return;
+
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: SHARDEUM_TESTNET.chainId }],
+      });
+    } catch (switchError: any) {
+      // This error code indicates that the chain has not been added to MetaMask
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [SHARDEUM_TESTNET],
+          });
+        } catch (addError) {
+          console.error('Failed to add network:', addError);
+        }
+      } else {
+        console.error('Failed to switch network:', switchError);
+      }
+    }
+  };
+
+  return (
+    <WalletContext.Provider
+      value={{
+        account,
+        chainId,
+        provider,
+        connectWallet,
+        disconnectWallet,
+        switchNetwork
+      }}
+    >
+      {children}
+    </WalletContext.Provider>
+  );
+}
+
+export function useWallet() {
+  const context = useContext(WalletContext);
+  if (context === undefined) {
+    throw new Error('useWallet must be used within a WalletProvider');
+  }
+  return context;
+}
+
+// Extend Window type for TypeScript
+declare global {
+  interface Window {
+    ethereum?: Eip1193Provider;
+  }
+}
+```
+
+#### 5: Create Token Interface Component
+
+Create `src/components/TokenInterface.tsx`:
+
+```typescript
+import { useState, useEffect } from 'react';
+import { ethers, Contract } from 'ethers';
+import { useWallet } from '../context/WalletContext';
+import { TOKEN_ADDRESS } from '../config/networks';
+import { ERC20_ABI } from '../config/erc20Abi';
+
+export function TokenInterface() {
+  const { account, provider } = useWallet();
+  const [tokenName, setTokenName] = useState('');
+  const [tokenSymbol, setTokenSymbol] = useState('');
+  const [balance, setBalance] = useState('0');
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [txHash, setTxHash] = useState('');
+
+  useEffect(() => {
+    if (account && provider) {
+      loadTokenInfo();
+      loadBalance();
+    }
+  }, [account, provider]);
+
+  const loadTokenInfo = async () => {
+    if (!provider) return;
+
+    try {
+      const contract = new Contract(TOKEN_ADDRESS, ERC20_ABI, provider);
+      const name = await contract.name();
+      const symbol = await contract.symbol();
+
+      setTokenName(name);
+      setTokenSymbol(symbol);
+    } catch (error) {
+      console.error('Failed to load token info:', error);
+    }
+  };
+
+  const loadBalance = async () => {
+    if (!provider || !account) return;
+
+    try {
+      const contract = new Contract(TOKEN_ADDRESS, ERC20_ABI, provider);
+      const balance = await contract.balanceOf(account);
+      setBalance(ethers.formatEther(balance));
+    } catch (error) {
+      console.error('Failed to load balance:', error);
+    }
+  };
+
+  const handleTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!provider || !account) return;
+
+    setLoading(true);
+    setTxHash('');
+
+    try {
+      const signer = await provider.getSigner();
+      const contract = new Contract(TOKEN_ADDRESS, ERC20_ABI, signer);
+
+      const tx = await contract.transfer(
+        recipient,
+        ethers.parseEther(amount)
+      );
+
+      setTxHash(tx.hash);
+
+      await tx.wait();
+
+      alert('Transfer successful!');
+      loadBalance();
+      setRecipient('');
+      setAmount('');
+    } catch (error: any) {
+      console.error('Transfer failed:', error);
+      alert('Transfer failed: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!account) {
+    return (
+      <div className="card">
+        <h2>Token Interface</h2>
+        <p>Please connect your wallet to use the token interface.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <h2>{tokenName} ({tokenSymbol})</h2>
+
+      <div className="balance">
+        <p>Your Balance:</p>
+        <h3>{balance} {tokenSymbol}</h3>
+      </div>
+
+      <form onSubmit={handleTransfer} className="transfer-form">
+        <h3>Transfer Tokens</h3>
+
+        <div className="form-group">
+          <label>Recipient Address:</label>
+          <input
+            type="text"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            placeholder="0x..."
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Amount:</label>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.0"
+            step="0.000001"
+            required
+          />
+        </div>
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Processing...' : 'Transfer'}
+        </button>
+
+        {txHash && (
+          <div className="tx-hash">
+            <p>Transaction Hash:</p>
+            <a
+              href={`https://explorer-mezame.shardeum.org/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {txHash.slice(0, 10)}...{txHash.slice(-8)}
+            </a>
+          </div>
+        )}
+      </form>
+    </div>
+  );
+}
+```
+
+#### 6: Create Main App Component
+
+Update `src/App.tsx`:
+
+```typescript
+import { useWallet } from './context/WalletContext';
+import { TokenInterface } from './components/TokenInterface';
+import { SHARDEUM_TESTNET } from './config/networks';
+import './App.css';
+
+function App() {
+  const { account, chainId, connectWallet, disconnectWallet, switchNetwork } = useWallet();
+
+  const isCorrectNetwork = chainId === SHARDEUM_TESTNET.chainId;
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1>Shardeum dApp</h1>
+
+        <div className="wallet-controls">
+          {!account ? (
+            <button onClick={connectWallet} className="connect-btn">
+              Connect Wallet
+            </button>
+          ) : (
+            <div className="wallet-info">
+              <p>Connected: {account.slice(0, 6)}...{account.slice(-4)}</p>
+              <button onClick={disconnectWallet} className="disconnect-btn">
+                Disconnect
+              </button>
+            </div>
+          )}
+        </div>
+
+        {account && !isCorrectNetwork && (
+          <div className="network-warning">
+            <p>⚠️ Wrong Network</p>
+            <button onClick={switchNetwork}>Switch to Shardeum Testnet</button>
+          </div>
+        )}
+      </header>
+
+      <main>
+        {account && isCorrectNetwork && <TokenInterface />}
+      </main>
+    </div>
+  );
+}
+
+export default App;
+```
+
+#### 7: Update Main Entry Point
+
+Update `src/main.tsx`:
+
+```typescript
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import { WalletProvider } from './context/WalletContext.tsx';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <WalletProvider>
+      <App />
+    </WalletProvider>
+  </React.StrictMode>,
+);
+```
+
+#### 8: Add Styling
+
+Create `src/App.css`:
+
+```css
+.App {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.App-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.wallet-controls {
+  margin-top: 1rem;
+}
+
+.connect-btn,
+.disconnect-btn {
+  background: #646cff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.connect-btn:hover,
+.disconnect-btn:hover {
+  background: #535bf2;
+}
+
+.wallet-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: #1a1a1a;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.network-warning {
+  background: #ff6b6b;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.card {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 1rem 0;
+}
+
+.balance {
+  text-align: center;
+  padding: 1.5rem;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.balance h3 {
+  font-size: 2rem;
+  margin: 0.5rem 0;
+  color: #646cff;
+}
+
+.transfer-form {
+  margin-top: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #888;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: white;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+button[type="submit"] {
+  width: 100%;
+  background: #646cff;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 1rem;
+  transition: background 0.3s;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: #535bf2;
+}
+
+button[type="submit"]:disabled {
+  background: #333;
+  cursor: not-allowed;
+}
+
+.tx-hash {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #2a2a2a;
+  border-radius: 6px;
+}
+
+.tx-hash a {
+  color: #646cff;
+  word-break: break-all;
+}
+```
+
+#### 9: Run the dApp
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser!
+
+### Testing Your dApp
+
+#### 1. Connect MetaMask
+
+Click "Connect Wallet" and approve the connection in MetaMask.
+
+#### 2. Switch to Shardeum Testnet
+
+If prompted, approve adding and switching to Shardeum Testnet.
+
+#### 3. Get Test Tokens
+
+Visit the [Shardeum Faucet](/docs/developer/faucet) to get test SHM tokens.
+
+#### 4. Transfer Tokens
+
+Use a valid recipient address (for example, your second wallet address). If you paste an invalid address, the transaction will fail.
+
+### Production Deployment
+
+#### 1. Update Configuration
+
+Change `TOKEN_ADDRESS` in `src/config/networks.ts` to your mainnet or testnet contract address as needed.
+
+#### 2. Build for Production
+
+```bash
+npm run build
+```
+
+#### 3. Deploy
+
+Deploy the `dist` folder to your hosting provider:
+
+**Vercel:**
+```bash
+npm install -g vercel
+vercel --prod
+```
+
+**Netlify:**
+```bash
+npm install -g netlify-cli
+netlify deploy --prod --dir=dist
+```
+
+**IPFS (Decentralized Hosting):**
+```bash
+npm install -g ipfs-deploy
+ipfs-deploy dist
+```
+
+## Best Practices
+
+### Security
+
+1. **Never expose private keys** - Use environment variables
+2. **Validate user input** - Check addresses and amounts
+3. **Handle errors gracefully** - Display user-friendly messages
+4. **Test thoroughly** - Use testnet before mainnet
+
+### Performance
+
+1. **Cache contract instances** - Avoid recreating on every render
+2. **Debounce user input** - For real-time balance updates
+3. **Use event listeners** - Listen for blockchain events instead of polling
+4. **Optimize bundle size** - Use tree-shaking and code splitting
+
+### User Experience
+
+1. **Show loading states** - Let users know transactions are processing
+2. **Display transaction links** - Link to block explorer
+3. **Handle wallet disconnection** - Gracefully handle user disconnecting
+4. **Mobile responsive** - Test on mobile devices
+
+## Common Issues
+
+### MetaMask Not Detected
+
+```typescript
+if (!window.ethereum) {
+  alert('Please install MetaMask!');
+  window.open('https://metamask.io/download/', '_blank');
+  return;
+}
+```
+
+### Wrong Network
+
+```typescript
+if (chainId !== SHARDEUM_TESTNET.chainId) {
+  await switchNetwork();
+}
+```
+
+### Transaction Failed
+
+```typescript
+try {
+  const tx = await contract.transfer(recipient, amount);
+  await tx.wait();
+} catch (error: any) {
+  if (error.code === 'INSUFFICIENT_FUNDS') {
+    alert('Insufficient balance');
+  } else if (error.code === 'ACTION_REJECTED') {
+    alert('Transaction rejected by user');
+  } else {
+    alert('Transaction failed: ' + error.message);
+  }
+}
+```
+
+## Next Steps
+
+Now that you have a working dApp, you can:
+
+1. **Add more features** - Token swaps, staking, NFT gallery
+2. **Improve UI/UX** - Add animations, better error handling
+3. **Integrate more contracts** - Connect to multiple smart contracts
+4. **Add WalletConnect** - Support mobile wallets
+5. **Implement state management** - Use Redux or Zustand for complex apps
+
+## Additional Resources
+
+- [Smart Contract Development](/docs/developer/smart-contracts/deploy) - Deploy contracts
+- [Hardhat Documentation](https://hardhat.org/docs) - Contract deployment tool
+- [Ethers.js Documentation](https://docs.ethers.org/) - Web3 library
+
+## Full Boilerplate Repository
+
+Clone the complete boilerplate:
+
+```bash
+git clone https://github.com/shardeum/dapp-boilerplate.git
+cd dapp-boilerplate
+npm install
+npm run dev
+```
+
+<Callout type="info">
+**Need Help?** Join the [Shardeum Discord](https://discord.com/invite/shardeum) for community support!
+</Callout>
 ### Part 1: Deploy a Sample Smart Contract
 
 To interact with the blockchain, we first need something deployed on-chain. For this tutorial, we’ll deploy a simple ERC20 token contract.
