@@ -2,12 +2,8 @@
   "title": "Architecture",
   "pages": [
     "high-level-architecture",
-    "apis-and-interfaces",
-    "gas-fees",
-    "node-lifecycle",
+    "gas-and-fees",
     "transaction-lifecycle",
-    "consensus-and-sharding-mechanism",
-    "transaction-types",
     "validator-interactions"
   ]
 }
