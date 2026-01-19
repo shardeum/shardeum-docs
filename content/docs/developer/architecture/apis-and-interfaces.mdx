@@ -7,15 +7,15 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 # APIs and Interfaces
 
-Shardeum provides multiple API layers to support different types of interactions with the network. As an EVM-compatible blockchain built on Cosmos SDK, developers can use familiar Ethereum APIs alongside Cosmos-native endpoints.
+Shardeum provides multiple APIs and interfaces to support application development, network access, and data querying. Developers can use familiar Ethereum-compatible APIs alongside additional interfaces for advanced network interactions.
 
 ## API Architecture
 
-Shardeum's API stack consists of three main layers:
+Shardeum's API stack consists of three primary interface layers:
 
-1. **EVM JSON-RPC API** - Standard Ethereum-compatible interface
-2. **Cosmos SDK API** - REST and gRPC endpoints for chain operations
-3. **Explorer API** - Blockchain data indexing and querying
+1. **EVM JSON-RPC API** - Ethereum-compatible interface for transactions and smart contracts 
+2. **Network APIs** - Interfaces for staking, delegation, and validator-related queries 
+3. **Explorer API** - Indexed APIs for querying blocks, transactions, and historical data
 
 ## 1. EVM JSON-RPC API
 
@@ -117,7 +117,7 @@ console.log('Current block:', blockNumber);
 
 // Get account balance
 const balance = await provider.getBalance('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
-console.log('Balance:', ethers.formatEther(balance), 'SHM');
+console.log('Balance:', ethers.formatEther(balance));
 
 // Send transaction
 const wallet = new ethers.Wallet(privateKey, provider);
@@ -131,7 +131,6 @@ await tx.wait();
 ### Example: Deploying Contract
 
 ```javascript
-// Deploy ERC-20 token
 const Contract = await ethers.getContractFactory('MyToken', wallet);
 const token = await Contract.deploy();
 await token.waitForDeployment();
@@ -141,34 +140,39 @@ console.log('Token deployed to:', await token.getAddress());
 
 ### WebSocket Support
 
-For real-time event subscriptions:
+For applications that require real-time updates, Shardeum supports event subscriptions over WebSocket connections.
 
 ```javascript
-const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
+const wsProvider = new ethers.WebSocketProvider('wss://api.shardeum.org');
 
 // Subscribe to new blocks
-ws.on('block', (blockNumber) => {
-  console.log('New block:', blockNumber);
-});
-
-// Subscribe to pending transactions
-ws.on('pending', (txHash) => {
-  console.log('Pending tx:', txHash);
+wsProvider.on('block', (blockNumber) => {
+  console.log('New block finalized:', blockNumber);
 });
 ```
 
-## 2. Cosmos SDK APIs
+## 2. Network & Staking APIs
 
-### REST API (LCD)
+In addition to EVM-compatible JSON-RPC interfaces, Shardeum exposes network-level APIs for interacting with protocol features such as staking, delegation, validator information, and governance. These APIs are primarily intended for:
 
-The Cosmos SDK REST API (Light Client Daemon) provides access to chain state and Cosmos-specific operations.
+- validators and node operators,
+- delegators and staking dashboards, and
+- infrastructure services and analytics platforms.
 
-**Mainnet LCD Endpoint:**
+Application developers building smart contracts or dApps will typically not need these APIs and should instead use the EVM JSON-RPC or Explorer APIs.
+
+### REST API (Network Queries)
+
+Shardeum provides REST-based endpoints for querying network and staking-related state, including account balances, validator sets, delegations, rewards, and governance proposals.
+
+These endpoints expose protocol-level data derived from the underlying network state and are read-only.
+
+**Mainnet REST Endpoint:**
 ```
 https://lcd.shardeum.org
 ```
 
-#### Common Endpoints
+#### Common Queries
 
 **Bank Module (Token Transfers)**
 
@@ -180,7 +184,7 @@ GET /cosmos/bank/v1beta1/balances/{address}
 GET /cosmos/bank/v1beta1/supply
 ```
 
-**Staking Module (Validators & Delegation)**
+**Validators and Delegation Information**
 
 ```bash
 # List validators
@@ -196,7 +200,7 @@ GET /cosmos/staking/v1beta1/delegations/{delegatorAddr}
 GET /cosmos/staking/v1beta1/validators/{validatorAddr}/delegations
 ```
 
-**Distribution Module (Rewards)**
+**Rewards and Distribution**
 
 ```bash
 # Get delegation rewards
@@ -206,7 +210,7 @@ GET /cosmos/distribution/v1beta1/delegators/{delegatorAddr}/rewards
 GET /cosmos/distribution/v1beta1/validators/{validatorAddr}/commission
 ```
 
-**Governance Module (Proposals)**
+**Governance**
 
 ```bash
 # List proposals
@@ -219,9 +223,13 @@ GET /cosmos/gov/v1beta1/proposals/{proposalId}
 GET /cosmos/gov/v1beta1/proposals/{proposalId}/votes
 ```
 
-### gRPC API
+### gRPC API (Advanced/High-Throughput Access)
 
-For high-performance applications, use gRPC endpoints:
+For applications that require high-performance or low-latency access to network state, Shardeum also exposes gRPC interfaces. The gRPC API provides the same underlying data as the REST endpoints but is more efficient for:
+
+- large data queries,
+- frequent polling, and
+- backend or infrastructure services.
 
 **Mainnet gRPC Endpoint:**
 ```
@@ -232,15 +240,14 @@ grpc.shardeum.org:9090
 
 ```bash
 # List validators
-grpcurl grpc.shardeum.org:9090 cosmos.staking.v1beta1.Query/Validators
-
-# Get account balance
-grpcurl -d '{"address": "shardeum1..."}' \
-  grpc.shardeum.org:9090 \
-  cosmos.bank.v1beta1.Query/AllBalances
+grpcurl grpc.shardeum.org:9090 \
+  cosmos.staking.v1beta1.Query/Validators
 ```
+Note: The gRPC API can also be used to query account balances, staking state, and other network-level data for high-throughput backend services.
 
 #### Example: JavaScript gRPC Client
+
+This call returns the current active validator set using default query parameters. Advanced filtering and pagination options are available through lower-level query interfaces.
 
 ```javascript
 import { StargateClient } from '@cosmjs/stargate';
@@ -248,17 +255,13 @@ import { StargateClient } from '@cosmjs/stargate';
 const client = await StargateClient.connect('https://rpc.shardeum.org');
 
 // Get account
-const account = await client.getAccount('shardeum1...');
-console.log(account);
-
-// Get balance
-const balance = await client.getAllBalances('shardeum1...');
-console.log(balance);
+const validators = await client.getValidators();
+console.log(validators);
 ```
 
 ## 3. Explorer API
 
-The Shardeum Explorer provides REST endpoints for querying indexed blockchain data.
+The Shardeum Explorer provides REST endpoints for querying indexed blockchain data. **Note**: Explorer APIs are read-only and should not be used for submitting transactions.
 
 **Mainnet Explorer API:**
 ```
@@ -288,9 +291,6 @@ GET /api/transaction/{txHash}
 
 # Get transactions for address
 GET /api/transactions?address={address}&page={page}
-
-# Get transactions in cycle range
-GET /api/transaction?startCycle={start}&endCycle={end}&address={address}
 ```
 
 #### Accounts
@@ -348,9 +348,16 @@ console.log(txs);
 
 ## 4. Event Listening
 
-### Using eth_getLogs (EVM Events)
+Shardeum supports standard Ethereum-style event and log subscriptions, allowing applications to react to on-chain activity such as contract events, transfers, and state changes.
 
-Monitor smart contract events using standard Ethereum logs:
+### Listening to Events with eth_getLogs
+
+Smart contract events can be queried using the standard Ethereum logs interface. This approach is suitable for:
+
+- historical queries,
+- batch processing,
+- backend services, and
+- analytics pipelines.
 
 ```javascript
 // Listen for ERC-20 Transfer events
@@ -366,34 +373,39 @@ const logs = await provider.getLogs(filter);
 console.log('Transfer events:', logs);
 ```
 
-### WebSocket Subscriptions
+### Real-Time Event Subscriptions (WebSocket)
 
-Real-time updates via WebSocket:
+For applications that require real-time updates, Shardeum supports event subscriptions over WebSocket connections. This approach is commonly used for:
+
+- live UI updates,
+- notifications,
+- dashboards, and
+- monitoring services.
+
+Example: Subscribe to Contract Events
 
 ```javascript
-const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
+const wsProvider = new ethers.WebSocketProvider('wss://api.shardeum.org');
 
-// Subscribe to new pending transactions
+// Subscribe to contract events
 const filter = { address: contractAddress };
-ws.on(filter, (log) => {
+
+wsProvider.on(filter, (log) => {
   console.log('New event:', log);
 });
 ```
 
-### Polling with Cycles
+### Subscribe to New Blocks Example
 
-For applications needing historical event data, use the Explorer API with cycle-based queries:
+For real-time processing, applications can subscribe to newly finalized blocks and query logs or state as blocks are produced.
 
 ```javascript
-// Get current cycle (latest block / 10, rounded down)
-const latestBlock = await provider.getBlockNumber();
-const currentCycle = Math.floor(latestBlock / 10);
-
-// Query transactions in cycle range
-const url = `https://explorer.shardeum.org/api/transaction?startCycle=${currentCycle}&endCycle=${currentCycle}&address=${address}`;
-const response = await fetch(url);
-const transactions = await response.json();
+wsProvider.on('block', (blockNumber) => {
+  console.log('New block finalized:', blockNumber);
+});
 ```
+
+*For historical event data, use the Explorer API or block-range queries with `eth_getLogs`*.
 
 ## Network Information
 
@@ -426,7 +438,7 @@ const transactions = await response.json();
 
 ## Rate Limits
 
-Public RPC endpoints have the following rate limits:
+Rate limits apply to public endpoints and may change over time. Public RPC endpoints have the following rate limits:
 
 - **Requests per second:** 10
 - **Requests per minute:** 600
@@ -436,60 +448,78 @@ For higher limits, consider running your own [RPC node](/docs/run-a-node/run-an-
 
 ## Best Practices
 
-### 1. Use Appropriate API Layer
+The following best practices help ensure reliable, efficient, and production-ready integrations with the Shardeum network.
 
-- **EVM interactions** → Use JSON-RPC
-- **Staking/delegation** → Use Cosmos LCD/gRPC
-- **Historical queries** → Use Explorer API
+### 1. Use the Appropriate Interface
+
+Choose the API layer based on your use case:
+
+- **Smart contracts and dApps** → Use EVM JSON-RPC
+- **Staking, delegation, and validator data** → Use Network & Staking APIs
+- **Historical data and analytics** → Use Explorer API
 
 ### 2. Handle Errors Gracefully
+
+Always implement proper error handling and retries when interacting with network APIs.
 
 ```javascript
 try {
   const balance = await provider.getBalance(address);
 } catch (error) {
-  if (error.code === 'TIMEOUT') {
-    // Retry logic
-  }
-  console.error('Error fetching balance:', error);
+  console.error('RPC error:', error);
+
+  // Implement retry or fallback logic where appropriate
 }
 ```
 
-### 3. Batch Requests
+Avoid assuming immediate success, especially in production environments.
 
-For multiple queries, use batch RPC calls:
+### 3. Submit Transactions Sequentially When Necessary
 
-```javascript
-const batch = [
-  { method: 'eth_getBalance', params: [address1, 'latest'] },
-  { method: 'eth_getBalance', params: [address2, 'latest'] }
-];
+When sending multiple transactions from the same account, submit them sequentially to avoid nonce conflicts and rate limits. Avoid sending large bursts of parallel transactions to the same destination address.
 
-// Implementation depends on your RPC client
-```
+### 4. Batch and Cache Read Requests
 
-### 4. Cache Results
+For applications making frequent read calls:
 
-Cache frequently accessed data to reduce API calls:
+- batch RPC requests where supported, and
+- cache frequently accessed data such as balances, blocks, or metadata.
 
-```javascript
-const cache = new Map();
+This reduces latency and minimizes unnecessary API calls.
 
-async function getBlockWithCache(blockNumber) {
-  if (cache.has(blockNumber)) {
-    return cache.get(blockNumber);
-  }
+### 5. Design Idempotent Event Consumers
 
-  const block = await provider.getBlock(blockNumber);
-  cache.set(blockNumber, block);
-  return block;
-}
-```
+When processing events or logs:
+
+- assume events may be received more than once,
+- design consumers to handle duplicate events safely, and
+- persist checkpoints to resume processing reliably after restarts.
+
+This is especially important for backend services and indexers.
+
+### 6. Use WebSockets Carefully
+
+WebSocket connections are ideal for real-time updates but should be handled defensively:
+
+- implement reconnection logic,
+- handle dropped connections gracefully, and
+- fall back to polling if required.
+
+Do not rely on WebSocket connections as the sole source of truth.
+
+### 7. Run Your Own Infrastructure for Production
+
+For high-throughput or mission-critical applications, consider running your own RPC or full node. This provides:
+
+- higher reliability,
+- predictable performance, and
+- greater control over rate limits and availability.
+
+**Notes**: Public API endpoints are shared resources and may be subject to rate limits or changes. For the latest implementation details and advanced usage, refer to the Shardeum open-source codebase on Github.
 
 ## Further Reading
 
-- [EVM Compatibility](/docs/overview/what-is-shardeum)
+- [Github Repository](https://github.com/shardeum)
 - [Running an RPC Node](/docs/run-a-node/run-an-rpc-node)
 - [Smart Contract Development](/docs/developer/smart-contracts/deploy)
-- [Cosmos SDK Documentation](https://docs.cosmos.network/)
 - [Ethereum JSON-RPC Specification](https://ethereum.org/en/developers/docs/apis/json-rpc/)

@@ -1,85 +1,585 @@
 ---
-title: Shardeum RPC Guide
-description: Shardeum RPC Guide
+title: JSON-RPC Guide
+description: Connect to the Shardeum network using standard Ethereum JSON-RPC APIs
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Connecting to the correct Shardeum network and understanding how to interact with its RPC (Remote Procedure Call) endpoints are vital for both running a validator and developing applications.
+Shardeum is a fully EVM-compatible Layer 1 blockchain. Developers can interact with the network using standard Ethereum JSON-RPC APIs and familiar tooling such as ethers.js, web3.js, viem, MetaMask, and Hardhat — without requiring protocol-specific changes.
 
-## Shardeum Networks
+If you have built on Ethereum before, you can build on Shardeum using the same workflows, libraries, and mental models. 
 
-Shardeum typically runs several networks simultaneously for different purposes:
+This page is intended for application developers building EVM-compatible dApps on Shardeum. Validator, staking, governance, and infrastructure APIs are documented separately.
 
-### **Mainnet**
-The live, production network where real value is transacted.
+## Network Information
 
-- **Explorer:** [`https://explorer.shardeum.org/`](https://explorer.shardeum.org/)
-- **RPC Endpoints:** `https://api.shardeum.org/` and
-`https://partner-api.shardeum.org/` (Often has higher rate limits for partners)
-- **Chain ID:** Typically `8118` (always verify with official sources for mainnet).
+You can find the Shardeum mainnet and testnet endpoints/explorer details [here](/docs/overview/endpoints). 
 
-### **Shardeum EVM Testnet**
-Shardeum has launched EVM Testnet, our dedicated smart contract testnet on October 3, 2025.
+## Wallet Configuration
 
-- **Explorer:** e.g. [`https://explorer-mezame.shardeum.org/`](https://explorer-mezame.shardeum.org/)
-- **RPC Endpoint:** e.g. `https://api-mezame.shardeum.org`
-- **Chain ID:** e.g. `8119` (verify with announcements)
+You can add the Shardeum network to MetaMask and other EVM-compatible wallets using the official network configuration.
 
-{/* ### **Testnet (General Purpose)**
-This is a general purpose testnet used for active development, testing new features, and public incentivized testing. These networks can be reset or have features change more frequently. Note, this  is different from the aforementioned smart contract testnet - Unstablenet.
+For the latest chain configuration details and one-click wallet setup, refer to:
+https://docs.shardeum.org/docs/overview/endpoints
 
-- **Explorer:** e.g. [`https://explorer-testnet.shardeum.org/`](https://explorer-testnet.shardeum.org/)
-- **RPC Endpoint:** e.g. `https://api-testnet.shardeum.org/`
-- **Chain ID:** e.g. `8083` (verify with announcements)
-- **Archivers:** (Example, verify) `http://104.197.117.164:4000` */}
+Always ensure you are using network details from official Shardeum documentation before adding a custom network to your wallet.
 
-**Key Takeaway:** Always use the RPC URL, Chain ID, and Archiver URLs specific to the network you intend to interact with. Using mismatched information (e.g. a testnet RPC with a mainnet Chain ID in MetaMask) will lead to errors. Official Shardeum documentation and announcements are the source of truth for current network details.
+## Supported RPC Methods
 
-## RPC Endpoints & Interactions
+Shardeum supports the complete Ethereum JSON-RPC specification. The sections below highlight the most commonly used methods across typical application workflows. For the full specification, refer to the Ethereum JSON-RPC documentation.
 
-Shardeum is EVM-compatible, so you can interact with its RPC endpoints using standard Ethereum tools and libraries (like ethers.js, web3.js, curl).
+### Account Methods
 
-**Common RPC Methods:**
+#### eth_accounts
+Returns the list of addresses available to the connected client (if any). Note: Public RPC endpoints typically do not manage unlocked accounts, so this method may return an empty array. Wallet-managed accounts should be accessed via the wallet provider instead.
 
-* `eth_getTransactionCount`: Get the nonce for an address.
-* `eth_gasPrice`: Get the current gas price.
-* `eth_sendRawTransaction`: Submit a signed transaction.
-* `eth_getTransactionReceipt`: Get the receipt of a transaction.
-* `eth_getBlockByNumber`: Get information about a block.
-* `eth_getBalance`: Get the SHM balance of an account.
-* `eth_getCode`: Get the contract code at an address.
+```
+import { ethers } from 'ethers';
 
-**Shardeum-Specific Endpoints (usually on Validator Nodes or Archivers):**
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
 
-These are often accessed directly via HTTP GET requests to a validator node's IP and external port (e.g. `http://YOUR_NODE_IP:10001/`) or an Archiver IP and port (e.g. `http://ARCHIVER_IP:4000/`).
+const accounts = await provider.send('eth_accounts', []);
+console.log(accounts);
+```
 
-1. `/nodeinfo`: Provides information about a specific validator node, including its public key, IP, ports, and status.
-    * Example: `curl http://<NODE_IP>:<NODE_EXT_PORT>/nodeinfo`
-2. `/account/<WALLET_ADDRESS_OR_NODE_PUBKEY>?type=<TYPE>`: Retrieves account details.
-    * `type=9` is often used when querying by node public key to get staking-related info like the `nominator` (staker wallet).
-    * Example: `curl http://<NODE_IP>:<NODE_EXT_PORT>/account/<NODE_PUBKEY>?type=9`
-3. `/canUnstake/<NOMINEE_ADDRESS>/<NOMINATOR_ADDRESS>`: Checks if a staked node (nominee) can be unstaked by the staker wallet (nominator).
-    * Example: `curl http://<NODE_IP>:<NODE_EXT_PORT>/canUnstake/<NODE_PUBKEY>/<STAKER_WALLET_ADDRESS>`
-4. `/nodelist?activeOnly=true`: (Archiver) Returns a list of currently active validator nodes.
-5. `/full-nodelist?activeOnly=true`: (Archiver) Returns the complete list of active nodes.
-6. `/full-nodelist?standbyOnly=true`: (Archiver) Returns the list of standby nodes.
-7. `/cycleinfo/<CYCLE_NUMBER>`: (Archiver) Provides information about a specific cycle, including network parameters like `desired` active nodes and current `active` nodes. Cycle `1` often contains foundational network config.
-    * Example: `curl http://<ARCHIVER_IP>:4000/cycleinfo/1`
+#### eth_getBalance
+Returns the balance of an account at a given address.
 
-**RPC Issues & Behavior:**
+```
+// Using ethers.js
+const balance = await provider.getBalance('0x...');
+```
 
-1. **`gasUsed` vs `gasPrice`:** In some transaction receipts or RPC responses, `gasPrice` might actually reflect the `gasUsed` value, or a flat fee. Shardeum's gas model has evolved; initially, it was a flat fee, so `gasUsed` might be constant for many simple transactions.
-2. **Block Events (`provider.on("block", ...)` in ethers.js):**
-    * Shardeum processes transactions in cycles (e.g. 1 minute). Within each cycle, multiple blocks are produced (e.g. 10 blocks if block time is 6 seconds).
-    * You might observe block events being emitted in batches at the end of a cycle rather than one by one as each block is technically formed. This is because the events might be tied to cycle completion and finalization.
-    * If the network is very quiet (few transactions), you might only see these batches of empty blocks.
+```
+POST https://api.shardeum.org
+Content-Type: application/json
 
-<Callout title="" type="info">
-Important: Transactions are included in blocks from the *previous* cycle (or the previous minute's worth of activity) to ensure all transactions within that period are resolved and included. This means there's a slight delay (e.g. ~1 minute) between a transaction occurring and it appearing in a block event you subscribe to. This is by design for consistency.
-</Callout>
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "eth_getBalance",
+  "params": ["0x...", "latest"]
+}
+```
 
-3. **"Transaction timestamp out of range"**: This error usually indicates a significant clock skew between your machine sending the transaction and the network, or extreme network latency. Ensure your system time is synchronized. This was more common in earlier, less stable network versions.
-4. **"Same destination load limit"**: The network may rate-limit transactions to the same destination address if they are sent too rapidly in parallel. If sending multiple transactions to one address (e.g. consolidating funds), send them sequentially with a small delay.
+#### eth_getTransactionCount
+Returns the number of transactions sent from an address (nonce).
 
-Always use the correct network RPC endpoint for your interactions. If you're developing, using a local or a specific testnet/stagenet node that you control can be beneficial for direct API calls.
+```
+const nonce = await provider.getTransactionCount('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+```
+
+#### eth_getCode
+Returns code at a given address (for smart contracts).
+
+```
+const code = await provider.getCode('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+```
+
+#### eth_sign
+Signs data with a given address. Note: many wallets discourage eth_sign; prefer personal_sign or EIP-712 typed data signing where possible.
+
+```
+await provider.send('eth_sign', [address, dataToSign]);
+```
+
+#### eth_signTransaction
+Signs a transaction without broadcasting it.
+
+```
+await provider.send('eth_signTransaction', [txObject]);
+```
+
+### Block Methods
+
+#### eth_blockNumber
+Returns the current block number.
+
+```
+const blockNumber = await provider.getBlockNumber();
+```
+
+#### eth_getBlockByNumber
+Returns information about a block by block number.
+
+```
+// Get latest block
+const block = await provider.getBlock('latest');
+ 
+// Get specific block with transactions
+const blockWithTxs = await provider.getBlock(12345, true);
+```
+
+#### eth_getBlockByHash
+Returns information about a block by hash.
+
+```
+const block = await provider.getBlock('0x1234...');
+```
+
+#### eth_getBlockTransactionCountByNumber
+Returns the number of transactions in a block by block number.
+
+```
+await provider.send('eth_getBlockTransactionCountByNumber', ['latest']);
+```
+
+### Transaction Methods
+
+#### eth_sendRawTransaction
+Sends a signed transaction.
+
+```
+import { ethers } from 'ethers';
+
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
+const wallet = new ethers.Wallet(privateKey, provider);
+
+const tx = {
+  to: recipientAddress,
+  value: ethers.parseEther('1.0')
+};
+
+const signedTx = await wallet.signTransaction(tx);
+const txResponse = await provider.broadcastTransaction(signedTx);
+await txResponse.wait();
+```
+
+#### eth_call
+Executes a new message call immediately without creating a transaction (read-only).
+
+```
+// Call a contract method
+const result = await contract.balanceOf('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+ 
+// Raw call
+await provider.call({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  data: '0x...'
+});
+```
+
+#### eth_estimateGas
+Estimates the gas needed for a transaction.
+
+```
+const gasEstimate = await provider.estimateGas({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  value: ethers.parseEther('1.0')
+});
+```
+
+#### eth_getTransactionByHash
+Returns transaction information by hash.
+
+```
+const tx = await provider.getTransaction('0x1234...');
+```
+
+#### eth_getTransactionByBlockHashAndIndex
+Returns transaction by block hash and transaction index.
+
+```
+await provider.send('eth_getTransactionByBlockHashAndIndex', [
+  '0x1234...',
+  '0x0'
+]);
+```
+
+#### eth_getTransactionByBlockNumberAndIndex
+Returns transaction by block number and transaction index.
+
+```
+await provider.send('eth_getTransactionByBlockNumberAndIndex', [
+  'latest',
+  '0x0'
+]);
+```
+
+#### eth_getTransactionReceipt
+Returns the receipt of a transaction by hash.
+
+```
+const receipt = await provider.getTransactionReceipt('0x1234...');
+```
+
+### Gas Methods
+
+#### eth_gasPrice
+Returns the current gas price in wei.
+
+```
+const gasPrice = await provider.getFeeData();
+console.log('Gas price:', gasPrice.gasPrice);
+```
+
+#### eth_maxPriorityFeePerGas
+Returns the current max priority fee per gas.
+
+```
+const feeData = await provider.getFeeData();
+console.log('Max priority fee:', feeData.maxPriorityFeePerGas);
+```
+
+#### eth_feeHistory
+Returns fee history for a range of blocks.
+
+```
+await provider.send('eth_feeHistory', [
+  '0x5',      // block count
+  'latest',   // newest block
+  [25, 75]    // reward percentiles
+]);
+```
+
+### Filter & Event Methods
+
+#### eth_newFilter
+Creates a filter object for tracking logs/events.
+
+```
+const filter = {
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  topics: [ethers.id('Transfer(address,address,uint256)')]
+};
+const filterId = await provider.send('eth_newFilter', [filter]);
+```
+
+#### eth_newBlockFilter
+Creates a filter to notify when a new block arrives.
+
+```
+const filterId = await provider.send('eth_newBlockFilter', []);
+```
+
+#### eth_newPendingTransactionFilter
+Creates a filter to notify when new pending transactions arrive.
+
+```
+const filterId = await provider.send('eth_newPendingTransactionFilter', []);
+```
+
+#### eth_getFilterChanges
+Returns an array of logs/events since last poll.
+
+```
+const changes = await provider.send('eth_getFilterChanges', [filterId]);
+```
+
+#### eth_getFilterLogs
+Returns an array of all logs matching filter.
+
+```
+const logs = await provider.send('eth_getFilterLogs', [filterId]);
+```
+
+#### eth_uninstallFilter
+Uninstalls a filter.
+
+```
+await provider.send('eth_uninstallFilter', [filterId]);
+```
+
+#### eth_getLogs
+Returns logs matching given filter criteria.
+
+```
+const logs = await provider.getLogs({
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  fromBlock: 0,
+  toBlock: 'latest',
+  topics: [ethers.id('Transfer(address,address,uint256)')]
+});
+```
+
+### Storage Methods
+
+#### eth_getStorageAt
+Returns the value from a storage position at a given address.
+
+```
+const value = await provider.getStorage(
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  0  // storage position
+);
+```
+
+### Network Methods
+
+#### eth_chainId
+Returns the chain ID of the current network.
+
+```
+const chainId = await provider.send('eth_chainId', []);
+// Returns: "0x1fb6" (8118 in decimal)
+```
+
+#### net_version
+Returns the current network ID.
+
+```
+const networkId = await provider.send('net_version', []);
+```
+
+#### net_listening
+Returns true if client is actively listening for network connections.
+
+```
+const isListening = await provider.send('net_listening', []);
+```
+
+#### net_peerCount
+Returns number of peers currently connected.
+
+```
+const peerCount = await provider.send('net_peerCount', []);
+```
+
+#### web3_clientVersion
+Returns the current client version.
+
+```
+const version = await provider.send('web3_clientVersion', []);
+```
+
+#### web3_sha3
+Returns Keccak-256 hash of given data.
+
+```
+const hash = await provider.send('web3_sha3', ['0x68656c6c6f20776f726c64']);
+```
+
+#### eth_mining
+Returns false (Shardeum uses PoS, not PoW).
+
+```
+const isMining = await provider.send('eth_mining', []);
+// Always returns: false
+```
+
+#### eth_hashrate
+Returns 0 (not applicable for PoS).
+
+```
+const hashrate = await provider.send('eth_hashrate', []);
+// Always returns: "0x0"
+```
+
+#### eth_getWork
+Returns empty array (not applicable for PoS).
+
+```
+const work = await provider.send('eth_getWork', []);
+```
+
+### Subscription Methods (WebSocket)
+
+#### WebSocket subscriptions
+Subscribe to blocks and logs using a WebSocket provider. Note: WebSocket subscriptions are for real-time updates and should not be treated as the sole source of truth. Always reconcile important state using standard RPC queries.
+
+```
+import { ethers } from 'ethers';
+
+const wsProvider = new ethers.WebSocketProvider('wss://api.shardeum.org');
+
+// Subscribe to new blocks
+wsProvider.on('block', (blockNumber) => {
+  console.log('New block:', blockNumber);
+});
+
+// Subscribe to contract logs
+wsProvider.on(
+  { address: contractAddress },
+  (log) => {
+    console.log('Log:', log);
+  }
+);
+```
+
+## Practical Examples
+
+### Complete Transaction Flow
+
+```
+import { ethers } from 'ethers';
+ 
+// 1. Connect to Shardeum
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
+const wallet = new ethers.Wallet(privateKey, provider);
+ 
+// 2. Get nonce
+const nonce = await wallet.getNonce();
+ 
+// 3. Estimate gas
+const gasEstimate = await provider.estimateGas({
+  to: recipientAddress,
+  value: ethers.parseEther('1.0')
+});
+ 
+// 4. Get gas price
+const feeData = await provider.getFeeData();
+ 
+// 5. Create and send transaction
+const tx = await wallet.sendTransaction({
+  to: recipientAddress,
+  value: ethers.parseEther('1.0'),
+  nonce: nonce,
+  gasLimit: gasEstimate,
+  gasPrice: feeData.gasPrice
+});
+ 
+// 6. Wait for confirmation
+const receipt = await tx.wait();
+console.log('Transaction confirmed:', receipt.hash);
+```
+
+### Monitor Contract Events
+
+```
+// Create contract instance
+const contract = new ethers.Contract(contractAddress, abi, provider);
+ 
+// Listen for Transfer events
+contract.on('Transfer', (from, to, amount, event) => {
+  console.log(`Transfer: ${from} -> ${to}, amount: ${amount}`);
+});
+ 
+// Or use filters for specific events
+const filter = contract.filters.Transfer(null, myAddress);
+const logs = await contract.queryFilter(filter, -1000, 'latest');
+```
+
+### Batch Multiple Calls
+
+```
+// Read multiple balances efficiently
+const addresses = ['0x123...', '0x456...', '0x789...'];
+ 
+const balances = await Promise.all(
+  addresses.map(addr => provider.getBalance(addr))
+);
+ 
+console.log('Balances:', balances.map(b => ethers.formatEther(b)));
+```
+
+## Rate Limits
+
+Public RPC endpoints have rate limits to ensure fair usage:
+
+- Requests per second: 10
+- Requests per minute: 600
+- Concurrent connections: 5
+
+For production applications with higher throughput requirements, consider:
+
+- Running your own [RPC node](/docs/run-a-node/run-an-rpc-node)
+- Using the partner API endpoint (or contact Shardeum team)
+- Implementing request batching and caching
+
+## Best Practices
+
+### 1. Error Handling
+Always implement proper error handling for RPC calls:
+
+```
+try {
+  const balance = await provider.getBalance(address);
+} catch (error) {
+  if (error.code === 'NETWORK_ERROR') {
+    console.error('Network connection failed');
+  } else if (error.code === 'TIMEOUT') {
+    console.error('Request timeout - try again');
+  } else {
+    console.error('RPC error:', error.message);
+  }
+}
+```
+
+### 2. Use WebSocket for Real-time Updates
+For applications needing real-time data, use WebSocket instead of polling:
+
+```
+const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
+ 
+ws.on('block', (blockNumber) => {
+  console.log('New block:', blockNumber);
+});
+```
+
+### 3. Batch Related Calls
+Group related RPC calls to reduce network overhead:
+
+```
+const [balance, nonce, code] = await Promise.all([
+  provider.getBalance(address),
+  provider.getTransactionCount(address),
+  provider.getCode(address)
+]);
+```
+
+### 4. Cache Immutable Data
+Cache data that doesn't change:
+
+```
+const cache = new Map();
+ 
+async function getBlockWithCache(blockNumber) {
+  if (cache.has(blockNumber)) {
+    return cache.get(blockNumber);
+  }
+  const block = await provider.getBlock(blockNumber);
+  cache.set(blockNumber, block);
+  return block;
+}
+```
+
+## Differences from Ethereum
+
+While Shardeum is fully EVM-compatible, it is a sovereign L1 blockchain with 
+
+- Proof-of-stake consensus mechanism and delegated staking
+- Block time that is much faster than Ethereum (~2-3 seconds)
+- Transactions are final once confirmed
+- SHM-denominated gas fees with predictable and low pricing.
+
+## Troubleshooting
+
+### Common Issues
+
+**"Nonce too low" error:**
+
+```
+// Get the current nonce from network
+const nonce = await provider.getTransactionCount(address, 'latest');
+```
+
+**"Insufficient funds" error:**
+
+```
+// Check balance before sending
+const balance = await provider.getBalance(address);
+if (balance < amount) {
+  throw new Error('Insufficient balance');
+}
+```
+
+**"Gas estimation failed":**
+
+```
+// Manually set gas limit
+const tx = await wallet.sendTransaction({
+  to: address,
+  value: amount,
+  gasLimit: 100000  // Set explicitly
+});
+```
+
+**"Network timeout":**
+
+```
+// Increase timeout in provider config
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org', {
+  timeout: 30000  // 30 seconds
+});
+```
+
