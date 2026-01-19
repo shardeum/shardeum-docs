@@ -1,13 +1,9 @@
 ---
-title: Deploy Storage Contracts Using Foundry
+title: Using Foundry
 description: Learn how to test and deploy smart contracts on Shardeum using Foundry
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
-</Callout>
 
 Foundry is a fast, Rust-based toolkit for developing, testing, and deploying EVM-compatible smart contracts. It includes:
 
@@ -32,6 +28,19 @@ Before you begin, ensure you have:
 ### Install Foundry
 
 Install Foundry using the official installer:
+## Deployment Guide
+
+### Prerequisites
+
+Before you begin, ensure you have:
+
+- A Unix-like terminal (Linux, macOS, or WSL on Windows)
+- A funded wallet private key (testnet or mainnet SHM)
+- Access to a [Shardeum RPC endpoint](/docs/overview/endpoints)
+
+### Install Foundry
+
+Install Foundry using the official installer:
 
 ```shell
 curl -L https://foundry.paradigm.xyz | bash
@@ -40,8 +49,18 @@ curl -L https://foundry.paradigm.xyz | bash
 Restart your terminal (or reload your shell), then run:
 
 ```
+Restart your terminal (or reload your shell), then run:
+
+```
 foundryup
 ```
+
+Verify installation:
+
+```shell
+forge --version
+```
+
 
 Verify installation:
 
@@ -64,22 +83,32 @@ or you would like to install Foundry a different way, see other installation met
 
 
 ### Create a Foundry Project
+### Create a Foundry Project
 
+Initialize a new Foundry project:
 Initialize a new Foundry project:
 
 ```shell
 forge init shardeum-foundry
 cd shardeum-foundry
+forge init shardeum-foundry
+cd shardeum-foundry
 ```
 
+This creates the following structure:
 This creates the following structure:
 
 - `src/` — smart contracts
 - `test/` — Solidity test contracts
 - `foundry.toml` — project configuration
+- `src/` — smart contracts
+- `test/` — Solidity test contracts
+- `foundry.toml` — project configuration
 
 ### Write a Simple Storage Contract
+### Write a Simple Storage Contract
 
+Create a new file at `src/Contract.sol`:
 Create a new file at `src/Contract.sol`:
 
 ```solidity
@@ -93,6 +122,8 @@ error msgValueZero();
 contract SimpleStorage {
     uint public storedData;
     uint public ownerUnixTimeContract;
+    uint public storedData;
+    uint public ownerUnixTimeContract;
     address public immutable owner;
 
     constructor() {
@@ -100,22 +131,27 @@ contract SimpleStorage {
     }
 
     event setOpenDataEvent(address indexed user, uint newValue);
+    event setOpenDataEvent(address indexed user, uint newValue);
     event setOwnerDataEvent(uint newOwnerUnixTime);
     event donateToOwnerEvent();
 
     function set(uint x) public {
         if (storedData == x) revert sameStorageValue();
+        if (storedData == x) revert sameStorageValue();
         storedData = x;
+        emit setOpenDataEvent(msg.sender, x);
         emit setOpenDataEvent(msg.sender, x);
     }
 
     function setOwnerData() public {
+        if (msg.sender != owner) revert notOwner();
         if (msg.sender != owner) revert notOwner();
         ownerUnixTimeContract = block.timestamp;
         emit setOwnerDataEvent(block.timestamp);
     }
 
     function donateToOwner() public payable {
+        if (msg.value == 0) revert msgValueZero();
         if (msg.value == 0) revert msgValueZero();
         payable(owner).transfer(address(this).balance);
         emit donateToOwnerEvent();
@@ -124,7 +160,9 @@ contract SimpleStorage {
 ```
 
 ### Add a Test Contract
+### Add a Test Contract
 
+Create `test/Contract.t.sol`:
 Create `test/Contract.t.sol`:
 
 
@@ -139,16 +177,25 @@ contract TestContract is Test {
     receive() external payable {}
     fallback() external payable {}
 
+    receive() external payable {}
+    fallback() external payable {}
+
     event setOpenDataEvent(address indexed user, uint newValue);
     event setOwnerDataEvent(uint newOwnerUnixTime);
     event donateToOwnerEvent();
 
     SimpleStorage storageContract;
+    SimpleStorage storageContract;
 
     function setUp() public {
         storageContract = new SimpleStorage();
+        storageContract = new SimpleStorage();
     }
 
+    function testInitialState() public {
+        assertEq(storageContract.storedData(), 0);
+        assertEq(storageContract.ownerUnixTimeContract(), 0);
+        assertEq(storageContract.owner(), address(this));
     function testInitialState() public {
         assertEq(storageContract.storedData(), 0);
         assertEq(storageContract.ownerUnixTimeContract(), 0);
@@ -161,8 +208,17 @@ contract TestContract is Test {
 
         storageContract.set(1);
         assertEq(storageContract.storedData(), 1);
+    function testSetValue() public {
+        vm.expectEmit(true, false, false, true);
+        emit setOpenDataEvent(address(this), 1);
+
+        storageContract.set(1);
+        assertEq(storageContract.storedData(), 1);
     }
 
+    function testSetSameValueReverts() public {
+        vm.expectRevert(sameStorageValue.selector);
+        storageContract.set(0);
     function testSetSameValueReverts() public {
         vm.expectRevert(sameStorageValue.selector);
         storageContract.set(0);
@@ -172,8 +228,15 @@ contract TestContract is Test {
         vm.warp(10);
         storageContract.setOwnerData();
         assertEq(storageContract.ownerUnixTimeContract(), 10);
+    function testOwnerOnlyFunction() public {
+        vm.warp(10);
+        storageContract.setOwnerData();
+        assertEq(storageContract.ownerUnixTimeContract(), 10);
     }
 
+    function testDonateRevertsOnZeroValue() public {
+        vm.expectRevert(msgValueZero.selector);
+        storageContract.donateToOwner();
     function testDonateRevertsOnZeroValue() public {
         vm.expectRevert(msgValueZero.selector);
         storageContract.donateToOwner();
@@ -182,14 +245,35 @@ contract TestContract is Test {
 ```
 
 Run all tests:
+Run all tests:
 
 ```shell
 forge test
 ```
 
 Run a specific test with verbose output:
+Run a specific test with verbose output:
 
 ```shell
+forge test -vvvv --match-test testSetValue
+```
+
+### Set Environment Variables
+
+Create a `.env` file in the project root (or export variables in your shell):
+
+SHARDEUM_RPC=https://api-mezame.shardeum.org
+PRIVATE_KEY=YOUR_PRIVATE_KEY
+
+**Security note**:
+- Never commit private keys to version control
+- Add `.env` to `.gitignore`
+
+### Deploy to Shardeum Using Foundry
+
+Foundry uses EIP-1559 transactions by default. Shardeum currently requires legacy-style gas parameters, so deployments should include the --legacy flag.
+
+#### Deploy to Testnet (Mezame)
 forge test -vvvv --match-test testSetValue
 ```
 
@@ -216,11 +300,46 @@ forge create \
   --rpc-url $SHARDEUM_RPC \
   --private-key $PRIVATE_KEY \
   src/Contract.sol:SimpleStorage
+forge create \
+  --legacy \
+  --rpc-url $SHARDEUM_RPC \
+  --private-key $PRIVATE_KEY \
+  src/Contract.sol:SimpleStorage
 ```
 
 #### Deploy to Mainnet
+#### Deploy to Mainnet
 
 ```shell
+export SHARDEUM_RPC=https://api.shardeum.org
+
+forge create \
+  --legacy \
+  --rpc-url $SHARDEUM_RPC \
+  --private-key $PRIVATE_KEY \
+  src/Contract.sol:SimpleStorage
+```
+
+If deployment succeeds, Foundry will output the deployed contract address. 
+
+If the terminal output is minimal, search for transactions from your wallet address on the appropriate Shardeum explorer.
+
+### Verify Deployment on the Explorer
+
+After deployment, copy the contract address and search for it on:
+
+- [Shardeum Testnet Explorer](https://explorer-mezame.shardeum.org/)
+- [Shardeum Mainnet Explorer](https://explorer.shardeum.org/)
+
+You should be able to view:
+
+- contract creation transaction
+- deployed bytecode
+- interactions with the contract
+
+### (Optional) Interact Using Cast
+
+Read stored value:
 export SHARDEUM_RPC=https://api.shardeum.org
 
 forge create \
@@ -259,6 +378,31 @@ cast call \
 ```
 
 Set a new value:
+
+```shell
+cast call \
+  --rpc-url $SHARDEUM_RPC \
+  <CONTRACT_ADDRESS> \
+  "storedData()(uint256)"
+```
+
+Set a new value:
+
+```shell
+cast send \
+  --rpc-url $SHARDEUM_RPC \
+  --private-key $PRIVATE_KEY \
+  <CONTRACT_ADDRESS> \
+  "set(uint256)" \
+  42
+```
+
+## Summary
+
+- Foundry is ideal for fast, Solidity-native testing and deployment
+- Use `forge test` for local validation before deploying
+- Deploy to Shardeum using `forge create --legacy`
+- Always confirm the correct RPC endpoint and network before deployment
 
 ```shell
 cast send \
