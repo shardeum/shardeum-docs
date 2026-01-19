@@ -1,0 +1,111 @@
+---
+title: Validator Interaction and Network Behavior
+description: Learn how applications interact with the validator network on Shardeum
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="" type="warn">
+  <strong>This page is getting updated</strong>
+</Callout>
+
+## 1. Overview
+
+This page explains how applications interact indirectly with the validator network on Shardeum and how validator behavior influences transaction inclusion, finality, and observable network behavior.
+
+This is a developer-focused deep dive. It does not describe validator operations or consensus internals, but instead focuses on what application developers can expect and rely on when building on the network.
+
+### How Applications Interact with Validators
+
+Applications do not communicate with validators directly. Instead, they interact with the network through RPC endpoints, which relay transactions and queries to the validator set.
+
+From a developer’s perspective:
+
+- transactions are submitted via JSON-RPC,
+- validators collectively process and order transactions, and
+- finalized blocks reflect the canonical network state.
+
+This abstraction allows developers to focus on application logic without managing validator-level concerns.
+
+### Transaction Inclusion
+
+When a transaction is submitted:
+
+- it is validated for correctness (signature, nonce, balance, gas limits),
+- considered for inclusion by validators, and
+- included in a proposed block if valid.
+
+Transaction inclusion depends on:
+
+- transaction validity,
+- network load, and
+- availability of validator resources.
+
+Under normal conditions, valid transactions are included promptly without requiring application-side coordination with validators.
+
+### Finality and State Visibility
+
+Shardeum provides deterministic finality at the protocol level.
+
+For developers, this means:
+
+- once a transaction is finalized, it is irreversible,
+- state changes are immediately authoritative, and
+- applications can safely act on transaction results without waiting for additional confirmations.
+
+This simplifies application logic for use cases such as payments, gaming, and real-time workflows.
+
+### Validator Participation and Network Health
+
+The network is operated by a distributed set of validators with stake-weighted participation.
+
+From an application perspective:
+
+- individual validator failures do not affect correctness,
+- the network continues to process transactions as long as quorum is maintained, and
+- transient validator churn is handled at the protocol level.
+
+Applications do not need to track individual validators or adjust behavior based on validator identity.
+
+### Best Practices for Applications
+
+- avoiding assumptions about immediate inclusion,
+- handling retries idempotently, and
+- surfacing clear transaction status to users.
+
+These patterns help applications remain reliable under varying network conditions.
+
+### Observable Network Signals
+
+Applications can observe network behavior using standard interfaces, including:
+
+- block production events,
+- transaction receipts,
+- event logs emitted by smart contracts.
+
+These signals allow applications to:
+
+- confirm transaction outcomes,
+- update user interfaces, and
+- trigger off-chain workflows.
+
+For historical or aggregated views, indexed Explorer APIs provide an alternative to live RPC queries.
+
+### What Developers Can Rely On
+
+Developers building on Shardeum can rely on the following behaviors:
+
+- **Consistent Transaction Processing**: Valid transactions follow a predictable path from submission to finality.
+- **Deterministic Finality**: Finalized state is stable and irreversible under normal operation.
+- **Fault Tolerance**: Validator failures are handled by the protocol without application intervention.
+- **Clear Observability**: Standard events, receipts, and block notifications reflect canonical state.
+
+## Scope and Limitations
+
+This page intentionally does not cover validator setup or operations, consensus algorithms or voting mechanics, slashing conditions or governance rules. These topics are covered in dedicated validator documentation and protocol resources.
+
+## Summary
+
+Shardeum’s validator network is designed to operate transparently from an application developer’s point of view. By abstracting validator coordination behind familiar APIs and providing fast, deterministic finality, the network enables developers to build reliable applications without managing infrastructure complexity.
+
+

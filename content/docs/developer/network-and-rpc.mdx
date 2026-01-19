@@ -1,87 +1,92 @@
 ---
-title: RPC Methods
-description: Complete guide to Shardeum's supported Ethereum RPC methods
+title: JSON-RPC Guide
+description: Connect to the Shardeum network using standard Ethereum JSON-RPC APIs
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Network & RPC Methods
+Shardeum is a fully EVM-compatible Layer 1 blockchain. Developers can interact with the network using standard Ethereum JSON-RPC APIs and familiar tooling such as ethers.js, web3.js, viem, MetaMask, and Hardhat — without requiring protocol-specific changes.
 
-Shardeum is a fully EVM-compatible Layer 1 blockchain built on Cosmos SDK. This means it supports **all standard Ethereum JSON-RPC methods**, allowing you to interact with Shardeum using familiar Ethereum tools and libraries.
+If you have built on Ethereum before, you can build on Shardeum using the same workflows, libraries, and mental models. 
+
+This page is intended for application developers building EVM-compatible dApps on Shardeum. Validator, staking, governance, and infrastructure APIs are documented separately.
 
 ## Network Information
 
-### Mainnet
+You can find the Shardeum mainnet and testnet endpoints/explorer details [here](/docs/overview/endpoints). 
 
-- **RPC Endpoint:** `https://api.shardeum.org`
-- **WebSocket:** `wss://api.shardeum.org`
-- **Chain ID (EVM):** `8118` (hex: `0x1fb6`)
-- **Chain ID (Cosmos):** `shardeum_8118-1`
-- **Explorer:** `https://explorer.shardeum.org`
-- **Native Token:** SHM (18 decimals)
+## Wallet Configuration
 
-### EVM Testnet
+You can add the Shardeum network to MetaMask and other EVM-compatible wallets using the official network configuration.
 
-- **RPC Endpoint:** `https://api-mezame.shardeum.org`
-- **Chain ID:** `8119`
-- **Explorer:** `https://explorer-mezame.shardeum.org`
+For the latest chain configuration details and one-click wallet setup, refer to:
+https://docs.shardeum.org/docs/overview/endpoints
 
-<Callout type="info">
-Always verify network details from [official Shardeum documentation](https://shardeum.org) before connecting.
-</Callout>
+Always ensure you are using network details from official Shardeum documentation before adding a custom network to your wallet.
 
 ## Supported RPC Methods
 
-Shardeum supports the complete Ethereum JSON-RPC specification. Below is a comprehensive list of available methods.
+Shardeum supports the complete Ethereum JSON-RPC specification. The sections below highlight the most commonly used methods across typical application workflows. For the full specification, refer to the Ethereum JSON-RPC documentation.
 
 ### Account Methods
 
 #### eth_accounts
-Returns a list of addresses owned by client.
+Returns the list of addresses available to the connected client (if any). Note: Public RPC endpoints typically do not manage unlocked accounts, so this method may return an empty array. Wallet-managed accounts should be accessed via the wallet provider instead.
 
-```javascript
-await provider.send('eth_accounts', []);
+```
+import { ethers } from 'ethers';
+
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
+
+const accounts = await provider.send('eth_accounts', []);
+console.log(accounts);
 ```
 
 #### eth_getBalance
-Returns the balance of the account at given address.
+Returns the balance of an account at a given address.
 
-```javascript
+```
 // Using ethers.js
-const balance = await provider.getBalance('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+const balance = await provider.getBalance('0x...');
+```
 
-// Raw JSON-RPC
-await provider.send('eth_getBalance', [
-  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-  'latest'
-]);
+```
+POST https://api.shardeum.org
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "eth_getBalance",
+  "params": ["0x...", "latest"]
+}
 ```
 
 #### eth_getTransactionCount
 Returns the number of transactions sent from an address (nonce).
 
-```javascript
+```
 const nonce = await provider.getTransactionCount('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 ```
 
 #### eth_getCode
 Returns code at a given address (for smart contracts).
 
-```javascript
+```
 const code = await provider.getCode('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 ```
 
 #### eth_sign
-Signs data with a given address.
+Signs data with a given address. Note: many wallets discourage eth_sign; prefer personal_sign or EIP-712 typed data signing where possible.
 
-```javascript
+```
 await provider.send('eth_sign', [address, dataToSign]);
 ```
 
 #### eth_signTransaction
-Signs a transaction without sending it.
+Signs a transaction without broadcasting it.
 
-```javascript
+```
 await provider.send('eth_signTransaction', [txObject]);
 ```
 
@@ -90,17 +95,17 @@ await provider.send('eth_signTransaction', [txObject]);
 #### eth_blockNumber
 Returns the current block number.
 
-```javascript
+```
 const blockNumber = await provider.getBlockNumber();
 ```
 
 #### eth_getBlockByNumber
 Returns information about a block by block number.
 
-```javascript
+```
 // Get latest block
 const block = await provider.getBlock('latest');
-
+ 
 // Get specific block with transactions
 const blockWithTxs = await provider.getBlock(12345, true);
 ```
@@ -108,66 +113,45 @@ const blockWithTxs = await provider.getBlock(12345, true);
 #### eth_getBlockByHash
 Returns information about a block by hash.
 
-```javascript
+```
 const block = await provider.getBlock('0x1234...');
 ```
 
 #### eth_getBlockTransactionCountByNumber
 Returns the number of transactions in a block by block number.
 
-```javascript
+```
 await provider.send('eth_getBlockTransactionCountByNumber', ['latest']);
-```
-
-#### eth_getBlockTransactionCountByHash
-Returns the number of transactions in a block by block hash.
-
-```javascript
-await provider.send('eth_getBlockTransactionCountByHash', ['0x1234...']);
-```
-
-#### eth_getUncleCountByBlockNumber
-Returns the number of uncles in a block by block number.
-
-```javascript
-await provider.send('eth_getUncleCountByBlockNumber', ['latest']);
-```
-
-#### eth_getUncleCountByBlockHash
-Returns the number of uncles in a block by block hash.
-
-```javascript
-await provider.send('eth_getUncleCountByBlockHash', ['0x1234...']);
 ```
 
 ### Transaction Methods
 
-#### eth_sendTransaction
-Creates and signs a transaction using the node's account.
-
-```javascript
-const tx = await signer.sendTransaction({
-  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-  value: ethers.parseEther('1.0'),
-  gasLimit: 21000
-});
-```
-
 #### eth_sendRawTransaction
 Sends a signed transaction.
 
-```javascript
+```
+import { ethers } from 'ethers';
+
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
+const wallet = new ethers.Wallet(privateKey, provider);
+
+const tx = {
+  to: recipientAddress,
+  value: ethers.parseEther('1.0')
+};
+
 const signedTx = await wallet.signTransaction(tx);
 const txResponse = await provider.broadcastTransaction(signedTx);
+await txResponse.wait();
 ```
 
 #### eth_call
 Executes a new message call immediately without creating a transaction (read-only).
 
-```javascript
+```
 // Call a contract method
 const result = await contract.balanceOf('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
-
+ 
 // Raw call
 await provider.call({
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
@@ -178,7 +162,7 @@ await provider.call({
 #### eth_estimateGas
 Estimates the gas needed for a transaction.
 
-```javascript
+```
 const gasEstimate = await provider.estimateGas({
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
   value: ethers.parseEther('1.0')
@@ -188,14 +172,14 @@ const gasEstimate = await provider.estimateGas({
 #### eth_getTransactionByHash
 Returns transaction information by hash.
 
-```javascript
+```
 const tx = await provider.getTransaction('0x1234...');
 ```
 
 #### eth_getTransactionByBlockHashAndIndex
 Returns transaction by block hash and transaction index.
 
-```javascript
+```
 await provider.send('eth_getTransactionByBlockHashAndIndex', [
   '0x1234...',
   '0x0'
@@ -205,7 +189,7 @@ await provider.send('eth_getTransactionByBlockHashAndIndex', [
 #### eth_getTransactionByBlockNumberAndIndex
 Returns transaction by block number and transaction index.
 
-```javascript
+```
 await provider.send('eth_getTransactionByBlockNumberAndIndex', [
   'latest',
   '0x0'
@@ -215,7 +199,7 @@ await provider.send('eth_getTransactionByBlockNumberAndIndex', [
 #### eth_getTransactionReceipt
 Returns the receipt of a transaction by hash.
 
-```javascript
+```
 const receipt = await provider.getTransactionReceipt('0x1234...');
 ```
 
@@ -224,7 +208,7 @@ const receipt = await provider.getTransactionReceipt('0x1234...');
 #### eth_gasPrice
 Returns the current gas price in wei.
 
-```javascript
+```
 const gasPrice = await provider.getFeeData();
 console.log('Gas price:', gasPrice.gasPrice);
 ```
@@ -232,7 +216,7 @@ console.log('Gas price:', gasPrice.gasPrice);
 #### eth_maxPriorityFeePerGas
 Returns the current max priority fee per gas.
 
-```javascript
+```
 const feeData = await provider.getFeeData();
 console.log('Max priority fee:', feeData.maxPriorityFeePerGas);
 ```
@@ -240,7 +224,7 @@ console.log('Max priority fee:', feeData.maxPriorityFeePerGas);
 #### eth_feeHistory
 Returns fee history for a range of blocks.
 
-```javascript
+```
 await provider.send('eth_feeHistory', [
   '0x5',      // block count
   'latest',   // newest block
@@ -253,7 +237,7 @@ await provider.send('eth_feeHistory', [
 #### eth_newFilter
 Creates a filter object for tracking logs/events.
 
-```javascript
+```
 const filter = {
   address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
   topics: [ethers.id('Transfer(address,address,uint256)')]
@@ -264,42 +248,42 @@ const filterId = await provider.send('eth_newFilter', [filter]);
 #### eth_newBlockFilter
 Creates a filter to notify when a new block arrives.
 
-```javascript
+```
 const filterId = await provider.send('eth_newBlockFilter', []);
 ```
 
 #### eth_newPendingTransactionFilter
 Creates a filter to notify when new pending transactions arrive.
 
-```javascript
+```
 const filterId = await provider.send('eth_newPendingTransactionFilter', []);
 ```
 
 #### eth_getFilterChanges
 Returns an array of logs/events since last poll.
 
-```javascript
+```
 const changes = await provider.send('eth_getFilterChanges', [filterId]);
 ```
 
 #### eth_getFilterLogs
 Returns an array of all logs matching filter.
 
-```javascript
+```
 const logs = await provider.send('eth_getFilterLogs', [filterId]);
 ```
 
 #### eth_uninstallFilter
 Uninstalls a filter.
 
-```javascript
+```
 await provider.send('eth_uninstallFilter', [filterId]);
 ```
 
 #### eth_getLogs
 Returns logs matching given filter criteria.
 
-```javascript
+```
 const logs = await provider.getLogs({
   address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
   fromBlock: 0,
@@ -313,7 +297,7 @@ const logs = await provider.getLogs({
 #### eth_getStorageAt
 Returns the value from a storage position at a given address.
 
-```javascript
+```
 const value = await provider.getStorage(
   '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
   0  // storage position
@@ -325,7 +309,7 @@ const value = await provider.getStorage(
 #### eth_chainId
 Returns the chain ID of the current network.
 
-```javascript
+```
 const chainId = await provider.send('eth_chainId', []);
 // Returns: "0x1fb6" (8118 in decimal)
 ```
@@ -333,48 +317,42 @@ const chainId = await provider.send('eth_chainId', []);
 #### net_version
 Returns the current network ID.
 
-```javascript
+```
 const networkId = await provider.send('net_version', []);
 ```
 
 #### net_listening
 Returns true if client is actively listening for network connections.
 
-```javascript
+```
 const isListening = await provider.send('net_listening', []);
 ```
 
 #### net_peerCount
 Returns number of peers currently connected.
 
-```javascript
+```
 const peerCount = await provider.send('net_peerCount', []);
 ```
 
 #### web3_clientVersion
 Returns the current client version.
 
-```javascript
+```
 const version = await provider.send('web3_clientVersion', []);
 ```
 
 #### web3_sha3
 Returns Keccak-256 hash of given data.
 
-```javascript
+```
 const hash = await provider.send('web3_sha3', ['0x68656c6c6f20776f726c64']);
 ```
-
-### Mining Methods (Read-only)
-
-<Callout type="info">
-Shardeum uses Proof-of-Stake consensus, so mining methods return default values for compatibility.
-</Callout>
 
 #### eth_mining
 Returns false (Shardeum uses PoS, not PoW).
 
-```javascript
+```
 const isMining = await provider.send('eth_mining', []);
 // Always returns: false
 ```
@@ -382,7 +360,7 @@ const isMining = await provider.send('eth_mining', []);
 #### eth_hashrate
 Returns 0 (not applicable for PoS).
 
-```javascript
+```
 const hashrate = await provider.send('eth_hashrate', []);
 // Always returns: "0x0"
 ```
@@ -390,60 +368,57 @@ const hashrate = await provider.send('eth_hashrate', []);
 #### eth_getWork
 Returns empty array (not applicable for PoS).
 
-```javascript
+```
 const work = await provider.send('eth_getWork', []);
 ```
 
 ### Subscription Methods (WebSocket)
 
-#### eth_subscribe
-Creates a subscription for events.
+#### WebSocket subscriptions
+Subscribe to blocks and logs using a WebSocket provider. Note: WebSocket subscriptions are for real-time updates and should not be treated as the sole source of truth. Always reconcile important state using standard RPC queries.
 
-```javascript
-const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
-
-// Subscribe to new block headers
-ws.send('eth_subscribe', ['newHeads']);
-
-// Subscribe to logs
-ws.send('eth_subscribe', ['logs', {
-  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
-}]);
-
-// Subscribe to pending transactions
-ws.send('eth_subscribe', ['newPendingTransactions']);
 ```
+import { ethers } from 'ethers';
 
-#### eth_unsubscribe
-Cancels an active subscription.
+const wsProvider = new ethers.WebSocketProvider('wss://api.shardeum.org');
 
-```javascript
-await ws.send('eth_unsubscribe', [subscriptionId]);
+// Subscribe to new blocks
+wsProvider.on('block', (blockNumber) => {
+  console.log('New block:', blockNumber);
+});
+
+// Subscribe to contract logs
+wsProvider.on(
+  { address: contractAddress },
+  (log) => {
+    console.log('Log:', log);
+  }
+);
 ```
 
 ## Practical Examples
 
 ### Complete Transaction Flow
 
-```javascript
+```
 import { ethers } from 'ethers';
-
+ 
 // 1. Connect to Shardeum
 const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
 const wallet = new ethers.Wallet(privateKey, provider);
-
+ 
 // 2. Get nonce
 const nonce = await wallet.getNonce();
-
+ 
 // 3. Estimate gas
 const gasEstimate = await provider.estimateGas({
   to: recipientAddress,
   value: ethers.parseEther('1.0')
 });
-
+ 
 // 4. Get gas price
 const feeData = await provider.getFeeData();
-
+ 
 // 5. Create and send transaction
 const tx = await wallet.sendTransaction({
   to: recipientAddress,
@@ -452,7 +427,7 @@ const tx = await wallet.sendTransaction({
   gasLimit: gasEstimate,
   gasPrice: feeData.gasPrice
 });
-
+ 
 // 6. Wait for confirmation
 const receipt = await tx.wait();
 console.log('Transaction confirmed:', receipt.hash);
@@ -460,15 +435,15 @@ console.log('Transaction confirmed:', receipt.hash);
 
 ### Monitor Contract Events
 
-```javascript
+```
 // Create contract instance
 const contract = new ethers.Contract(contractAddress, abi, provider);
-
+ 
 // Listen for Transfer events
 contract.on('Transfer', (from, to, amount, event) => {
   console.log(`Transfer: ${from} -> ${to}, amount: ${amount}`);
 });
-
+ 
 // Or use filters for specific events
 const filter = contract.filters.Transfer(null, myAddress);
 const logs = await contract.queryFilter(filter, -1000, 'latest');
@@ -476,14 +451,14 @@ const logs = await contract.queryFilter(filter, -1000, 'latest');
 
 ### Batch Multiple Calls
 
-```javascript
+```
 // Read multiple balances efficiently
 const addresses = ['0x123...', '0x456...', '0x789...'];
-
+ 
 const balances = await Promise.all(
   addresses.map(addr => provider.getBalance(addr))
 );
-
+ 
 console.log('Balances:', balances.map(b => ethers.formatEther(b)));
 ```
 
@@ -491,22 +466,22 @@ console.log('Balances:', balances.map(b => ethers.formatEther(b)));
 
 Public RPC endpoints have rate limits to ensure fair usage:
 
-- **Requests per second:** 10
-- **Requests per minute:** 600
-- **Concurrent connections:** 5
+- Requests per second: 10
+- Requests per minute: 600
+- Concurrent connections: 5
 
 For production applications with higher throughput requirements, consider:
+
 - Running your own [RPC node](/docs/run-a-node/run-an-rpc-node)
-- Using the partner API endpoint (contact Shardeum team)
+- Using the partner API endpoint (or contact Shardeum team)
 - Implementing request batching and caching
 
 ## Best Practices
 
 ### 1. Error Handling
-
 Always implement proper error handling for RPC calls:
 
-```javascript
+```
 try {
   const balance = await provider.getBalance(address);
 } catch (error) {
@@ -521,22 +496,20 @@ try {
 ```
 
 ### 2. Use WebSocket for Real-time Updates
-
 For applications needing real-time data, use WebSocket instead of polling:
 
-```javascript
+```
 const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
-
+ 
 ws.on('block', (blockNumber) => {
   console.log('New block:', blockNumber);
 });
 ```
 
 ### 3. Batch Related Calls
-
 Group related RPC calls to reduce network overhead:
 
-```javascript
+```
 const [balance, nonce, code] = await Promise.all([
   provider.getBalance(address),
   provider.getTransactionCount(address),
@@ -545,12 +518,11 @@ const [balance, nonce, code] = await Promise.all([
 ```
 
 ### 4. Cache Immutable Data
-
 Cache data that doesn't change:
 
-```javascript
+```
 const cache = new Map();
-
+ 
 async function getBlockWithCache(blockNumber) {
   if (cache.has(blockNumber)) {
     return cache.get(blockNumber);
@@ -563,26 +535,27 @@ async function getBlockWithCache(blockNumber) {
 
 ## Differences from Ethereum
 
-While Shardeum is fully EVM-compatible, there are some differences to be aware of:
+While Shardeum is fully EVM-compatible, it is a sovereign L1 blockchain with 
 
-1. **Consensus:** Shardeum uses Tendermint BFT Proof-of-Stake instead of Ethereum's PoS
-2. **Block Time:** ~2-3 seconds (faster than Ethereum)
-3. **Finality:** Transactions are final once confirmed (no reorganizations)
-4. **Gas Model:** SHM-denominated gas fees with predictable pricing
-5. **Mining Methods:** Return default values (PoS chain, not PoW)
+- Proof-of-stake consensus mechanism and delegated staking
+- Block time that is much faster than Ethereum (~2-3 seconds)
+- Transactions are final once confirmed
+- SHM-denominated gas fees with predictable and low pricing.
 
 ## Troubleshooting
 
 ### Common Issues
 
 **"Nonce too low" error:**
-```javascript
+
+```
 // Get the current nonce from network
 const nonce = await provider.getTransactionCount(address, 'latest');
 ```
 
 **"Insufficient funds" error:**
-```javascript
+
+```
 // Check balance before sending
 const balance = await provider.getBalance(address);
 if (balance < amount) {
@@ -591,7 +564,8 @@ if (balance < amount) {
 ```
 
 **"Gas estimation failed":**
-```javascript
+
+```
 // Manually set gas limit
 const tx = await wallet.sendTransaction({
   to: address,
@@ -601,15 +575,11 @@ const tx = await wallet.sendTransaction({
 ```
 
 **"Network timeout":**
-```javascript
+
+```
 // Increase timeout in provider config
 const provider = new ethers.JsonRpcProvider('https://api.shardeum.org', {
   timeout: 30000  // 30 seconds
 });
 ```
 
-## Additional Resources
-
-- [Smart Contract Development](/docs/developer/smart-contracts/deploy-using-remix) - Deploy contracts on Shardeum
-- [Running an Validator Node](/docs/run-a-node/run-a-validator-node) - Run your own Validator Node
-- [Ethereum JSON-RPC Specification](https://ethereum.org/en/developers/docs/apis/json-rpc/)

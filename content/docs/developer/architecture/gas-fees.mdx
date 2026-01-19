@@ -1,0 +1,85 @@
+---
+title: Gas and Fee Model on Shardeum
+description: This section explains how transaction fees work on Shardeum
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout title="" type="warn">
+  <strong>This page is getting updated</strong>
+</Callout>
+
+## Overview
+
+This page explains how transaction fees work on Shardeum and how developers can design applications with predictable and cost-efficient execution.
+
+### Gas Fundamentals
+
+Shardeum uses the standard EVM gas model:
+
+- each operation has a defined gas cost,
+- gas measures computational and state access effort, and
+- transactions must specify a gas limit.
+
+This ensures compatibility with existing Ethereum tooling and mental models.
+
+### Fee Denomination
+
+All transaction fees on Shardeum are:
+
+- denominated in SHM, the network’s native token, and
+- paid by the transaction sender.
+
+Fees are deducted as part of transaction execution and distributed according to protocol rules.
+
+### Fee Calculation (High-Level)
+
+At a high level, transaction fees depend on:
+- the amount of gas consumed during execution, and
+- the gas price specified in the transaction.
+
+Actual gas usage is determined at runtime based on:
+- contract logic,
+- storage reads and writes, and
+- execution complexity.
+
+### Predictable Fee Behavior
+
+Shardeum is designed to maintain predictable transaction costs under normal network conditions.
+
+Key characteristics include:
+
+- stable fee behavior for common transaction types,
+- minimal variance for simple transfers and standard contract calls, and
+- reduced cost sensitivity for applications with frequent interactions.
+
+This predictability allows developers to:
+
+- estimate user costs more accurately, and
+- design UX flows without large fee uncertainty.
+
+### Gas Optimization Best Practices
+
+Developers building on Shardeum can reduce costs by:
+- minimizing unnecessary storage writes,
+- batching related operations when possible,
+- avoiding unbounded loops in smart contracts, and
+- reusing well-tested contract patterns.
+
+Standard Ethereum gas optimization techniques apply directly.
+
+### Application Design Considerations
+
+When designing applications:
+- prefer simple, deterministic execution paths,
+- surface fee estimates clearly to users, and
+- handle transaction failures gracefully.
+
+For high-volume applications, careful contract design and RPC usage can significantly improve cost efficiency and user experience.
+
+### What Developers Should Take Away
+
+- Shardeum follows a familiar EVM gas model, lowering onboarding friction.
+- Fees are SHM-denominated and designed to remain predictable.
+- Existing Ethereum gas optimization strategies remain effective.
+

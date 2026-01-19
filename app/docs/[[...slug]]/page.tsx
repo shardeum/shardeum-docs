@@ -27,7 +27,6 @@ export default async function Page({
 
 export async function generateStaticParams() {
   const excluded = [
-    'developer/architecture/apis-and-interfaces',
     'developer/smart-contracts/boilerplate',
     'developer/smart-contracts/deploy/foundry',
     'developer/smart-contracts/deploy/hardhat',
