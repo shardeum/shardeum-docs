@@ -50,7 +50,7 @@ By maintaining strong EVM compatibility, Shardeum allows developers to deploy ap
 - **Web3 API** - Standard JSON-RPC endpoints for seamless integration
 - **Leading dApps** - Enable EVM-compatible deployments of widely used Ethereum protocols, supporting applications inspired by systems such as Uniswap and Aave for high-growth markets like India.
 
-#### 4. Protocol Modularity and Upgradeability
+### 4. Protocol Modularity and Upgradeability
 
 While Shardeum operates as a single sovereign network, its internal components are designed with protocol-level modularity in mind. This approach enables:
 
@@ -115,7 +115,7 @@ This layer ensures that all nodes maintain a consistent view of the network stat
 
 Shardeum’s network is operated and secured by distinct participant roles, each contributing to the network’s security, availability, and decentralization.
 
-### Validators
+### 1. Validators
 
 Validators are responsible for operating the core infrastructure of the network and maintaining consensus. Their responsibilities include:
 
@@ -130,7 +130,7 @@ Validators must stake SHM to be eligible for consensus participation, with votin
 
 **Unbonding period:** 21 days
 
-### Delegators
+### 2. Delegators
 
 Delegators are SHM holders who contribute to network security by staking indirectly through validators. Delegators can:
 
@@ -140,7 +140,7 @@ Delegators are SHM holders who contribute to network security by staking indirec
 
 Delegation allows token holders to support decentralization without operating validator infrastructure.
 
-### Full Nodes
+### 3. Full Nodes
 
 Full nodes support the network by maintaining a complete and independently verifiable copy of the blockchain. Their functions include:
 
@@ -149,11 +149,15 @@ Full nodes support the network by maintaining a complete and independently verif
 - relaying transactions and blocks across the network, and
 - providing data services to light clients and external systems.
 
-While full nodes do not participate in consensus, they play a critical role in improving network reliability, decentralization, and data availability.
+While full nodes do not participate in consensus, they play a critical role in improving network reliability, decentralization, and data availability. 
 
-**RPC nodes** are full nodes configured to expose JSON-RPC interfaces for wallets, dApps, and developer tooling, enabling application connectivity and transaction submission.
+In addition to validator nodes and full nodes, the network includes supporting infrastructure components that provide access, visibility, and historical data services.
+
+**RPC nodes** are full nodes configured to expose JSON-RPC interfaces for wallets, dApps, and developer tooling, enabling application connectivity and transaction submission. Detailed endpoint configuration and usage are documented in the RPC node section.
 
 **Archive nodes** are specialized full nodes that retain an unpruned, complete history of the blockchain, supporting explorers, analytics, and historical data queries.
+
+*Indexing infrastructure* processes blocks and contract events to power explorers and analytics, enabling efficient search and historical views without participating in consensus or serving as a primary network interface.
 
 ## Developer Integration
 
