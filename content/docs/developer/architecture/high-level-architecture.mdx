@@ -17,11 +17,12 @@ This design allows each layer to be independently optimized without fragmenting 
 
 The consensus and networking layer is responsible for validator coordination, transaction ordering, and block finality across the network. This layer is optimized for:
 
-- fast and predictable finality,
+- Proof-of-Stake security model with BFT consensus and deterministic finality,
 - strong safety and liveness guarantees,
 - efficient peer-to-peer communication across a distributed validator set,
-- delegation of SHM by token holders to validators, and
-- economic security through slashing protection and other penalties
+- delegation of SHM by token holders to validators,
+- economic security through slashing protection and other penalties, and 
+- fork prevention and resolution.
 
 Separating consensus and networking from execution enables the protocol to scale validator participation and network throughput without coupling performance directly to application logic.
 
@@ -30,8 +31,9 @@ Separating consensus and networking from execution enables the protocol to scale
 Shardeum includes a dedicated layer for state storage, access, and synchronization, ensuring that account balances, contract state, and historical data remain consistent and verifiable across the network. This layer is designed to:
 
 - efficiently manage on-chain state growth,
-- support fast read/write access for applications, and
-- maintain consistency across validators under real-world load.
+- support fast read/write access for applications,
+- maintain consistency across validators under real-world load, and 
+- manage staking and delegation records.
 
 By treating state as a first-class architectural component, Shardeum improves performance predictability while preserving correctness and security.
 
@@ -39,9 +41,10 @@ By treating state as a first-class architectural component, Shardeum improves pe
 
 Shardeum uses a mature, open-source EVM execution environment as its execution layer, enabling full compatibility with established Ethereum tooling and developer workflows. This layer is responsible for:
 
-- smart contract execution,
-- transaction validation logic, and
-- deterministic state transitions.
+- deterministic smart contract execution,
+- gas metering and fee accounting,
+- transaction validity checks, and
+- producing state transition outputs for blocks finalized by the consensus layer.
 
 By maintaining strong EVM compatibility, Shardeum allows developers to deploy applications with minimal friction while ensuring predictable behavior and production-grade reliability.
 
@@ -75,43 +78,6 @@ Network Architecture describes how the core protocol layers are deployed and ope
 - **Native Token:** SHM
 - **Block Time:** ~2-3 seconds
 - **Consensus:** Proof of Stake (Tendermint BFT)
-
-**Key Components include,**
-
-### 1. Consensus Layer 
-
-The consensus layer coordinates validators and ensures agreement on the canonical state of the network. Its responsibilities include:
-
-- block proposal and validation under a Proof-of-Stake security model,
-- Byzantine Fault Tolerant consensus (Tendermint BFT) with deterministic finality,
-- validator communication and network synchronization, and
-- fork prevention and resolution.
-
-This layer provides strong safety and liveness guarantees under adversarial conditions.
-
-### 2. Execution Layer (EVM)
-
-The execution layer provides an EVM-compatible environment for processing transactions and executing smart contracts. It is responsible for:
-
-- deterministic smart contract execution,
-- gas metering and fee accounting,
-- transaction validity checks, and
-- producing state transition outputs for blocks finalized by the consensus layer.
-
-By preserving strong EVM compatibility, this layer enables developers to deploy existing Solidity-based contracts and use familiar Ethereum tooling without protocol-specific changes.
-
-### 3. State Management Layer
-
-The state management layer is responsible for maintaining and persisting the canonical on-chain state across the network. It manages:
-
-- account state, including balances and nonces,
-- smart contract storage,
-- validator set information, and
-- staking and delegation records.
-
-This layer ensures that all nodes maintain a consistent view of the network state and supports efficient state access, synchronization, and recovery.
-
-## Network Participants
 
 Shardeum’s network is operated and secured by distinct participant roles, each contributing to the network’s security, availability, and decentralization.
 
@@ -260,9 +226,9 @@ Future phases focus on expanding network capacity and supporting broader global 
 - additional scalability enhancements at the protocol level, and
 - ecosystem expansion beyond initial regional focus.
 
-This phase is designed to evolve the network as usage grows, while preserving security, decentralization, and developer experience.
+**Objective**: This phase is designed to evolve the network as usage grows, while preserving security, decentralization, and developer experience.
 
-Detailed specifications for validator operations and node lifecycle management are covered in dedicated validator documentation section. For implementation details and protocol internals, refer to the Shardeum open-source codebase (Github Repository) as given below.
+**Note:** Detailed specifications for validator operations and node lifecycle management are covered in dedicated validator documentation section. For protocol internals, refer to the Shardeum open-source codebase (Github Repository) shared below.
 
 ## Resources
 
