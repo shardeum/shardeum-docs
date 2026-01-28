@@ -1,107 +1,59 @@
 ---
-title: APIs and Interfaces
-description: Learn about various Shardeum APIs and interfaces
+title: Network Interfaces Overview
+description: Overview of the interfaces available for interacting with the Shardeum network
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# APIs and Interfaces
+Shardeum exposes different interfaces depending on how participants interact with the network. Application developers building EVM-compatible dApps primarily use Ethereum JSON-RPC, while validators, node operators, and infrastructure providers may interact with additional network-level interfaces for querying staking, validator, and protocol state.
 
-Shardeum provides multiple APIs and interfaces to support application development, network access, and data querying. Developers can use familiar Ethereum-compatible APIs alongside additional interfaces for advanced network interactions.
+This page provides a high-level overview of the interfaces available on Shardeum today and explains when each interface should be used. Detailed specifications and usage examples are documented separately where applicable.
 
-## API Architecture
+## EVM JSON-RPC Interface (For Application Developers)
 
-Shardeum's API stack consists of three primary interface layers:
+Shardeum is a fully EVM-compatible Layer 1 blockchain. Application developers can interact with the network using standard Ethereum JSON-RPC APIs and familiar tooling such as MetaMask, ethers.js, web3.js, viem, Hardhat, and Foundry, without requiring protocol-specific changes.
 
-1. **EVM JSON-RPC API** - Ethereum-compatible interface for transactions and smart contracts 
-2. **Network APIs** - Interfaces for staking, delegation, and validator-related queries 
-3. **Explorer API** - Indexed APIs for querying blocks, transactions, and historical data
+If you have previously built on Ethereum, you can use the same workflows, libraries, and mental models on Shardeum.
 
-## 1. EVM JSON-RPC API
+The JSON-RPC interface is used for:
 
-### Overview
+- Sending transactions
+- Deploying and interacting with smart contracts
+- Querying blocks, transactions, logs, and account state
+- Subscribing to real-time events via WebSockets
 
-The JSON-RPC API provides full Ethereum compatibility, allowing developers to interact with Shardeum using standard Web3 libraries like ethers.js, web3.js, and viem.
+Full JSON-RPC method reference, advanced examples, and error handling guidance are documented separately in the [JSON-RPC Guide](/docs/developer/network-and-rpc)
 
-**Mainnet RPC Endpoint:**
-```
-https://api.shardeum.org
-```
+## Mainnet Endpoints
 
-**Chain ID:** `8118` (hex: `0x1fb6`)
+| Service | Endpoint |
+|---------|----------|
+| **JSON-RPC** | `https://api.shardeum.org` |
+| **WebSocket** | `wss://api.shardeum.org` |
+| **LCD (REST)** | `https://lcd.shardeum.org` |
+| **gRPC** | `grpc.shardeum.org:9090` |
+| **Explorer** | `https://explorer.shardeum.org` |
+| **Chain ID** | `8118` |
 
-### Supported Methods
-
-Shardeum supports all standard Ethereum JSON-RPC methods:
-
-#### Account Methods
-
-```javascript
-// Get account balance
-eth_getBalance
-
-// Get transaction count (nonce)
-eth_getTransactionCount
-
-// Get code at address
-eth_getCode
-```
-
-#### Block Methods
+## Chain Configuration
 
 ```javascript
-// Get latest block number
-eth_blockNumber
-
-// Get block by number or hash
-eth_getBlockByNumber
-eth_getBlockByHash
+{
+  "chainId": "8118",        // EVM chain ID (hex: 0x1fb6)
+  "chainName": "Shardeum",
+  "nativeCurrency": {
+    "name": "SHM",
+    "symbol": "SHM",
+    "decimals": 18
+  },
+  "rpcUrls": ["https://api.shardeum.org"],
+  "blockExplorerUrls": ["https://explorer.shardeum.org"]
+}
 ```
 
-#### Transaction Methods
+The examples below demonstrate common connectivity and interaction patterns using the EVM JSON-RPC interface. They are intentionally minimal and focus on how applications connect to the Shardeum network, rather than providing a complete method reference.
 
-```javascript
-// Send raw transaction
-eth_sendRawTransaction
-
-// Get transaction by hash
-eth_getTransactionByHash
-
-// Get transaction receipt
-eth_getTransactionReceipt
-
-// Estimate gas
-eth_estimateGas
-
-// Get gas price
-eth_gasPrice
-```
-
-#### Smart Contract Methods
-
-```javascript
-// Call contract (read-only)
-eth_call
-
-// Get logs/events
-eth_getLogs
-
-// Get storage at position
-eth_getStorageAt
-```
-
-#### Network Methods
-
-```javascript
-// Get chain ID
-eth_chainId
-
-// Get network version
-net_version
-
-// Get peer count
-net_peerCount
-```
+## 1. JSON-RPC Examples
 
 ### Example: Connecting with ethers.js
 
@@ -118,24 +70,6 @@ console.log('Current block:', blockNumber);
 // Get account balance
 const balance = await provider.getBalance('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 console.log('Balance:', ethers.formatEther(balance));
-
-// Send transaction
-const wallet = new ethers.Wallet(privateKey, provider);
-const tx = await wallet.sendTransaction({
-  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-  value: ethers.parseEther('1.0')
-});
-await tx.wait();
-```
-
-### Example: Deploying Contract
-
-```javascript
-const Contract = await ethers.getContractFactory('MyToken', wallet);
-const token = await Contract.deploy();
-await token.waitForDeployment();
-
-console.log('Token deployed to:', await token.getAddress());
 ```
 
 ### WebSocket Support
@@ -151,7 +85,7 @@ wsProvider.on('block', (blockNumber) => {
 });
 ```
 
-## 2. Network & Staking APIs
+## 2. Network Interfaces (Validators & Infrastructure)
 
 In addition to EVM-compatible JSON-RPC interfaces, Shardeum exposes network-level APIs for interacting with protocol features such as staking, delegation, validator information, and governance. These APIs are primarily intended for:
 
@@ -159,7 +93,7 @@ In addition to EVM-compatible JSON-RPC interfaces, Shardeum exposes network-leve
 - delegators and staking dashboards, and
 - infrastructure services and analytics platforms.
 
-Application developers building smart contracts or dApps will typically not need these APIs and should instead use the EVM JSON-RPC or Explorer APIs.
+Application developers building smart contracts or dApps will typically not need these APIs and should instead use the EVM JSON-RPC interface.
 
 ### REST API (Network Queries)
 
@@ -171,6 +105,8 @@ These endpoints expose protocol-level data derived from the underlying network s
 ```
 https://lcd.shardeum.org
 ```
+
+These endpoints follow Shardeum’s EVM and network query patterns where applicable, but only explicitly enabled interfaces should be considered supported.
 
 #### Common Queries
 
@@ -223,7 +159,7 @@ GET /cosmos/gov/v1beta1/proposals/{proposalId}
 GET /cosmos/gov/v1beta1/proposals/{proposalId}/votes
 ```
 
-### gRPC API (Advanced/High-Throughput Access)
+## 3. gRPC API (Advanced/High-Throughput Access)
 
 For applications that require high-performance or low-latency access to network state, Shardeum also exposes gRPC interfaces. The gRPC API provides the same underlying data as the REST endpoints but is more efficient for:
 
@@ -236,7 +172,7 @@ For applications that require high-performance or low-latency access to network 
 grpc.shardeum.org:9090
 ```
 
-#### Example: Query with grpcurl
+### Example: Query with grpcurl
 
 ```bash
 # List validators
@@ -245,108 +181,21 @@ grpcurl grpc.shardeum.org:9090 \
 ```
 Note: The gRPC API can also be used to query account balances, staking state, and other network-level data for high-throughput backend services.
 
-#### Example: JavaScript gRPC Client
+### Example: JavaScript gRPC Client
 
 This call returns the current active validator set using default query parameters. Advanced filtering and pagination options are available through lower-level query interfaces.
 
 ```javascript
 import { StargateClient } from '@cosmjs/stargate';
 
-const client = await StargateClient.connect('https://rpc.shardeum.org');
+const client = await StargateClient.connect('RPC_ENDPOINT_HERE');
 
-// Get account
+// Get active validator set
 const validators = await client.getValidators();
 console.log(validators);
 ```
 
-## 3. Explorer API
-
-The Shardeum Explorer provides REST endpoints for querying indexed blockchain data. **Note**: Explorer APIs are read-only and should not be used for submitting transactions.
-
-**Mainnet Explorer API:**
-```
-https://explorer.shardeum.org/api
-```
-
-### Endpoints
-
-#### Blocks
-
-```bash
-# Get latest blocks
-GET /api/blocks
-
-# Get block by number
-GET /api/block/{blockNumber}
-
-# Get block transactions
-GET /api/block/{blockNumber}/transactions
-```
-
-#### Transactions
-
-```bash
-# Get transaction by hash
-GET /api/transaction/{txHash}
-
-# Get transactions for address
-GET /api/transactions?address={address}&page={page}
-```
-
-#### Accounts
-
-```bash
-# Get account information
-GET /api/account/{address}
-
-# Get account transactions
-GET /api/account/{address}/transactions
-
-# Get account token balances
-GET /api/account/{address}/tokens
-```
-
-#### Contracts
-
-```bash
-# Get contract information
-GET /api/contract/{address}
-
-# Verify contract source code
-POST /api/contract/verify
-```
-
-### Example: Fetch Transaction
-
-```javascript
-async function getTransaction(txHash) {
-  const response = await fetch(
-    `https://explorer.shardeum.org/api/transaction/${txHash}`
-  );
-  const data = await response.json();
-  return data;
-}
-
-const tx = await getTransaction('0x123...');
-console.log(tx);
-```
-
-### Example: Monitor Address Activity
-
-```javascript
-async function getAddressTransactions(address, page = 1) {
-  const response = await fetch(
-    `https://explorer.shardeum.org/api/transactions?address=${address}&page=${page}`
-  );
-  const data = await response.json();
-  return data;
-}
-
-const txs = await getAddressTransactions('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
-console.log(txs);
-```
-
-## 4. Event Listening
+## 4. Event Listening (EVM Logs and WebSockets)
 
 Shardeum supports standard Ethereum-style event and log subscriptions, allowing applications to react to on-chain activity such as contract events, transfers, and state changes.
 
@@ -405,36 +254,7 @@ wsProvider.on('block', (blockNumber) => {
 });
 ```
 
-*For historical event data, use the Explorer API or block-range queries with `eth_getLogs`*.
-
-## Network Information
-
-### Mainnet Endpoints
-
-| Service | Endpoint |
-|---------|----------|
-| **JSON-RPC** | `https://api.shardeum.org` |
-| **WebSocket** | `wss://api.shardeum.org` |
-| **LCD (REST)** | `https://lcd.shardeum.org` |
-| **gRPC** | `grpc.shardeum.org:9090` |
-| **Explorer** | `https://explorer.shardeum.org` |
-| **Explorer API** | `https://explorer.shardeum.org/api` |
-
-### Chain Configuration
-
-```javascript
-{
-  "chainId": "8118",        // EVM chain ID (hex: 0x1fb6)
-  "chainName": "Shardeum",
-  "nativeCurrency": {
-    "name": "SHM",
-    "symbol": "SHM",
-    "decimals": 18
-  },
-  "rpcUrls": ["https://api.shardeum.org"],
-  "blockExplorerUrls": ["https://explorer.shardeum.org"]
-}
-```
+*For historical event data, use block-range queries with eth_getLogs*.
 
 ## Rate Limits
 
@@ -455,8 +275,8 @@ The following best practices help ensure reliable, efficient, and production-rea
 Choose the API layer based on your use case:
 
 - **Smart contracts and dApps** → Use EVM JSON-RPC
-- **Staking, delegation, and validator data** → Use Network & Staking APIs
-- **Historical data and analytics** → Use Explorer API
+- **Staking, delegation, and validator data** → Use Network Interfaces (Validators & Infrastructure)
+- **Historical data and analytics** → Use block-range queries (eth_getLogs) and custom indexing pipelines where required
 
 ### 2. Handle Errors Gracefully
 
