@@ -1,724 +1,585 @@
 ---
-title: JSON-RPC API
-description: JSON-RPC API
+title: JSON-RPC Guide
+description: Connect to the Shardeum network using standard Ethereum JSON-RPC APIs
 ---
 
-The Shardeum JSON-RPC API enables developers to interact directly with the Shardeum network. Shardeum aims to be completely Ethereum API compatible & this documentation provides an overview of the methods for querying network data, managing transactions, and more.
+import { Callout } from 'fumadocs-ui/components/callout';
 
-For information on the RPC endpoint for the live network, visit [Shardeum Network Endpoints](/docs/developer/network-and-rpc) or use the RPC endpoint for our beta network or local development version.
+Shardeum is a fully EVM-compatible Layer 1 blockchain. Developers can interact with the network using standard Ethereum JSON-RPC APIs and familiar tooling such as ethers.js, web3.js, viem, MetaMask, and Hardhat — without requiring protocol-specific changes.
 
-# Supported Methods
+If you have built on Ethereum before, you can build on Shardeum using the same workflows, libraries, and mental models. 
 
-## web3_clientVersion
+This page is intended for application developers building EVM-compatible dApps on Shardeum. Validator, staking, governance, and infrastructure APIs are documented separately.
 
-Returns the current client version.
+## Network Information
 
-**Parameters**
+You can find the Shardeum mainnet and testnet endpoints/explorer details [here](/docs/overview/endpoints). 
 
-None
+## Wallet Configuration
 
-**Returns**
+You can add the Shardeum network to MetaMask and other EVM-compatible wallets using the official network configuration.
 
-`result` - The current client version
+For the latest chain configuration details and one-click wallet setup, refer to:
+https://docs.shardeum.org/docs/overview/endpoints
 
-**Example**
+Always ensure you are using network details from official Shardeum documentation before adding a custom network to your wallet.
 
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"web3_clientVersion","id":1,"jsonrpc":"2.0"}'
+## Supported RPC Methods
+
+Shardeum supports the complete Ethereum JSON-RPC specification. The sections below highlight the most commonly used methods across typical application workflows. For the full specification, refer to the Ethereum JSON-RPC documentation.
+
+### Account Methods
+
+#### eth_accounts
+Returns the list of addresses available to the connected client (if any). Note: Public RPC endpoints typically do not manage unlocked accounts, so this method may return an empty array. Wallet-managed accounts should be accessed via the wallet provider instead.
+
+```
+import { ethers } from 'ethers';
+
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
+
+const accounts = await provider.send('eth_accounts', []);
+console.log(accounts);
 ```
 
-## web3_sha3
+#### eth_getBalance
+Returns the balance of an account at a given address.
 
-Returns Keccak-256 (_not_ the standardized SHA3-256) of the given data.
-
-**Parameters**
-
-data - The data in hexadecimal form to convert into a SHA3 hash
-
-**Returns**
-
-`result` - The SHA3 result of the given string.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"jsonrpc":"2.0","method":"web3_sha3","params":["data"],"id":1}'
+```
+// Using ethers.js
+const balance = await provider.getBalance('0x...');
 ```
 
-## net_version
+```
+POST https://api.shardeum.org
+Content-Type: application/json
 
-Returns the current network id.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`result` - The current network id.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"net_version","id":1,"jsonrpc":"2.0"}'
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "eth_getBalance",
+  "params": ["0x...", "latest"]
+}
 ```
 
-## net_listening
+#### eth_getTransactionCount
+Returns the number of transactions sent from an address (nonce).
 
-Returns `true` if client is actively listening for network connections.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`result` - `true` when listening, otherwise `false`.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"net_listening","id":1,"jsonrpc":"2.0"}'
+```
+const nonce = await provider.getTransactionCount('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 ```
 
-## eth_chainId
+#### eth_getCode
+Returns code at a given address (for smart contracts).
 
-Returns the chain ID used for signing replay-protected transactions.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`result` - `chainId`, hexadecimal value as a string representing the integer of the current chain id.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_chainId","id":1,"jsonrpc":"2.0"}'
+```
+const code = await provider.getCode('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 ```
 
-## shardeum_getNodeList
+#### eth_sign
+Signs data with a given address. Note: many wallets discourage eth_sign; prefer personal_sign or EIP-712 typed data signing where possible.
 
-Returns a paginated list of active nodes in the Shardeum network.
-
-**Parameters**
-
-1. `Object` - (optional) The pagination parameters
-   - `page` - (optional) Page number, defaults to 1
-   - `limit` - (optional) Number of items per page, defaults to 100, maximum 1000
-
-**Returns**
-
-`Object` - A node list response object containing:
-
-- `jsonrpc` - The JSON-RPC version ("2.0")
-- `id` - The request ID
-- `result` - Object containing:
-  - `nodes` - Array of node objects, each containing:
-    - `id` - Unique identifier of the node
-    - `ip` - IP address of the node
-    - `port` - Port number the node is running on
-    - `publicKey` - Public key of the node
-  - `totalNodes` - Total number of nodes in the network
-  - `page` - Current page number
-  - `limit` - Number of items per page
-  - `totalPages` - Total number of pages available
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
--X POST \
--H "Content-Type: application/json" \
---data '{"method":"shardeum_getNodeList","params":[{"page": 1, "limit": 100}],"id":1,"jsonrpc":"2.0"}'
+```
+await provider.send('eth_sign', [address, dataToSign]);
 ```
 
-## shardeum_getNetworkAccount
+#### eth_signTransaction
+Signs a transaction without broadcasting it.
 
-Returns the current network settings and parameters.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`Object` - A response object containing:
-
-- `jsonrpc` - The JSON-RPC version ("2.0")
-- `id` - The request ID
-- `result` - Object containing:
-  - `activeVersion` - Current active version of the network
-  - `latestVersion` - Latest available version
-  - `minVersion` - Minimum required version
-  - `certCycleDuration` - Duration of certification cycle
-  - `maintenanceFee` - Network maintenance fee
-  - `maintenanceInterval` - Interval for maintenance
-  - `penalty` - Object containing penalty information
-    - `amount` - Penalty amount
-    - `currency` - Currency type (e.g. "shm")
-  - `slashing` - Object containing slashing parameters
-    - `leftNetworkEarlyPenaltyPercent` - Penalty percentage for leaving network early
-    - `nodeRefutedPenaltyPercent` - Penalty percentage for node refutation
-    - `syncTimeoutPenaltyPercent` - Penalty percentage for sync timeout
-  - `reward` - Object containing reward information
-    - `amount` - Reward amount
-    - `currency` - Currency type (e.g. "shm")
-    - `nodeRewardInterval` - Interval for node rewards
-  - `requiredStake` - Object containing staking requirements
-    - `amount` - Required stake amount
-    - `currency` - Currency type (e.g. "shm")
-  - `restakeCooldown` - Cooldown period for restaking
-  - `timestamp` - Timestamp of the network account data
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
--X POST \
--H "Content-Type: application/json" \
---data '{"method":"shardeum_getNetworkAccount","params":[],"id":1,"jsonrpc":"2.0"}'
+```
+await provider.send('eth_signTransaction', [txObject]);
 ```
 
-## shardeum_getCycleInfo
+### Block Methods
 
-Returns information about a specific cycle or the latest cycle in the network.
+#### eth_blockNumber
+Returns the current block number.
 
-**Parameters**
-
-1. `number` - (optional) The cycle number to query. If null, returns the latest cycle information.
-
-**Returns**
-
-`Object` - A response object containing:
-
-- `jsonrpc` - The JSON-RPC version ("2.0")
-- `id` - The request ID
-- `result` - Object containing cycle info:
-  - `cycleInfo` - Object containing cycle details:
-    - `cycleCounter` - The cycle number
-    - `startTime` - Start time of the cycle in milliseconds
-    - `endTime` - End time of the cycle in milliseconds
-    - `nodes` - Object containing node counts:
-      - `active` - Number of active nodes
-      - `standby` - Number of standby nodes
-      - `syncing` - Number of syncing nodes
-    - `desired` - Desired number of nodes
-    - `duration` - Duration of the cycle
-    - `maxSyncTime` - Maximum allowed sync time
-    - `timestamp` - Timestamp of the cycle info
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
--X POST \
--H "Content-Type: application/json" \
---data '{"method":"shardeum_getCycleInfo","params":[null],"id":1,"jsonrpc":"2.0"}'
+```
+const blockNumber = await provider.getBlockNumber();
 ```
 
-## eth_gasPrice
-
-Returns an estimate of the current price per gas in wei.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`result` - An integer of the current gas price in wei.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_gasPrice","id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_accounts
-
-Returns a list of addresses owned by client.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`result`- An array of data (20 Bytes) - addresses owned by the client.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_accounts","id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_blockNumber
-
-Returns the latest block number.
-
-**Parameters**
-
-None
-
-**Returns**
-
-`result` - An integer of the latest block number encoded as hexadecimal.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_blockNumber","id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getBalance
-
-Returns the balance of the account of given address.
-
-**Parameters**
-
-1. `address` - The address to check for balance.
-2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
-
-**Returns**
-
-`result` - An integer of the current balance in wei.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getBalance","params":["0x364cb09e7c26c6b437122d9f0163eb65fd6c9db8", "latest"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getStorageAt
-
-Returns the value from a storage position at a given address.
-
-**Parameters**
-
-1. `address` - The address to check for the storage.
-2. `QUANTITY` - An integer of the position in the storage.
-3. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
-
-**Returns**
-
-`result` - The value at this storage position.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getStorageAt","params":["address", "0x0", "latest"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getTransactionCount
-
-Returns the number of transactions sent from an address.
-
-**Parameters**
-
-1. `address` - The address to check for the transaction count.
-2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
-
-**Returns**
-
-`result` - An integer of the number of transactions send from this address.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionCount","params":["0x364cb09e7c26c6b437122d9f0163eb65fd6c9db8", "latest"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getBlockTransactionCountByHash
-
-Returns the number of transactions in a block from a block matching the given block hash.
-
-**Parameters**
-
-1. `hash` - The hash of a block
-
-**Returns**
-
-`result` - The number of transactions associated with the specific block.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getBlockTransactionCountByHash","params":["0x0a7bab293e1cdf4e70db9d1217003b3e03dc40a85ec8b4d7c99282edcde3a3e4"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getBlockTransactionCountByNumber
-
-Returns the number of transactions in a block matching the given block number.
-
-**Parameters**
-
-1. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
-
-**Returns**
-
-`result` - The number of transactions in the specific block.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getBlockTransactionCountByNumber","params":["latest"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_signTransaction
-
-Signs a transaction that can be submitted to the network at a later time using with [eth_sendRawTransaction](#eth_sendrawtransaction).
-
-**Parameters**
-
-1. `Object` - The transaction object
-
-- `from` - The address the transaction is sent from.
-- `to` - (optional when creating new contract) The address the transaction is directed to.
-- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
-- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
-- `value` - (optional) Integer of the value sent with this transaction, in Wei.
-- `data` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
-- `nonce` - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
-
-**Returns**
-
-`result` - The RLP-encoded transaction object signed by the specified account.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_signTransaction","params":["from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_sendTransaction
-
-Creates new message call transaction or a contract creation, if the data field contains code, and signs it using the account specified in from.
-
-**Parameters**
-
-1. `Object` - The transaction object
-
-- `from` - The address the transaction is sent from.
-- `to` - (optional when creating new contract) The address the transaction is directed to.
-- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
-- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
-- `value` - (optional) Integer of the value sent with this transaction, in Wei.
-- `data` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
-- `nonce` - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
-
-**Returns**
-
-`result` - The transaction hash, or the zero hash if the transaction is not yet available.
-
-import { Callout } from "fumadocs-ui/components/callout";
-
-<Callout title="Note" type="info">
-  Use eth_getTransactionReceipt to get the contract address, after the
-  transaction was proposed in a block, when you created a contract.
-</Callout>
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_sendTransaction","params":[{"from": "0x26d6a3805cbae5d5a510443a15129bec456cacff"}],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_sendRawTransaction
-
-Creates new message call transaction or a contract creation for signed transactions.
-
-**Parameters**
-
-1. `data` - The signed transaction data.
-
-**Returns**
-
-`result` - The transaction hash, or the zero hash if the transaction is not yet available.
-
-<Callout title="Note" type="info">
-  Use eth_getTransactionReceipt to get the contract address, after the
-  transaction was proposed in a block, when you created a contract.
-</Callout>
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["Signed Transaction"],"id":1}'
-```
-
-## eth_subscribe
-
-Subscribes to real-time Ethereum node events over a WebSocket connection.
-
-**Parameters**
-
-1. `subscription_name` - The type of event you want to subscribe to (i.e., newHeads, logs). This method supports the following subscription types:
-
-- `newHeads` - It fires a notification each time a new header is appended to the chain, including chain reorganizations
-- `logs` - It returns logs that are included in new imported blocks and match the given filter criteria
-
-2. `flag` - If true, method will return the full transaction data, otherwise only the transaction hash
-3. `data` - The arguments such as an address, multiple addresses, and topics. Note, only logs that are created from these addresses or match the specified topics will return logs
-
-**Returns**
-
-`result` - The hex encoded subscription ID.
-
-**Example**
-
-```bash
-wscat -c wss://<your-websocket-endpoint> \
-  -x '{"jsonrpc": "2.0", "id": 1, "method": "eth_subscribe", "params": ["newHeads"]}'
-```
-
-## eth_estimateGas
-
-Returns an estimation of gas for a given transaction.
-
-**Parameters**
-
-1. `Object` - The transaction object
-
-- `from` - (optional) The address the transaction is sent from.
-- `to` - The address the transaction is directed to.
-- `gas` - (optional) Integer of the gas provided for the transaction execution. It will return unused gas.
-- `gasPrice` - (optional) Integer of the gasPrice used for each paid gas, in Wei.
-- `value` - (optional) Integer of the value sent with this transaction, in Wei.
-- `input`: (optional) Hash of the method signature and encoded parameters. For details see [Ethereum Contract ABI in the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html).
-
-2. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
-
-**Returns**
-
-`QUANTITY` - The amount of gas used.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_estimateGas","params":[{"from": null,"to":"<>","data":"<>"}, "latest", {"<>": {"balance": "<>"}}],"id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getBlockByHash
-
-Returns information about a block by hash.
-
-**Parameters**
-
-1. `hash` - Hash of a block.
-2. `Boolean` - If `true` it returns the full transaction objects, if `false` only the hashes of the transactions.
-
-**Returns**
-
-`Object` - A block object, or `null` when no block was found:
-
-- `difficulty` - integer of the difficulty for this block.
-- `extraData` - the "extra data" field of this block.
-- `gasLimit` - the maximum gas allowed in this block.
-- `gasUsed` - the total used gas by all transactions in this block.
-- `hash` - hash of the block. `null` when its pending block.
-- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
-- `miner` - the address of the beneficiary to whom the mining rewards were given.
-- `mixHash`- A string of a 256-bit hash encoded as a hexadecimal
-- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
-- `number` - the block number. `null` when its pending block.
-- `parentHash` - hash of the parent block.
-- `receiptsRoot` - the root of the receipts trie of the block.
-- `sha3Uncles`- The SHA3 of the uncles data in the block.
-- `size` - integer the size of this block in bytes.
-- `stateRoot` - the root of the final state trie of the block.
-- `timestamp` - the unix timestamp for when the block was collated.
-- `transactionsRoot` - the root of the transaction trie of the block.
-- `totalDifficulty` - integer of the total difficulty of the chain until this block.
-- `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
--X POST \
--H "Content-Type: application/json" \
---data '{"method":"eth_getBlockByHash", "params":["0xa4e138bc8e2dbe88d3c37171b8d400269129d51a9c2630a80eb31571b86e60b6",false], "id":1,"jsonrpc":"2.0"}'
-```
-
-## eth_getBlockByNumber
-
+#### eth_getBlockByNumber
 Returns information about a block by block number.
 
-**Parameters**
-
-1. `QUANTITY|TAG` - An integer block number, or the string `"latest"`/`"earliest"`
-2. `Boolean` - If `true` it returns the full transaction objects, if `false` only the hashes of the transactions.
-
-**Returns**
-
-`Object` - A block object, or `null` when no block was found:
-
-- `difficulty` - integer of the difficulty for this block.
-- `extraData` - the "extra data" field of this block.
-- `gasLimit` - the maximum gas allowed in this block.
-- `gasUsed` - the total used gas by all transactions in this block.
-- `hash` - hash of the block. `null` when its pending block.
-- `logsBloom` - the bloom filter for the logs of the block. `null` when its pending block.
-- `miner` - the address of the beneficiary to whom the mining rewards were given.
-- `mixHash`- A string of a 256-bit hash encoded as a hexadecimal
-- `nonce` - hash of the generated proof-of-work. `null` when its pending block.
-- `number` - the block number. `null` when its pending block.
-- `parentHash` - hash of the parent block.
-- `receiptsRoot` - the root of the receipts trie of the block.
-- `sha3Uncles`- The SHA3 of the uncles data in the block.
-- `size` - integer the size of this block in bytes.
-- `transactionsRoot` - the root of the transaction trie of the block.
-- `stateRoot` - the root of the final state trie of the block.
-- `totalDifficulty` - integer of the total difficulty of the chain until this block.
-- `timestamp` - the unix timestamp for when the block was collated.
-- `transactions` - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
--X POST \
--H "Content-Type: application/json" \
---data '{"method":"eth_getBlockByNumber", "params":["0x2b732",false], "id":1,"jsonrpc":"2.0"}'
+```
+// Get latest block
+const block = await provider.getBlock('latest');
+ 
+// Get specific block with transactions
+const blockWithTxs = await provider.getBlock(12345, true);
 ```
 
-## eth_getTransactionByHash
+#### eth_getBlockByHash
+Returns information about a block by hash.
 
-Returns the information about a transaction requested by transaction hash.
-
-**Parameters**
-
-1. `hash` - The hash of a transaction
-
-**Returns**
-
-`Object` - A transaction object, or `null` when no transaction was found:
-
-- `hash` - hash of the transaction.
-- `blockHash` - hash of the block where this transaction was in. `null` when its pending.
-- `blockNumber` - block number where this transaction was in. `null` when its pending.
-- `from` - address of the sender.
-- `nonce` - the number of transactions made by the sender prior to this one.
-- `to` - address of the receiver. `null` when its a contract creation transaction.
-- `gas` - gas provided by the sender.
-- `input` - the data send along with the transaction.
-- `value` - value transferred in Wei.
-- `gasPrice` - gas price provided by the sender in Wei.
-- `chainId` - The chain id of the transaction, if any.
-- `transactionIndex` - integer of the transactions index position in the block. `null` when its pending.
-- `v` - ECDSA recovery id
-- `r` - ECDSA signature r
-- `s` - ECDSA signature s
-
-**Example**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionByHash","params":["0x213c5516059ad8399df495a5c99d4f94a9a058327106c0bae011897109dda58a"],"id":1,"jsonrpc":"2.0"}'
+```
+const block = await provider.getBlock('0x1234...');
 ```
 
-## eth_getTransactionReceipt
+#### eth_getBlockTransactionCountByNumber
+Returns the number of transactions in a block by block number.
 
-Returns the receipt of a transaction by transaction hash.
-
-**Parameters**
-
-1. `hash` - The hash of a transaction
-
-**Returns**
-
-`Object` - A transaction receipt object, or `null` when no receipt was found:
-
-- `blockHash` - hash of the block where this transaction was in.
-- `blockNumber` - block number where this transaction was in.
-- `contractAddress ` - The contract address created, if the transaction was a contract creation, otherwise `null`.
-- `cumulativeGasUsed` - The total amount of gas used when this transaction was executed in the block.
-- `effectiveGasPrice` - The sum of the base fee and tip paid per unit of gas.
-- `from` - address of the sender.
-- `gasUsed ` - The amount of gas used by this specific transaction alone.
-- `logs` - Array of log objects, which this transaction generated.
-- `logsBloom` - Bloom filter for light clients to quickly retrieve related logs.
-- `to` - address of the receiver. null when its a contract creation transaction.
-- `transactionHash ` - hash of the transaction.
-- `transactionIndex` - integer of the transactions index position in the block.
-- `type` - integer of the transaction type, `0x0` for legacy transactions, `0x1` for access list types, `0x2` for dynamic fees.
-
-It also returns either :
-
-- `root` : `DATA` 32 bytes of post-transaction stateroot (pre Byzantium)
-- `status` either `1` (success) or `0` (failure)
-
-**Examples**
-
-```bash
-curl https://api.shardeum.org \
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"eth_getTransactionReceipt","params":["0x213c5516059ad8399df495a5c99d4f94a9a058327106c0bae011897109dda58a"],"id":1,"jsonrpc":"2.0"}'
+```
+await provider.send('eth_getBlockTransactionCountByNumber', ['latest']);
 ```
 
-# Unsupported Methods
+### Transaction Methods
 
-- eth_call
-- eth_getCode
-- debug_traceTransaction
-- trace_transaction
-- trace_call
-- trace_block
-- trace_filter
+#### eth_sendRawTransaction
+Sends a signed transaction.
+
+```
+import { ethers } from 'ethers';
+
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
+const wallet = new ethers.Wallet(privateKey, provider);
+
+const tx = {
+  to: recipientAddress,
+  value: ethers.parseEther('1.0')
+};
+
+const signedTx = await wallet.signTransaction(tx);
+const txResponse = await provider.broadcastTransaction(signedTx);
+await txResponse.wait();
+```
+
+#### eth_call
+Executes a new message call immediately without creating a transaction (read-only).
+
+```
+// Call a contract method
+const result = await contract.balanceOf('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+ 
+// Raw call
+await provider.call({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  data: '0x...'
+});
+```
+
+#### eth_estimateGas
+Estimates the gas needed for a transaction.
+
+```
+const gasEstimate = await provider.estimateGas({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  value: ethers.parseEther('1.0')
+});
+```
+
+#### eth_getTransactionByHash
+Returns transaction information by hash.
+
+```
+const tx = await provider.getTransaction('0x1234...');
+```
+
+#### eth_getTransactionByBlockHashAndIndex
+Returns transaction by block hash and transaction index.
+
+```
+await provider.send('eth_getTransactionByBlockHashAndIndex', [
+  '0x1234...',
+  '0x0'
+]);
+```
+
+#### eth_getTransactionByBlockNumberAndIndex
+Returns transaction by block number and transaction index.
+
+```
+await provider.send('eth_getTransactionByBlockNumberAndIndex', [
+  'latest',
+  '0x0'
+]);
+```
+
+#### eth_getTransactionReceipt
+Returns the receipt of a transaction by hash.
+
+```
+const receipt = await provider.getTransactionReceipt('0x1234...');
+```
+
+### Gas Methods
+
+#### eth_gasPrice
+Returns the current gas price in wei.
+
+```
+const gasPrice = await provider.getFeeData();
+console.log('Gas price:', gasPrice.gasPrice);
+```
+
+#### eth_maxPriorityFeePerGas
+Returns the current max priority fee per gas.
+
+```
+const feeData = await provider.getFeeData();
+console.log('Max priority fee:', feeData.maxPriorityFeePerGas);
+```
+
+#### eth_feeHistory
+Returns fee history for a range of blocks.
+
+```
+await provider.send('eth_feeHistory', [
+  '0x5',      // block count
+  'latest',   // newest block
+  [25, 75]    // reward percentiles
+]);
+```
+
+### Filter & Event Methods
+
+#### eth_newFilter
+Creates a filter object for tracking logs/events.
+
+```
+const filter = {
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  topics: [ethers.id('Transfer(address,address,uint256)')]
+};
+const filterId = await provider.send('eth_newFilter', [filter]);
+```
+
+#### eth_newBlockFilter
+Creates a filter to notify when a new block arrives.
+
+```
+const filterId = await provider.send('eth_newBlockFilter', []);
+```
+
+#### eth_newPendingTransactionFilter
+Creates a filter to notify when new pending transactions arrive.
+
+```
+const filterId = await provider.send('eth_newPendingTransactionFilter', []);
+```
+
+#### eth_getFilterChanges
+Returns an array of logs/events since last poll.
+
+```
+const changes = await provider.send('eth_getFilterChanges', [filterId]);
+```
+
+#### eth_getFilterLogs
+Returns an array of all logs matching filter.
+
+```
+const logs = await provider.send('eth_getFilterLogs', [filterId]);
+```
+
+#### eth_uninstallFilter
+Uninstalls a filter.
+
+```
+await provider.send('eth_uninstallFilter', [filterId]);
+```
+
+#### eth_getLogs
+Returns logs matching given filter criteria.
+
+```
+const logs = await provider.getLogs({
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  fromBlock: 0,
+  toBlock: 'latest',
+  topics: [ethers.id('Transfer(address,address,uint256)')]
+});
+```
+
+### Storage Methods
+
+#### eth_getStorageAt
+Returns the value from a storage position at a given address.
+
+```
+const value = await provider.getStorage(
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  0  // storage position
+);
+```
+
+### Network Methods
+
+#### eth_chainId
+Returns the chain ID of the current network.
+
+```
+const chainId = await provider.send('eth_chainId', []);
+// Returns: "0x1fb6" (8118 in decimal)
+```
+
+#### net_version
+Returns the current network ID.
+
+```
+const networkId = await provider.send('net_version', []);
+```
+
+#### net_listening
+Returns true if client is actively listening for network connections.
+
+```
+const isListening = await provider.send('net_listening', []);
+```
+
+#### net_peerCount
+Returns number of peers currently connected.
+
+```
+const peerCount = await provider.send('net_peerCount', []);
+```
+
+#### web3_clientVersion
+Returns the current client version.
+
+```
+const version = await provider.send('web3_clientVersion', []);
+```
+
+#### web3_sha3
+Returns Keccak-256 hash of given data.
+
+```
+const hash = await provider.send('web3_sha3', ['0x68656c6c6f20776f726c64']);
+```
+
+#### eth_mining
+Returns false (Shardeum uses PoS, not PoW).
+
+```
+const isMining = await provider.send('eth_mining', []);
+// Always returns: false
+```
+
+#### eth_hashrate
+Returns 0 (not applicable for PoS).
+
+```
+const hashrate = await provider.send('eth_hashrate', []);
+// Always returns: "0x0"
+```
+
+#### eth_getWork
+Returns empty array (not applicable for PoS).
+
+```
+const work = await provider.send('eth_getWork', []);
+```
+
+### Subscription Methods (WebSocket)
+
+#### WebSocket subscriptions
+Subscribe to blocks and logs using a WebSocket provider. Note: WebSocket subscriptions are for real-time updates and should not be treated as the sole source of truth. Always reconcile important state using standard RPC queries.
+
+```
+import { ethers } from 'ethers';
+
+const wsProvider = new ethers.WebSocketProvider('wss://api.shardeum.org');
+
+// Subscribe to new blocks
+wsProvider.on('block', (blockNumber) => {
+  console.log('New block:', blockNumber);
+});
+
+// Subscribe to contract logs
+wsProvider.on(
+  { address: contractAddress },
+  (log) => {
+    console.log('Log:', log);
+  }
+);
+```
+
+## Practical Examples
+
+### Complete Transaction Flow
+
+```
+import { ethers } from 'ethers';
+ 
+// 1. Connect to Shardeum
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org');
+const wallet = new ethers.Wallet(privateKey, provider);
+ 
+// 2. Get nonce
+const nonce = await wallet.getNonce();
+ 
+// 3. Estimate gas
+const gasEstimate = await provider.estimateGas({
+  to: recipientAddress,
+  value: ethers.parseEther('1.0')
+});
+ 
+// 4. Get gas price
+const feeData = await provider.getFeeData();
+ 
+// 5. Create and send transaction
+const tx = await wallet.sendTransaction({
+  to: recipientAddress,
+  value: ethers.parseEther('1.0'),
+  nonce: nonce,
+  gasLimit: gasEstimate,
+  gasPrice: feeData.gasPrice
+});
+ 
+// 6. Wait for confirmation
+const receipt = await tx.wait();
+console.log('Transaction confirmed:', receipt.hash);
+```
+
+### Monitor Contract Events
+
+```
+// Create contract instance
+const contract = new ethers.Contract(contractAddress, abi, provider);
+ 
+// Listen for Transfer events
+contract.on('Transfer', (from, to, amount, event) => {
+  console.log(`Transfer: ${from} -> ${to}, amount: ${amount}`);
+});
+ 
+// Or use filters for specific events
+const filter = contract.filters.Transfer(null, myAddress);
+const logs = await contract.queryFilter(filter, -1000, 'latest');
+```
+
+### Batch Multiple Calls
+
+```
+// Read multiple balances efficiently
+const addresses = ['0x123...', '0x456...', '0x789...'];
+ 
+const balances = await Promise.all(
+  addresses.map(addr => provider.getBalance(addr))
+);
+ 
+console.log('Balances:', balances.map(b => ethers.formatEther(b)));
+```
+
+## Rate Limits
+
+Public RPC endpoints have rate limits to ensure fair usage:
+
+- Requests per second: 10
+- Requests per minute: 600
+- Concurrent connections: 5
+
+For production applications with higher throughput requirements, consider:
+
+- Running your own [RPC node](/docs/run-a-node/run-an-rpc-node)
+- Using the partner API endpoint (or contact Shardeum team)
+- Implementing request batching and caching
+
+## Best Practices
+
+### 1. Error Handling
+Always implement proper error handling for RPC calls:
+
+```
+try {
+  const balance = await provider.getBalance(address);
+} catch (error) {
+  if (error.code === 'NETWORK_ERROR') {
+    console.error('Network connection failed');
+  } else if (error.code === 'TIMEOUT') {
+    console.error('Request timeout - try again');
+  } else {
+    console.error('RPC error:', error.message);
+  }
+}
+```
+
+### 2. Use WebSocket for Real-time Updates
+For applications needing real-time data, use WebSocket instead of polling:
+
+```
+const ws = new ethers.WebSocketProvider('wss://api.shardeum.org');
+ 
+ws.on('block', (blockNumber) => {
+  console.log('New block:', blockNumber);
+});
+```
+
+### 3. Batch Related Calls
+Group related RPC calls to reduce network overhead:
+
+```
+const [balance, nonce, code] = await Promise.all([
+  provider.getBalance(address),
+  provider.getTransactionCount(address),
+  provider.getCode(address)
+]);
+```
+
+### 4. Cache Immutable Data
+Cache data that doesn't change:
+
+```
+const cache = new Map();
+ 
+async function getBlockWithCache(blockNumber) {
+  if (cache.has(blockNumber)) {
+    return cache.get(blockNumber);
+  }
+  const block = await provider.getBlock(blockNumber);
+  cache.set(blockNumber, block);
+  return block;
+}
+```
+
+## Differences from Ethereum
+
+While Shardeum is fully EVM-compatible, it is a sovereign L1 blockchain with 
+
+- Proof-of-stake consensus mechanism and delegated staking
+- Block time that is much faster than Ethereum (~2-3 seconds)
+- Transactions are final once confirmed
+- SHM-denominated gas fees with predictable and low pricing.
+
+## Troubleshooting
+
+### Common Issues
+
+**"Nonce too low" error:**
+
+```
+// Get the current nonce from network
+const nonce = await provider.getTransactionCount(address, 'latest');
+```
+
+**"Insufficient funds" error:**
+
+```
+// Check balance before sending
+const balance = await provider.getBalance(address);
+if (balance < amount) {
+  throw new Error('Insufficient balance');
+}
+```
+
+**"Gas estimation failed":**
+
+```
+// Manually set gas limit
+const tx = await wallet.sendTransaction({
+  to: address,
+  value: amount,
+  gasLimit: 100000  // Set explicitly
+});
+```
+
+**"Network timeout":**
+
+```
+// Increase timeout in provider config
+const provider = new ethers.JsonRpcProvider('https://api.shardeum.org', {
+  timeout: 30000  // 30 seconds
+});
+```
+
