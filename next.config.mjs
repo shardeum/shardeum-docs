@@ -107,7 +107,17 @@ const config = {
       // Wildcard for all smart contracts pages
       {
         source: '/docs/smart-contracts/:path*',
-        destination: '/docs/developer/smart-contracts/:path*',
+        destination: '/docs/developer/deploy-using-remix',
+        permanent: true,
+      },
+      {
+        source: '/docs/developer/smart-contracts',
+        destination: '/docs/developer/deploy-using-remix',
+        permanent: true,
+      },
+      {
+        source: '/docs/developer/smart-contracts/:path*',
+        destination: '/docs/developer/deploy-using-remix',
         permanent: true,
       },
       

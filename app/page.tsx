@@ -18,7 +18,7 @@ const features = [
     name: 'Smart Contracts',
     description: 'Deploy smart contracts using Remix, Hardhat, or Foundry on Shardeum.',
     icon: NewspaperIcon,
-    link: '/docs/developer/smart-contracts'
+    link: '/docs/developer/deploy-using-remix'
   },
   {
     name: 'Network Setup',
