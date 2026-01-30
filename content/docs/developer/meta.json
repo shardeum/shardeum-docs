@@ -1,4 +1,4 @@
 {
   "title": "Developers",
-  "pages": ["faucet", "architecture", "smart-contracts", "deploy-dapps", "json-rpc", "network-interfaces"]
+  "pages": ["faucet", "architecture", "deploy-using-remix", "deploy-using-hardhat", "deploy-using-foundry", "tutorial", "dapp-radar-guide", "json-rpc", "network-interfaces"]
 }
