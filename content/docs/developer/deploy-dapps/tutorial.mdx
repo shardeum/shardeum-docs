@@ -9,7 +9,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 **Testing First:** For development, begin by building and testing on the Shardeum EVM Testnet before deploying to mainnet.
 </Callout>
 
-This tutorial walks you through building a complete decentralized application (dApp) on Shardeum — from deploying a sample smart contract to interacting with it through a React-based frontend. Follow all frontend steps in order to avoid duplication. The tutorial does not assume prior deployments. Using this tutorial, you will: 
+This tutorial walks you through building a complete decentralized application (dApp) on Shardeum - from deploying a sample smart contract to interacting with it through a React-based frontend. Follow all frontend steps in order to avoid duplication. The tutorial does not assume prior deployments. Using this tutorial, you will: 
 
 - Deploy a sample ERC20 token contract on Shardeum
 - Connect a wallet (MetaMask)
@@ -85,12 +85,7 @@ npm install dotenv
 ```
 After initialization, your folder structure should look like this:
 
-shardeum-contract/
-├── contracts/
-├── scripts/
-├── hardhat.config.ts
-├── package.json
-└── node_modules/
+*shardeum-contract => contracts/ => scripts/ => hardhat.config.ts => package.json => node_modules/*
 
 Create a `.env` file (Hardhat project only). Create this `.env` inside `shardeum-contract/` (same level as `hardhat.config.ts`).
 
@@ -98,14 +93,12 @@ Create a `.env` file (Hardhat project only). Create this `.env` inside `shardeum
 PRIVATE_KEY=0xYOUR_PRIVATE_KEY_HERE
 ```
 
-*In MetaMask: Account → Account details → Show private key (use a dev wallet only).*
-
 *Security note*:
 - This `.env` file is used only for the Hardhat project to deploy contracts.
 - Never paste this private key into source code, GitHub, or screenshots.
-- Use a development wallet only — never your main wallet.
+- Use a development wallet only - never your main wallet.
 
-*Protect your private key from Git*
+**Protect your private key from Git**
 
 Create a `.gitignore` file in the same `shardeum-contract` folder with the following content. This ensures your private key is never committed to version control.
 
