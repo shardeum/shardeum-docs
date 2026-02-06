@@ -9,13 +9,15 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 This guide is a step-by-step reference to create and deploy a SimpleStorage contract on Shardeum using Hardhat.
 
-## Prerequisites
+## Deployment Guide
+
+### Prerequisites
 
 - [Node.js and npm installed](https://nodejs.org/)
 - A funded wallet. You can claim test SHM from the [faucet](/docs/developer/faucet)
 - Access to a Shardeum RPC endpoint
 
-## Step 1: Initialize a Hardhat Project
+### Step 1: Initialize a Hardhat Project
 
 ```shell
 mkdir shardeum-hardhat
@@ -32,13 +34,13 @@ Create project folders:
 mkdir contracts scripts
 ```
 
-## Step 2: Install Dependencies
+### Step 2: Install Dependencies
 
 ```shell
 npm install --save-dev @nomicfoundation/hardhat-ethers ethers dotenv
 ```
 
-## Step 3: Add Environment Variables
+### Step 3: Add Environment Variables
 
 Create a `.env` file in the project root:
 
@@ -51,7 +53,7 @@ PRIVATE_KEY=YOUR_WALLET_PRIVATE_KEY
 - Never commit `.env`
 - Add `.env` to `.gitignore`
 
-## Step 4: Write the SimpleStorage Contract
+### Step 4: Write the SimpleStorage Contract
 
 Create `contracts/SimpleStorage.sol`:
 
@@ -76,7 +78,7 @@ contract SimpleStorage {
 }
 ```
 
-## Step 5: Configure Hardhat
+### Step 5: Configure Hardhat
 
 Replace `hardhat.config.js` with:
 
@@ -98,13 +100,13 @@ module.exports = {
 
 *Chain IDs differ across Shardeum networks (testnet vs mainnet). Use the chain ID for the specific network you’re deploying to*
 
-## Step 6: Compile
+### Step 6: Compile
 
 ```shell
 npx hardhat compile
 ```
 
-## Step 7: Create a Deploy Script
+### Step 7: Create a Deploy Script
 
 Create `scripts/deploy.js`:
 
@@ -128,7 +130,7 @@ main().catch((error) => {
 });
 ```
 
-## Step 8: Deploy to Shardeum
+### Step 8: Deploy to Shardeum
 
 ```shell
 npx hardhat run scripts/deploy.js --network shardeum
