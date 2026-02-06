@@ -50,18 +50,46 @@ Create `contracts/MyToken.sol` and paste the code below:
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC20 {
-    constructor() ERC20("My Token", "MTK") {
+/**
+ * @title MyToken
+ * @dev Implementation of a basic ERC20 token with additional safety features
+ * Uses OpenZeppelin's secure and tested contracts
+ */
+contract MyToken is ERC20, ERC20Burnable, ERC20Permit, Ownable {
+    /**
+     * @dev Constructor that mints initial supply to the deployer
+     * @notice Creates 1,000,000 tokens with 18 decimals
+     */
+    constructor()
+        ERC20("My Token", "MTK")
+        ERC20Permit("My Token")
+        Ownable(msg.sender)
+    {
         _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+
+    /**
+     * @dev Allows owner to mint additional tokens if needed
+     * @param to Address to receive the minted tokens
+     * @param amount Amount of tokens to mint (in wei)
+     */
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
     }
 }
 ```
 
 This contract:
-- Mints 1 million tokens to the deployer
-- Supports balance checks
-- Supports token transfers
+- Mints 1 million tokens to the deployer with 18 decimals
+- Supports balance checks and token transfers
+- Implements ERC20Burnable for token burning capability
+- Implements ERC20Permit for gasless approvals
+- Uses Ownable for access control
+- Includes a mint function for the owner to create additional tokens
 
 #### 2. Deploy the Contract with Hardhat
 
@@ -117,25 +145,30 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "dotenv/config";
 
+// Normalize private key to ensure it has 0x prefix
+function getAccounts(): string[] {
+  if (!process.env.PRIVATE_KEY) {
+    console.warn(
+      "⚠️  WARNING: No PRIVATE_KEY found in .env file!\n" +
+      "Deployment will fail. Please add your private key to .env:\n" +
+      "PRIVATE_KEY=your_private_key_here"
+    );
+    return [];
+  }
+
+  const key = process.env.PRIVATE_KEY.trim();
+  const normalizedKey = key.startsWith('0x') ? key : `0x${key}`;
+
+  return [normalizedKey];
+}
+
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
   networks: {
     shardeumTestnet: {
       url: "https://api-mezame.shardeum.org",
       chainId: 8119,
-      accounts: (() => {
-        const key = process.env.PRIVATE_KEY;
-
-        if (!key) {
-          throw new Error("Missing PRIVATE_KEY in .env");
-        }
-
-        if (!key.startsWith("0x")) {
-          throw new Error("PRIVATE_KEY must start with 0x");
-        }
-
-        return [key];
-      })(),
+      accounts: getAccounts(),
     },
   },
 };
@@ -143,7 +176,7 @@ const config: HardhatUserConfig = {
 export default config;
 ```
 
-> **Tip:** If deployment fails with `Missing PRIVATE_KEY in .env`, make sure your `.env` file is in the same folder as `hardhat.config.ts` and that `PRIVATE_KEY` starts with `0x`.
+> **Tip:** This config automatically handles private keys with or without the `0x` prefix, and provides clear warnings if the key is missing.
 
 You can now create `contracts/MyToken.sol` and paste the contract code from Step 1.
 
@@ -151,13 +184,53 @@ Create `scripts/deploy.ts`:
 
 ```ts
 import { ethers } from "hardhat";
+import fs from "fs";
+import path from "path";
 
 async function main() {
+  console.log("Deploying MyToken contract...");
+
   const Token = await ethers.getContractFactory("MyToken");
   const token = await Token.deploy();
   await token.waitForDeployment();
 
-  console.log("Token deployed to:", await token.getAddress());
+  const address = await token.getAddress();
+  console.log("✅ Token deployed to:", address);
+
+  // Write the deployed address to the frontend config
+  const configPath = path.join(__dirname, "../src/config/networks.ts");
+  const configContent = `import { ethers } from 'ethers';
+
+export const SHARDEUM_TESTNET = {
+  chainId: "0x1fb7", // 8119
+  chainName: "Shardeum EVM Testnet",
+  nativeCurrency: {
+    name: "SHM",
+    symbol: "SHM",
+    decimals: 18,
+  },
+  rpcUrls: ["https://api-mezame.shardeum.org"],
+  blockExplorerUrls: ["https://explorer-mezame.shardeum.org"],
+};
+
+export const TOKEN_ADDRESS = "${address}";
+
+// Runtime validation for TOKEN_ADDRESS
+if (TOKEN_ADDRESS === "0xYOUR_CONTRACT_ADDRESS_HERE" || !ethers.isAddress(TOKEN_ADDRESS)) {
+  console.warn(
+    "⚠️  WARNING: TOKEN_ADDRESS is not configured!\\n" +
+    "Please update TOKEN_ADDRESS in src/config/networks.ts with your deployed contract address.\\n" +
+    "Deploy your contract with: npm run deploy:testnet"
+  );
+}
+`;
+
+  fs.writeFileSync(configPath, configContent);
+  console.log("✅ Contract address written to src/config/networks.ts");
+  console.log("\nNext steps:");
+  console.log("1. Run 'npm run dev' to start the frontend");
+  console.log("2. Connect your wallet and interact with your token!");
+  console.log(`\nView your contract on the explorer: https://explorer-mezame.shardeum.org/address/${address}`);
 }
 
 main().catch((err) => {
@@ -166,13 +239,29 @@ main().catch((err) => {
 });
 ```
 
-Deploy
+Deploy:
 
 ```bash
 npx hardhat run scripts/deploy.ts --network shardeumTestnet
 ```
 
-**Save the deployed contract address**. You’ll need it in the frontend.
+Or add a convenient script to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "deploy:testnet": "npx hardhat run scripts/deploy.ts --network shardeumTestnet"
+  }
+}
+```
+
+Then deploy with:
+
+```bash
+npm run deploy:testnet
+```
+
+**✨ Note:** The deploy script automatically updates `src/config/networks.ts` with your contract address, so you don't need to manually copy it!
 
 ### Part 2: Build the Frontend dApp
 
@@ -187,11 +276,17 @@ npm install
 npm install ethers
 ```
 
+<Callout type="info">
+**Package Version Management**: For production applications, it's recommended to pin exact versions in your `package.json` by removing the `^` prefix from dependencies. This ensures reproducible builds. Example: use `"ethers": "6.10.0"` instead of `"ethers": "^6.10.0"`.
+</Callout>
+
 #### 2. Configure the Shardeum Network
 
 Create `src/config/networks.ts`:
 
 ```ts
+import { ethers } from 'ethers';
+
 export const SHARDEUM_TESTNET = {
   chainId: "0x1fb7", // 8119
   chainName: "Shardeum EVM Testnet",
@@ -205,50 +300,67 @@ export const SHARDEUM_TESTNET = {
 };
 
 export const TOKEN_ADDRESS = "0xYOUR_CONTRACT_ADDRESS_HERE";
-```
 
-**Important**: Replace `TOKEN_ADDRESS` with your deployed contract address. If you forget this step, contract reads/writes will fail.
-
-#### 3. Add a Token Address Guard (recommended)
-
-Create a helper file to ensure the token address is set correctly before the app tries to interact with the contract.
-
-Create `src/config/tokenAddress.ts`:
-
-```ts
-import { ethers } from 'ethers';
-import { TOKEN_ADDRESS } from './networks';
-
-export function getTokenAddressOrThrow() {
-  if (
-    !TOKEN_ADDRESS ||
-    TOKEN_ADDRESS === '0xYOUR_CONTRACT_ADDRESS_HERE' ||
-    !ethers.isAddress(TOKEN_ADDRESS)
-  ) {
-    throw new Error(
-      'Update TOKEN_ADDRESS in src/config/networks.ts with your deployed contract address.'
-    );
-  }
-  return TOKEN_ADDRESS;
+// Runtime validation for TOKEN_ADDRESS
+if (TOKEN_ADDRESS === "0xYOUR_CONTRACT_ADDRESS_HERE" || !ethers.isAddress(TOKEN_ADDRESS)) {
+  console.warn(
+    "⚠️  WARNING: TOKEN_ADDRESS is not configured!\n" +
+    "Please update TOKEN_ADDRESS in src/config/networks.ts with your deployed contract address.\n" +
+    "Deploy your contract with: npm run deploy:testnet"
+  );
 }
 ```
 
-#### 4. Contract ABI
+**Important**: Replace `TOKEN_ADDRESS` with your deployed contract address. If you forget this step, you'll see a warning in the console, and contract reads/writes will fail.
+
+#### 3. Contract ABI
 
 Create `src/config/erc20Abi.ts`:
 
 ```ts
+/**
+ * Complete ERC20 ABI with additional OpenZeppelin extensions
+ * Includes: ERC20, ERC20Burnable, ERC20Permit, and Ownable functions
+ */
 export const ERC20_ABI = [
+  // Standard ERC20 Functions
   "function name() view returns (string)",
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
-  "function balanceOf(address) view returns (uint256)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address account) view returns (uint256)",
   "function transfer(address to, uint256 amount) returns (bool)",
-  "event Transfer(address indexed from, address indexed to, uint256 value)"
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+
+  // ERC20Burnable Functions
+  "function burn(uint256 amount)",
+  "function burnFrom(address account, uint256 amount)",
+
+  // Ownable Functions
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function transferOwnership(address newOwner)",
+
+  // Custom Functions (from MyToken contract)
+  "function mint(address to, uint256 amount)",
+
+  // ERC20Permit Functions (EIP-2612 - Gasless Approvals)
+  "function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+  "function nonces(address owner) view returns (uint256)",
+  "function DOMAIN_SEPARATOR() view returns (bytes32)",
+
+  // Events
+  "event Transfer(address indexed from, address indexed to, uint256 value)",
+  "event Approval(address indexed owner, address indexed spender, uint256 value)",
+  "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)"
 ];
 ```
 
-#### 5: Create Wallet Context
+This complete ABI includes all functions from the enhanced MyToken contract, allowing you to interact with burning, minting, and ownership features in the future.
+
+#### 4: Create Wallet Context
 
 Create `src/context/WalletContext.tsx`:
 
@@ -261,9 +373,11 @@ interface WalletContextType {
   account: string | null;
   chainId: string | null;
   provider: BrowserProvider | null;
+  error: string | null;
   connectWallet: () => Promise<void>;
-  disconnectWallet: () => void;
+  disconnectWallet: () => Promise<void>;
   switchNetwork: () => Promise<void>;
+  clearError: () => void;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -272,91 +386,107 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [account, setAccount] = useState<string | null>(null);
   const [chainId, setChainId] = useState<string | null>(null);
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const resetState = () => {
-    setAccount(null);
-    setProvider(null);
-    setChainId(null);
-  };
-
+  // Check if wallet is connected on mount
   useEffect(() => {
-    if (!window.ethereum) return;
-
-    const browserProvider = new ethers.BrowserProvider(window.ethereum);
-    setProvider(browserProvider);
-
     const checkConnection = async () => {
-      try {
-        const accounts = await browserProvider.send('eth_accounts', []);
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum as Eip1193Provider);
+        const accounts = await provider.send('eth_accounts', []);
+
         if (accounts.length > 0) {
           setAccount(accounts[0]);
-        }
+          setProvider(provider);
 
-        const network = await browserProvider.getNetwork();
-        setChainId('0x' + network.chainId.toString(16));
-      } catch (e) {
-        console.error('Failed to check wallet connection:', e);
+          const network = await provider.getNetwork();
+          setChainId('0x' + network.chainId.toString(16));
+        }
       }
     };
 
+    // Store handler references for proper cleanup
     const handleAccountsChanged = (accounts: string[]) => {
-      if (accounts.length > 0) setAccount(accounts[0]);
-      else resetState();
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+      } else {
+        disconnectWallet();
+      }
     };
 
     const handleChainChanged = async (newChainId: string) => {
-      // MetaMask returns chainId as a hex string already (e.g., "0x1fb7")
       setChainId(newChainId);
-
-      // Re-init provider on chain changes without full page reload
-      try {
-        const nextProvider = new ethers.BrowserProvider(window.ethereum!);
-        setProvider(nextProvider);
-
-        const accounts = await nextProvider.send('eth_accounts', []);
-        if (accounts.length > 0) setAccount(accounts[0]);
-        else setAccount(null);
-      } catch (e) {
-        console.error('Failed to reinitialize provider after chain change:', e);
+      // Re-initialize provider instead of full page reload
+      if (window.ethereum) {
+        try {
+          const newProvider = new ethers.BrowserProvider(window.ethereum as Eip1193Provider);
+          setProvider(newProvider);
+          const accounts = await newProvider.send('eth_accounts', []);
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+          }
+        } catch (err) {
+          console.error('Failed to reinitialize provider:', err);
+        }
       }
     };
 
     checkConnection();
 
-    window.ethereum.on('accountsChanged', handleAccountsChanged);
-    window.ethereum.on('chainChanged', handleChainChanged);
+    // Listen for account and chain changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+    }
 
     return () => {
-      // Remove only our listeners (avoid nuking listeners from other libs)
-      window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
-      window.ethereum?.removeListener('chainChanged', handleChainChanged);
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      }
     };
   }, []);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
-      alert('Please install MetaMask!');
+      setError('Please install MetaMask to use this dApp!');
       return;
     }
 
     try {
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await browserProvider.send('eth_requestAccounts', []);
+      const provider = new ethers.BrowserProvider(window.ethereum as Eip1193Provider);
+      const accounts = await provider.send('eth_requestAccounts', []);
 
       setAccount(accounts[0]);
-      setProvider(browserProvider);
+      setProvider(provider);
 
-      const network = await browserProvider.getNetwork();
+      const network = await provider.getNetwork();
       setChainId('0x' + network.chainId.toString(16));
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
+      setError(null);
+    } catch (err: any) {
+      console.error('Failed to connect wallet:', err);
+      setError(err.message || 'Failed to connect wallet');
     }
   };
 
-  const disconnectWallet = () => {
-    // This clears local app state only.
-    // MetaMask will still consider the site connected; a page refresh may reconnect automatically.
-    resetState();
+  const disconnectWallet = async () => {
+    // Try to properly revoke permissions (MetaMask 11.0+)
+    try {
+      await window.ethereum?.request({
+        method: 'wallet_revokePermissions',
+        params: [{ eth_accounts: {} }],
+      });
+    } catch (err) {
+      // Fallback for wallets that don't support revokePermissions
+      // Note: This only clears local state. MetaMask will still consider the site connected
+      // and will auto-reconnect on page reload. This is a MetaMask limitation.
+      console.log('wallet_revokePermissions not supported, clearing local state only');
+    }
+
+    setAccount(null);
+    setProvider(null);
+    setChainId(null);
+    setError(null);
   };
 
   const switchNetwork = async () => {
@@ -367,20 +497,29 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: SHARDEUM_TESTNET.chainId }],
       });
+      setError(null);
     } catch (switchError: any) {
-      if (switchError?.code === 4902) {
+      // This error code indicates that the chain has not been added to MetaMask
+      if (switchError.code === 4902) {
         try {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [SHARDEUM_TESTNET],
           });
-        } catch (addError) {
+          setError(null);
+        } catch (addError: any) {
           console.error('Failed to add network:', addError);
+          setError(addError.message || 'Failed to add network');
         }
       } else {
         console.error('Failed to switch network:', switchError);
+        setError(switchError.message || 'Failed to switch network');
       }
     }
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   return (
@@ -389,9 +528,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         account,
         chainId,
         provider,
+        error,
         connectWallet,
         disconnectWallet,
         switchNetwork,
+        clearError
       }}
     >
       {children}
@@ -407,147 +548,164 @@ export function useWallet() {
   return context;
 }
 
-// Extend Window type for TypeScript (include event methods)
+// Extend Window type for TypeScript with proper event listener support
 declare global {
   interface Window {
     ethereum?: Eip1193Provider & {
       on(event: string, handler: (...args: any[]) => void): void;
       removeListener(event: string, handler: (...args: any[]) => void): void;
-      request(args: { method: string; params?: any[] | object }): Promise<any>;
+      removeAllListeners(event: string): void;
     };
   }
 }
 ```
 
-#### 6: Create Token Interface Component
+**Key improvements in this context:**
+- **Error handling**: Added error state to display connection issues to users
+- **Proper disconnect**: Uses `wallet_revokePermissions` when available
+- **TypeScript safety**: Proper typing for window.ethereum event methods
+- **No page reload**: Reinitializes provider on chain change instead of full refresh
+- **Cleanup**: Proper event listener removal to avoid memory leaks
+
+#### 5: Create Token Interface Component
 
 Create `src/components/TokenInterface.tsx`:
 
 ```typescript
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ethers, Contract } from 'ethers';
 import { useWallet } from '../context/WalletContext';
+import { TOKEN_ADDRESS } from '../config/networks';
 import { ERC20_ABI } from '../config/erc20Abi';
-import { getTokenAddressOrThrow } from '../config/tokenAddress';
 
 export function TokenInterface() {
   const { account, provider } = useWallet();
-
   const [tokenName, setTokenName] = useState('');
   const [tokenSymbol, setTokenSymbol] = useState('');
-  const [decimals, setDecimals] = useState(18);
-
   const [balance, setBalance] = useState('0');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
-
   const [loading, setLoading] = useState(false);
+  const [loadingTokenInfo, setLoadingTokenInfo] = useState(true);
   const [txHash, setTxHash] = useState('');
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const getReadContract = () => {
-    if (!provider) throw new Error('Wallet provider not ready');
-    const addr = getTokenAddressOrThrow();
-    return new Contract(addr, ERC20_ABI, provider);
-  };
-
-  const loadTokenInfo = async () => {
+  const loadTokenInfo = useCallback(async () => {
     if (!provider) return;
-    setError('');
+
+    setLoadingTokenInfo(true);
+    setError(null);
 
     try {
-      const contract = getReadContract();
+      const contract = new Contract(TOKEN_ADDRESS, ERC20_ABI, provider);
+      const name = await contract.name();
+      const symbol = await contract.symbol();
 
-      const [name, symbol, dec] = await Promise.all([
-        contract.name(),
-        contract.symbol(),
-        contract.decimals(),
-      ]);
-
-      setTokenName(String(name));
-      setTokenSymbol(String(symbol));
-      setDecimals(Number(dec));
-    } catch (e: any) {
-      console.error('Failed to load token info:', e);
-      setError('Failed to load token info. Check TOKEN_ADDRESS and network.');
+      setTokenName(name);
+      setTokenSymbol(symbol);
+    } catch (err: any) {
+      console.error('Failed to load token info:', err);
+      setError(
+        'Failed to load token information. Please ensure the contract is deployed and you are on the correct network.'
+      );
+    } finally {
+      setLoadingTokenInfo(false);
     }
-  };
+  }, [provider]);
 
-  const loadBalance = async () => {
+  const loadBalance = useCallback(async () => {
     if (!provider || !account) return;
-    setError('');
 
     try {
-      const contract = getReadContract();
-      const bal = await contract.balanceOf(account);
-      setBalance(ethers.formatUnits(bal, decimals));
-    } catch (e: any) {
-      console.error('Failed to load balance:', e);
-      setError('Failed to load balance. Check TOKEN_ADDRESS and network.');
+      const contract = new Contract(TOKEN_ADDRESS, ERC20_ABI, provider);
+      const balance = await contract.balanceOf(account);
+      setBalance(ethers.formatEther(balance));
+    } catch (err: any) {
+      console.error('Failed to load balance:', err);
+      setError('Failed to load balance. Please check your connection.');
     }
+  }, [provider, account]);
+
+  useEffect(() => {
+    if (account && provider) {
+      loadTokenInfo();
+      loadBalance();
+    }
+  }, [account, provider, loadTokenInfo, loadBalance]);
+
+  const validateTransfer = (): string | null => {
+    // Validate recipient address
+    if (!ethers.isAddress(recipient)) {
+      return 'Invalid recipient address';
+    }
+
+    // Validate amount is a positive number
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return 'Amount must be greater than 0';
+    }
+
+    // Validate sufficient balance
+    if (parsedAmount > parseFloat(balance)) {
+      return 'Insufficient balance';
+    }
+
+    return null;
   };
-
-  // 1) Load token metadata when wallet/provider becomes available
-  useEffect(() => {
-    if (account && provider) {
-      void loadTokenInfo();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, provider]);
-
-  // 2) Load balance after we know decimals (and when decimals changes)
-  useEffect(() => {
-    if (account && provider) {
-      void loadBalance();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, provider, decimals]);
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!provider || !account) return;
 
-    setError('');
+    // Clear previous messages
+    setError(null);
+    setSuccess(null);
     setTxHash('');
 
-    if (!ethers.isAddress(recipient)) {
-      setError('Invalid recipient address.');
-      return;
-    }
-
-    const amountNum = Number(amount);
-    if (!Number.isFinite(amountNum) || amountNum <= 0) {
-      setError('Amount must be greater than 0.');
-      return;
-    }
-
-    if (Number(balance) > 0 && amountNum > Number(balance)) {
-      setError('Insufficient balance.');
+    // Validate inputs
+    const validationError = validateTransfer();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
     setLoading(true);
 
     try {
-      const addr = getTokenAddressOrThrow();
       const signer = await provider.getSigner();
-      const contract = new Contract(addr, ERC20_ABI, signer);
+      const contract = new Contract(TOKEN_ADDRESS, ERC20_ABI, signer);
 
-      const tx = await contract.transfer(recipient, ethers.parseUnits(amount, decimals));
+      const tx = await contract.transfer(
+        recipient,
+        ethers.parseEther(amount)
+      );
+
       setTxHash(tx.hash);
+      setSuccess('Transaction submitted! Waiting for confirmation...');
 
       await tx.wait();
 
-      await loadBalance();
+      setSuccess(`Successfully transferred ${amount} ${tokenSymbol} to ${recipient.slice(0, 6)}...${recipient.slice(-4)}`);
+      loadBalance();
       setRecipient('');
       setAmount('');
     } catch (err: any) {
       console.error('Transfer failed:', err);
 
-      const code = err?.code;
-      if (code === 'ACTION_REJECTED') setError('Transaction rejected in wallet.');
-      else if (code === 'INSUFFICIENT_FUNDS') setError('Insufficient gas funds.');
-      else setError(err?.shortMessage || err?.message || 'Transfer failed.');
+      // Parse common error messages
+      let errorMessage = 'Transfer failed';
+      if (err.code === 'ACTION_REJECTED') {
+        errorMessage = 'Transaction was rejected by user';
+      } else if (err.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for gas';
+      } else if (err.message) {
+        errorMessage = `Transfer failed: ${err.message}`;
+      }
+
+      setError(errorMessage);
+      setTxHash('');
     } finally {
       setLoading(false);
     }
@@ -562,25 +720,51 @@ export function TokenInterface() {
     );
   }
 
+  if (loadingTokenInfo) {
+    return (
+      <div className="card">
+        <h2>Token Interface</h2>
+        <p>Loading token information...</p>
+      </div>
+    );
+  }
+
+  if (error && !tokenName) {
+    return (
+      <div className="card">
+        <h2>Token Interface</h2>
+        <div className="error-box">
+          <p>❌ {error}</p>
+          <button onClick={loadTokenInfo} className="retry-btn">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="card">
-      <h2>
-        {tokenName} ({tokenSymbol})
-      </h2>
-
-      {error && (
-        <div className="tx-hash" style={{ marginBottom: '1rem' }}>
-          <p>{error}</p>
-        </div>
-      )}
+      <h2>{tokenName || 'Token'} ({tokenSymbol || '---'})</h2>
 
       <div className="balance">
         <p>Your Balance:</p>
-        <h3>
-          {balance} {tokenSymbol}
-        </h3>
-        <p style={{ opacity: 0.8, marginTop: '0.5rem' }}>Token decimals: {decimals}</p>
+        <h3>{balance} {tokenSymbol}</h3>
       </div>
+
+      {error && (
+        <div className="error-box">
+          <p>❌ {error}</p>
+          <button onClick={() => setError(null)} className="close-btn">✕</button>
+        </div>
+      )}
+
+      {success && (
+        <div className="success-box">
+          <p>✅ {success}</p>
+          <button onClick={() => setSuccess(null)} className="close-btn">✕</button>
+        </div>
+      )}
 
       <form onSubmit={handleTransfer} className="transfer-form">
         <h3>Transfer Tokens</h3>
@@ -710,8 +894,15 @@ Create `src/App.css`:
 ```css
 .App {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .App {
+    padding: 2rem;
+  }
 }
 
 .App-header {
@@ -754,7 +945,21 @@ Create `src/App.css`:
   color: white;
   padding: 1rem;
   border-radius: 8px;
-  margin-top: 1rem;
+  margin: 1rem auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+.network-warning button {
+  margin-top: 0.5rem;
+  background: white;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.network-warning button:hover {
+  background: #f0f0f0;
+  border-color: white;
 }
 
 .card {
@@ -794,12 +999,14 @@ Create `src/App.css`:
 
 .form-group input {
   width: 100%;
+  max-width: 100%;
   padding: 0.75rem;
   border: 1px solid #333;
   border-radius: 6px;
   background: #2a2a2a;
   color: white;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .form-group input:focus {
@@ -906,19 +1113,73 @@ ipfs-deploy dist
 
 ### Security
 
-1. **Never expose private keys** - Use environment variables
-2. **Validate user input** - Check addresses and amounts
-3. **Handle errors gracefully** - Display user-friendly messages
-4. **Test thoroughly** - Use testnet before mainnet
+<Callout type="warn">
+**Security Disclaimer**: The code in this tutorial is a reference boilerplate only. Security audits, comprehensive testing, and safe deployment practices are the responsibility of the user/developer.
+</Callout>
 
-*Optional: run static analysis before deploying*
+1. **Never expose private keys** - Use environment variables and never commit `.env` files
+2. **Validate user input** - Check addresses and amounts before transactions (as shown in the TokenInterface component)
+3. **Handle errors gracefully** - Display user-friendly messages (implemented with error/success states)
+4. **Test thoroughly** - Always test on testnet before mainnet deployment
+5. **Run security analysis tools** - Use SAST tools to identify vulnerabilities
 
-Static analysis tools can catch common Solidity issues early. Auditors commonly run these as a first pass.
+#### Security Testing with SAST Tools
 
-- Slither (static analyzer)
-- Aderyn (static analyzer)
+Understanding your smart contract's security posture is critical before deployment. Use industry-standard SAST (Static Application Security Testing) tools:
 
-Run them against your contracts before deploying to any live environment.
+**Slither - Static Analysis Framework**
+
+[Slither](https://github.com/crytic/slither) is a Solidity static analysis framework that detects vulnerabilities and suggests improvements.
+
+Installation:
+```bash
+pip3 install slither-analyzer
+```
+
+Run analysis:
+```bash
+slither .
+```
+
+Slither provides:
+- Vulnerability detection (reentrancy, integer overflow, etc.)
+- Code quality suggestions
+- Gas optimization recommendations
+- Best practice violations
+
+**Aderyn - Rust-based Auditor**
+
+[Aderyn](https://github.com/Cyfrin/aderyn) is a fast, Rust-based static analyzer for Solidity contracts.
+
+Installation:
+```bash
+cargo install aderyn
+# Or: cargo binstall aderyn
+```
+
+Run analysis:
+```bash
+aderyn .
+```
+
+Generate detailed report:
+```bash
+aderyn . --output report.md
+```
+
+**Security Checklist**
+
+Before deploying to production:
+
+- [ ] Run `slither .` and address all findings
+- [ ] Run `aderyn .` and review the report
+- [ ] Test all functions on testnet
+- [ ] Verify access control (onlyOwner functions)
+- [ ] Check for reentrancy vulnerabilities
+- [ ] Validate input parameters
+- [ ] Review token economics (mint, burn, supply)
+- [ ] Ensure private keys are secure
+- [ ] Consider professional security audit for production applications
 
 ### Performance
 
@@ -987,14 +1248,37 @@ Now that you have a working dApp, you can:
 
 ## Full Boilerplate Repository
 
-Clone the complete boilerplate:
+Want to skip the setup? Clone the complete boilerplate with everything pre-configured for Shardeum EVM Testnet:
 
 ```bash
-git clone https://github.com/shardeum/dapp-boilerplate.git
-cd dapp-boilerplate
+git clone https://github.com/shardeum/shardeum-dapp-boilerplate.git
+cd shardeum-dapp-boilerplate
 npm install
+```
+
+**Configure your environment:**
+
+```bash
+cp .env.example .env
+# Edit .env and add your PRIVATE_KEY
+```
+
+**Deploy contracts and run:**
+
+```bash
+# Deploy to Shardeum Testnet
+npx hardhat run scripts/deploy.js --network shardeumTestnet
+
+# Start the frontend
 npm run dev
 ```
+
+The boilerplate includes:
+- ✅ Pre-configured network settings for Shardeum EVM Testnet (Chain ID: 8119)
+- ✅ Wallet connection with MetaMask
+- ✅ Sample contracts (ERC20 tokens, NFT minting, Uniswap integration)
+- ✅ Complete frontend with Next.js and ethers.js
+- ✅ Deployment scripts ready to use
 
 <Callout type="info">
 **Need Help?** Join the [Shardeum Discord](https://discord.com/invite/shardeum) for community support!
