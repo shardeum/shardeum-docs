@@ -11,7 +11,9 @@ This guide walks through deploying a SimpleStorage contract on Shardeum using Re
 
 For production workflows (scripts, repeatable deployments, CI, testing), refer to the Hardhat and Foundry guides.
 
-## Prerequisites
+## Deployment Guide
+
+### Prerequisites
 
 Before continuing, ensure you have: 
 
@@ -19,7 +21,7 @@ Before continuing, ensure you have:
 - A Shardeum network added to MetaMask
 - SHM tokens available to pay for transaction fees
 
-## Step 1: Add Shardeum Network to Metamask
+### Step 1: Add Shardeum Network to Metamask
 
 Connect MetaMask to Shardeum testnet by following the instructions here:
 
@@ -29,10 +31,9 @@ Once connected, claim test SHM from a faucet to cover deployment gas fees:
 
 [Claim SHM from faucet](/docs/developer/faucet)
 
-## Step 2: SimpleStorage Contract
+### Step 2: SimpleStorage Contract
 
 Open Remix IDE, create a new file named SimpleStorage.sol, and paste:
-
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -55,13 +56,13 @@ contract SimpleStorage {
 }
 ```
 
-## Step 3: Compile the Contract
+### Step 3: Compile the Contract
 
 1. In Remix, open the **Solidity Compiler** tab
 2. Select compiler version `0.8.20` (or another `0.8.x` compatible version)
 3. Click **Compile SimpleStorage.sol**
 
-## Step 4: Deploy the Contract
+### Step 4: Deploy the Contract
 
 1. Open the **Deploy & Run Transactions** tab
 2. Set **Environment** to `Injected Provider - MetaMask`
@@ -72,13 +73,13 @@ contract SimpleStorage {
 
 Click **Deploy** and approve the transaction in MetaMask.
 
-## Setp 5: Verify Deployment
+### Setp 5: Verify Deployment
 
 After deployment:
 - Copy the contract address shown in Remix
 - Search it on the [explorer](/docs/overview/endpoints#shardeum-explorer)
 
-## Step 6: Interact With the Contract
+### Step 6: Interact With the Contract
 
 In Remix (under “Deployed Contracts”):
 
