@@ -1,28 +1,80 @@
 ---
-title: Dapp Radar Guide
-description: Guide for listing your dApp on Dapp Radar
+title: dApp Boilerplate
+description: A ready-to-use starter template for building dApps on Shardeum quickly
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-<Callout title="" type="warn">
-  <strong>This page is getting updated</strong>
+## Full Boilerplate Repository
+
+Want to skip the manual setup? Clone the complete boilerplate with everything pre-configured for Shardeum EVM Testnet:
+
+```bash
+git clone https://github.com/shardeum/shardeum-dapp-boilerplate.git
+cd shardeum-dapp-boilerplate
+npm install
+```
+
+## Configure Your Environment
+
+```bash
+cp .env.example .env
+# Edit .env and add your PRIVATE_KEY
+```
+
+<Callout type="warn">
+**Security**: Never commit your `.env` file or expose your private key. Use a development wallet only.
 </Callout>
 
-Learn how to list and promote your Shardeum dApp on Dapp Radar.
+## Deploy Contracts and Run
 
-## Overview
+```bash
+# Deploy to Shardeum Testnet
+npm run deploy:testnet
 
-Dapp Radar is a leading dApp discovery platform where you can showcase your Shardeum-based decentralized application to a global audience.
+# Start the frontend
+npm run dev
+```
 
-## Listing Your dApp
+## What's Included
 
-Step-by-step guide to submit and list your dApp on Dapp Radar.
+The boilerplate includes:
 
-## Requirements
+- ✅ **Pre-configured network settings** for Shardeum EVM Testnet (Chain ID: 8119)
+- ✅ **Enhanced ERC20 token contract** with OpenZeppelin security features
+- ✅ **Wallet connection** with MetaMask integration
+- ✅ **Complete frontend** with Vite, React, and TypeScript
+- ✅ **Smart contract deployment** scripts ready to use
+- ✅ **Comprehensive error handling** and input validation
+- ✅ **Security best practices** built-in
 
-Learn about the requirements and information needed to list your dApp.
+## Next Steps
 
-## Best Practices
+After cloning the boilerplate:
 
-Tips for optimizing your dApp listing and increasing visibility on Dapp Radar.
+1. **Deploy your contract**: Run `npm run deploy:testnet`
+2. **Start the frontend**: Run `npm run dev`
+3. **Connect your wallet**: Use MetaMask to interact with your dApp
+4. **Customize**: Modify the contract and frontend to build your unique dApp
+
+## Need Help?
+
+If you encounter any issues or need assistance:
+
+- **Join Shardeum Discord**: Get community support at [discord.com/invite/shardeum](https://discord.com/invite/shardeum)
+- **Documentation**: Check the [full tutorial](/docs/developer/deploy-dapps/tutorial) for detailed explanations
+- **GitHub Issues**: Report bugs at [github.com/shardeum/shardeum-dapp-boilerplate/issues](https://github.com/shardeum/shardeum-dapp-boilerplate/issues)
+
+## Security Considerations
+
+<Callout type="warn">
+**This is a reference boilerplate only.** Security audits, comprehensive testing, and safe deployment practices are the responsibility of the user/developer.
+</Callout>
+
+
+For detailed security guidance, see the [security section](/docs/developer/deploy-dapps/tutorial#security) in the full tutorial.
+
+## Additional Resources
+
+- [Build a Frontend dApp Tutorial](/docs/developer/deploy-dapps/tutorial) - Step-by-step guide
+- [Shardeum Documentation](https://docs.shardeum.org)
