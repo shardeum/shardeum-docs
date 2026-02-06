@@ -54,18 +54,46 @@ Create `contracts/MyToken.sol` and paste the code below:
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC20 {
-    constructor() ERC20("My Token", "MTK") {
+/**
+ * @title MyToken
+ * @dev Implementation of a basic ERC20 token with additional safety features
+ * Uses OpenZeppelin's secure and tested contracts
+ */
+contract MyToken is ERC20, ERC20Burnable, ERC20Permit, Ownable {
+    /**
+     * @dev Constructor that mints initial supply to the deployer
+     * @notice Creates 1,000,000 tokens with 18 decimals
+     */
+    constructor()
+        ERC20("My Token", "MTK")
+        ERC20Permit("My Token")
+        Ownable(msg.sender)
+    {
         _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+
+    /**
+     * @dev Allows owner to mint additional tokens if needed
+     * @param to Address to receive the minted tokens
+     * @param amount Amount of tokens to mint (in wei)
+     */
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
     }
 }
 ```
 
 This contract:
-- Mints 1 million tokens to the deployer
-- Supports balance checks
-- Supports token transfers
+- Mints 1 million tokens to the deployer with 18 decimals
+- Supports balance checks and token transfers
+- Implements ERC20Burnable for token burning capability
+- Implements ERC20Permit for gasless approvals
+- Uses Ownable for access control
+- Includes a mint function for the owner to create additional tokens
 
 #### 2. Deploy the Contract with Hardhat
 
@@ -576,8 +604,15 @@ Create `src/App.css`:
 ```css
 .App {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .App {
+    padding: 2rem;
+  }
 }
 
 .App-header {
@@ -620,7 +655,21 @@ Create `src/App.css`:
   color: white;
   padding: 1rem;
   border-radius: 8px;
-  margin-top: 1rem;
+  margin: 1rem auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+.network-warning button {
+  margin-top: 0.5rem;
+  background: white;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.network-warning button:hover {
+  background: #f0f0f0;
+  border-color: white;
 }
 
 .card {
@@ -660,12 +709,14 @@ Create `src/App.css`:
 
 .form-group input {
   width: 100%;
+  max-width: 100%;
   padding: 0.75rem;
   border: 1px solid #333;
   border-radius: 6px;
   background: #2a2a2a;
   color: white;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .form-group input:focus {
@@ -705,6 +756,130 @@ button[type="submit"]:disabled {
 .tx-hash a {
   color: #646cff;
   word-break: break-all;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .App {
+    padding: 0.5rem;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  .wallet-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .wallet-info p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .balance h3 {
+    font-size: 1.5rem;
+  }
+
+  .connect-btn,
+  .disconnect-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+  }
+}
+```
+
+Create `src/index.css` for global styles:
+
+```css
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  width: 100%;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+  margin: 0.5rem 0;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
 }
 ```
 
@@ -846,14 +1021,37 @@ Now that you have a working dApp, you can:
 
 ## Full Boilerplate Repository
 
-Clone the complete boilerplate:
+Want to skip the setup? Clone the complete boilerplate with everything pre-configured for Shardeum EVM Testnet:
 
 ```bash
-git clone https://github.com/shardeum/dapp-boilerplate.git
-cd dapp-boilerplate
+git clone https://github.com/shardeum/shardeum-dapp-boilerplate.git
+cd shardeum-dapp-boilerplate
 npm install
+```
+
+**Configure your environment:**
+
+```bash
+cp .env.example .env
+# Edit .env and add your PRIVATE_KEY
+```
+
+**Deploy contracts and run:**
+
+```bash
+# Deploy to Shardeum Testnet
+npx hardhat run scripts/deploy.js --network shardeumTestnet
+
+# Start the frontend
 npm run dev
 ```
+
+The boilerplate includes:
+- ✅ Pre-configured network settings for Shardeum EVM Testnet (Chain ID: 8119)
+- ✅ Wallet connection with MetaMask
+- ✅ Sample contracts (ERC20 tokens, NFT minting, Uniswap integration)
+- ✅ Complete frontend with Next.js and ethers.js
+- ✅ Deployment scripts ready to use
 
 <Callout type="info">
 **Need Help?** Join the [Shardeum Discord](https://discord.com/invite/shardeum) for community support!
@@ -873,18 +1071,46 @@ Create `contracts/MyToken.sol` and paste the code below:
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC20 {
-    constructor() ERC20("My Token", "MTK") {
+/**
+ * @title MyToken
+ * @dev Implementation of a basic ERC20 token with additional safety features
+ * Uses OpenZeppelin's secure and tested contracts
+ */
+contract MyToken is ERC20, ERC20Burnable, ERC20Permit, Ownable {
+    /**
+     * @dev Constructor that mints initial supply to the deployer
+     * @notice Creates 1,000,000 tokens with 18 decimals
+     */
+    constructor()
+        ERC20("My Token", "MTK")
+        ERC20Permit("My Token")
+        Ownable(msg.sender)
+    {
         _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+
+    /**
+     * @dev Allows owner to mint additional tokens if needed
+     * @param to Address to receive the minted tokens
+     * @param amount Amount of tokens to mint (in wei)
+     */
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
     }
 }
 ```
 
 This contract:
-- Mints 1 million tokens to the deployer
-- Supports balance checks
-- Supports token transfers
+- Mints 1 million tokens to the deployer with 18 decimals
+- Supports balance checks and token transfers
+- Implements ERC20Burnable for token burning capability
+- Implements ERC20Permit for gasless approvals
+- Uses Ownable for access control
+- Includes a mint function for the owner to create additional tokens
 
 #### 2. Deploy the Contract with Hardhat
 
@@ -1395,8 +1621,15 @@ Create `src/App.css`:
 ```css
 .App {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .App {
+    padding: 2rem;
+  }
 }
 
 .App-header {
@@ -1439,7 +1672,21 @@ Create `src/App.css`:
   color: white;
   padding: 1rem;
   border-radius: 8px;
-  margin-top: 1rem;
+  margin: 1rem auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+.network-warning button {
+  margin-top: 0.5rem;
+  background: white;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.network-warning button:hover {
+  background: #f0f0f0;
+  border-color: white;
 }
 
 .card {
@@ -1479,12 +1726,14 @@ Create `src/App.css`:
 
 .form-group input {
   width: 100%;
+  max-width: 100%;
   padding: 0.75rem;
   border: 1px solid #333;
   border-radius: 6px;
   background: #2a2a2a;
   color: white;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .form-group input:focus {
@@ -1524,6 +1773,130 @@ button[type="submit"]:disabled {
 .tx-hash a {
   color: #646cff;
   word-break: break-all;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .App {
+    padding: 0.5rem;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  .wallet-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .wallet-info p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .balance h3 {
+    font-size: 1.5rem;
+  }
+
+  .connect-btn,
+  .disconnect-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+  }
+}
+```
+
+Create `src/index.css` for global styles:
+
+```css
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  width: 100%;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+  margin: 0.5rem 0;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
 }
 ```
 
@@ -1665,14 +2038,37 @@ Now that you have a working dApp, you can:
 
 ## Full Boilerplate Repository
 
-Clone the complete boilerplate:
+Want to skip the setup? Clone the complete boilerplate with everything pre-configured for Shardeum EVM Testnet:
 
 ```bash
-git clone https://github.com/shardeum/dapp-boilerplate.git
-cd dapp-boilerplate
+git clone https://github.com/shardeum/shardeum-dapp-boilerplate.git
+cd shardeum-dapp-boilerplate
 npm install
+```
+
+**Configure your environment:**
+
+```bash
+cp .env.example .env
+# Edit .env and add your PRIVATE_KEY
+```
+
+**Deploy contracts and run:**
+
+```bash
+# Deploy to Shardeum Testnet
+npx hardhat run scripts/deploy.js --network shardeumTestnet
+
+# Start the frontend
 npm run dev
 ```
+
+The boilerplate includes:
+- ✅ Pre-configured network settings for Shardeum EVM Testnet (Chain ID: 8119)
+- ✅ Wallet connection with MetaMask
+- ✅ Sample contracts (ERC20 tokens, NFT minting, Uniswap integration)
+- ✅ Complete frontend with Next.js and ethers.js
+- ✅ Deployment scripts ready to use
 
 <Callout type="info">
 **Need Help?** Join the [Shardeum Discord](https://discord.com/invite/shardeum) for community support!
