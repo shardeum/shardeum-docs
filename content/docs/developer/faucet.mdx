@@ -1,49 +1,119 @@
 ---
-title: Testnet Faucet
+title: Testnet Quickstart
+description: Connect to Shardeum testnet, get testnet SHM, and start building or integrating in minutes.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
+## Shardeum Testnet Quickstart
 
-## Shardeum EVM Testnet Faucet
+Get connected to Shardeum testnet, fund your wallet, send a test transaction, and start building with familiar EVM tools.
 
-1. Join the Shardeum Discord:
+This guide is the fastest way to begin using Shardeum testnet. Whether you are integrating wallets, testing deposits and withdrawals, deploying contracts, or validating basic application flows, this page walks you through the essential setup in one place.
 
-[Invitation to Shardeum Discord](https://discord.com/invite/shardeum)
+## What You Will Do Here
 
+By the end of this guide, you will be able to:
+- Add Shardeum testnet to your wallet
+- Fund your wallet with testnet SHM
+- Send a transaction on testnet
+- Verify the transaction in the explorer
+- Move on to smart contract deployment or RPC integration
+
+## Before You Begin
+
+Make sure you have:
+- An EVM-compatible wallet such as MetaMask
+- A test wallet address you control
+- Access to the Shardeum Discord if you want faucet tokens
+
+If you are integrating through backend services or exchange infrastructure, you can skip the wallet-specific parts and use the RPC and explorer details below.
+
+## Testnet Network Details
+
+Use the following official Shardeum EVM testnet configuration:
+- Network name: Shardeum EVM Testnet
+- RPC URL: `https://api-mezame.shardeum.org`
+- Chain ID: `8119`
+- Explorer: `https://explorer-mezame.shardeum.org`
+
+## Testnet Setup Guide
+
+### Step 1: Add Shardeum testnet to your wallet
+
+If you are using MetaMask or another EVM-compatible wallet, add the Shardeum testnet network using the configuration above.
+
+### Step 2: Claim Testnet SHM
+
+To pay for test transactions or contract deployment, request testnet SHM from the faucet using the steps listed below
+
+1. [Join Shardeum Discord](https://discord.com/invite/shardeum)
 2. Verify your Discord account on the Shardeum Discord server by clicking on the Shardeum emoji logo.
-
-3. Go to the evm-faucet channel in Shardeum discord.
-
-    - Testnet: https://discord.com/channels/933959587462254612/1423751569454661632
-
-
+3. Go to the evm-faucet channel in Shardeum Discord: https://discord.com/channels/933959587462254612/1423751569454661632
 4. Submit the following text in the faucet text channel you are in (a black box with address will appear after you type /faucet):
 ```
 /faucet [address: yourMetamaskWalletAddress]
 ```
-SHM will be sent to your wallet after step 4.
+SHM will be sent to your wallet after step 4. **Note**: Testnet SHM is only for development and testing.
 
-{/* ## General Purpose Testnet Faucet
+### Step 3: Send Your First Test Transaction
 
-1. Join the Shardeum Discord:
+Once your wallet is funded:
+1. Open your wallet
+2. Select Shardeum EVM Testnet
+3. Send a small amount of testnet SHM to another test address you control
+4. Confirm the transaction
 
-[Invitation to Shardeum Discord](https://discord.com/invite/shardeum)
+This verifies that your wallet is connected correctly, the network configuration is working, and your address can send and receive on testnet
 
-2. Verify your Discord account on the Shardeum Discord server by clicking on the Shardeum emoji logo.
+### Step 4: Verify the Transaction in the Explorer
 
-3. Go to the faucet channel in Shardeum discord.
+Open the Shardeum [testnet explorer](https://explorer-mezame.shardeum.org) and search for your wallet address or the transaction hash. You can also use the explorer to confirm transaction status, sender and recipient, gas usage, and block inclusion.
 
-    - Testnet: https://discord.com/channels/933959587462254612/1354796380039807008
+### Step 5: Choose Your Next Path
 
+Once your basic setup is working, continue based on your use case.
 
-4. Submit the following text in the faucet text channel you are in (a black box with address will appear after you type /faucet):
-```
-/faucet [address: yourMetamaskWalletAddress]
-```
-SHM will be sent to your wallet after step 4.
+#### For smart contract deployment
 
-Video tutorial on using Shardeum Discord Faucet:
+If you want to deploy and test contracts, continue with one of the tool-specific guides listed [here](docs/developer/smart-contracts)
 
-<iframe width="750" height="400" src="https://www.youtube.com/embed/78xGkWWkXB8?si=hsVgaZe51rsWKZnO" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
-*/}
+#### For dApp Development
+
+If you are building a frontend or testing dApp flows, continue to:
+- [Deploy dApps](docs/developer/deploy-dapps)
+- [JSON-RPC Guide](docs/developer/json-rpc)
+- [Network Interfaces](docs/developer/network-interfaces)
+
+#### For exchange, wallet, or backend integration
+
+If your team is validating transfers, deposits, withdrawals, or balance checks:
+- Use the RPC endpoint listed above
+- Submit standard Ethereum JSON-RPC requests
+- Monitor addresses and transactions in the explorer
+
+Shardeum’s JSON-RPC docs covers support for standard Ethereum-compatible JSON-RPC workflows and familiar EVM tooling.
+
+## Example RPC usage
+
+You can use the public testnet RPC endpoint with standard Ethereum JSON-RPC methods. Example methods to test connectivity:
+- `eth_chainId`
+- `eth_getBalance`
+- `eth_getTransactionCount`
+- `eth_getTransactionReceipt`
+- `eth_call`
+
+## Troubleshooting
+
+**1. I cannot see the network in my wallet**
+
+Recheck the RPC URL, chain ID, and network name against the official Network Endpoints & Explorer page.
+
+**2. My transaction is not visible**
+
+Wait briefly, then search again using the transaction hash or wallet address in the testnet explorer. Also make sure you are checking the testnet explorer, not the mainnet explorer. The current testnet explorer listed in the docs is `https://explorer-mezame.shardeum.org`
+
+**3. I want to integrate programmatically**
+
+Use the [JSON-RPC Guide](docs/developer/json-rpc) for supported methods and examples, then continue with your preferred SDK or backend stack. For dApp or frontend development, you can also use our [boilerplate page](docs/developer/deploy-dapps/boilerplate) to accelerate setup.
+
