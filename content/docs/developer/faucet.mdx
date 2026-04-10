@@ -35,6 +35,7 @@ Use the following official Shardeum EVM testnet configuration:
 - Network name: Shardeum EVM Testnet
 - RPC URL: `https://api-mezame.shardeum.org`
 - Chain ID: `8119`
+- Native currency symbol: `SHM`
 - Explorer: `https://explorer-mezame.shardeum.org`
 
 ## Testnet Setup Guide
@@ -45,16 +46,16 @@ If you are using MetaMask or another EVM-compatible wallet, add the Shardeum tes
 
 ### Step 2: Claim Testnet SHM
 
-To pay for test transactions or contract deployment, request testnet SHM from the faucet using the steps listed below
+To pay for test transactions or contract deployment, request testnet SHM from the faucet
 
 1. [Join Shardeum Discord](https://discord.com/invite/shardeum)
 2. Verify your Discord account on the Shardeum Discord server by clicking on the Shardeum emoji logo.
-3. Go to the evm-faucet channel in Shardeum Discord: https://discord.com/channels/933959587462254612/1423751569454661632
-4. Submit the following text in the faucet text channel you are in (a black box with address will appear after you type /faucet):
+3. Go to the [evm-faucet channel](https://discord.com/channels/933959587462254612/14237515694546616320) in Shardeum Discord
+4. Type the following command and insert your wallet address in the faucet text channel you are in (a black box with address will appear after you type /faucet):
 ```
 /faucet [address: yourMetamaskWalletAddress]
 ```
-SHM will be sent to your wallet after step 4. **Note**: Testnet SHM is only for development and testing.
+If successful, testnet SHM will be sent to your wallet. Testnet SHM is only for development and testing.
 
 ### Step 3: Send Your First Test Transaction
 
@@ -76,32 +77,47 @@ Once your basic setup is working, continue based on your use case.
 
 #### For smart contract deployment
 
-If you want to deploy and test contracts, continue with one of the tool-specific guides listed [here](docs/developer/smart-contracts)
+If you want to deploy and test contracts, continue with one of the tool-specific guides listed [here](/docs/developer/smart-contracts)
 
 #### For dApp Development
 
 If you are building a frontend or testing dApp flows, continue to:
-- [Deploy dApps](docs/developer/deploy-dapps)
-- [JSON-RPC Guide](docs/developer/json-rpc)
-- [Network Interfaces](docs/developer/network-interfaces)
+- [Deploy dApps](/docs/developer/deploy-dapps)
+- [JSON-RPC Guide](/docs/developer/json-rpc)
+- [Network Interfaces](/docs/developer/network-interfaces)
 
 #### For exchange, wallet, or backend integration
 
 If your team is validating transfers, deposits, withdrawals, or balance checks:
-- Use the RPC endpoint listed above
+- Use the public RPC endpoint listed above for initial integration and validation
+   - For greater reliability or operational control, consider running an [RPC node](/docs/run-a-node/run-an-rpc-node). For supported methods and examples, refer to the JSON-RPC Guide. And if needed, you can also contact the Shardeum team about partner-grade endpoint options
 - Submit standard Ethereum JSON-RPC requests
 - Monitor addresses and transactions in the explorer
 
-Shardeum’s JSON-RPC docs covers support for standard Ethereum-compatible JSON-RPC workflows and familiar EVM tooling.
-
 ## Example RPC usage
 
-You can use the public testnet RPC endpoint with standard Ethereum JSON-RPC methods. Example methods to test connectivity:
-- `eth_chainId`
+You can use the public testnet RPC endpoint with standard Ethereum JSON-RPC methods.
+
+**Check chain ID**
+
+```bash
+curl -X POST https://api-mezame.shardeum.org \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc":"2.0",
+    "method":"eth_chainId",
+    "params":[],
+    "id":1
+  }'
+```
+
+Other useful methods include:
 - `eth_getBalance`
 - `eth_getTransactionCount`
 - `eth_getTransactionReceipt`
 - `eth_call`
+
+This makes it easy to validate connectivity before moving on to balance checks, transaction tracking, or contract interactions.
 
 ## Troubleshooting
 
@@ -115,5 +131,10 @@ Wait briefly, then search again using the transaction hash or wallet address in 
 
 **3. I want to integrate programmatically**
 
-Use the [JSON-RPC Guide](docs/developer/json-rpc) for supported methods and examples, then continue with your preferred SDK or backend stack. For dApp or frontend development, you can also use our [boilerplate page](docs/developer/deploy-dapps/boilerplate) to accelerate setup.
+Use the [JSON-RPC Guide](/docs/developer/json-rpc) for supported methods and examples, then continue with your preferred SDK or backend stack. For dApp or frontend development, you can also use our [boilerplate page](/docs/developer/deploy-dapps/boilerplate) to accelerate setup.
+
+## You’re Now Connected to Shardeum Testnet
+
+You have successfully connected to Shardeum testnet, funded your wallet, and completed your first transaction. As mentioned above, you can now explore smart contract deployment, dApp development, or backend integrations based on your use case.
+
 
