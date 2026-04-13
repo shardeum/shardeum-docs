@@ -1,294 +1,84 @@
 ---
 title: Using Hardhat
-description: Learn how to deploy ERC-721 NFT smart contracts using Hardhat on Shardeum
+description: Deploy a SimpleStorage contract using Hardhat on Shardeum
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-## What are NFTs?
+## Overview
 
-NFTs (non-fungible tokens) are tokens that represent unique items. Unlike fungible tokens (like ERC-20), each NFT is distinguishable and can carry metadata that describes the item it represents (e.g., an image URL, attributes, or on-chain generated art).
-
-On EVM-compatible networks like Shardeum, NFTs are typically implemented using the ERC-721 standard (or ERC-1155 for semi-fungible / batch minting use cases).
+This guide is a step-by-step reference to create and deploy a SimpleStorage contract on Shardeum using Hardhat.
 
 ## Deployment Guide
-
-This guide is a step-by-step reference to help you create and deploy an ERC-721 NFT smart contract on Shardeum using Hardhat. *Note: Some older screenshots or references may mention legacy Shardeum networks (e.g., Sphinx / Liberty). Always confirm you are connected to the Shardeum network you intend to deploy to*.
 
 ### Prerequisites
 
 - [Node.js and npm installed](https://nodejs.org/)
-- MetaMask installed
-- SHM available to pay for gas (from a faucet on testnet)
+- A funded wallet. You can claim test SHM from the [faucet](/docs/developer/faucet)
+- Access to a Shardeum RPC endpoint
 
-### Step 1 : Initialize the Project
-
-First, we'll need to create a folder for our project. Navigate to your command line and type the following commands.
+### Step 1: Initialize a Hardhat Project
 
 ```shell
-mkdir shardeum-nft-dapp
-cd shardeum-nft-dapp
+mkdir shardeum-hardhat
+cd shardeum-hardhat
 npm init -y
-```
-This creates a package.json file.
-
-## Step 2 : Install Hardhat
-
-Hardhat is a development environment for compiling, testing, and deploying Solidity contracts.
-
-Inside our shardeum-nft-dapp project run:
-
-
-```shell
 npm install --save-dev hardhat
-```
-
-
-## Step 3 : Create a Hardhat Project
-
-Inside our shardeum-nft-dapp project run:
-
-
-```shell
 npx hardhat
 ```
+When prompted, select:**Create an empty hardhat.config.js**
 
-
-You should then see a welcome message and option to select what you want to do. Select "create an empty hardhat.config.js":
-
-```
-G:shardeum-nft-dapp>npx hardhat
-888    888                      888 888               888
-888    888                      888 888               888
-888    888                      888 888               888
-8888888888  8888b.  888d888 .d88888 88888b.   8888b.  888888
-888    888     "88b 888P"  d88" 888 888 "88b     "88b 888
-888    888 .d888888 888    888  888 888  888 .d888888 888
-888    888 888  888 888    Y88b 888 888  888 888  888 Y88b.
-888    888 "Y888888 888     "Y88888 888  888 "Y888888  "Y888
-
-Welcome to Hardhat v2.9.5
-
-? What do you want to do? ...
-> Create a basic sample project
-  Create an advanced sample project
-  Create an advanced sample project that uses TypeScript
-  Create an empty hardhat.config.js
-  Quit
-```
-
-This will generate a `hardhat.config.js` file for us, which is where we'll specify all of the set up for our project.
-
-### Step 4 : Create Project Folders
-
-Run
+Create project folders:
 
 ```shell
-npx hardhat
+mkdir contracts scripts
 ```
 
-To keep our project organized, create these two new folders at the project root:
-
-1. `contracts/` is where we'll keep our hello world smart contract code file
-2. `scripts/` is where we'll keep scripts to deploy and interact with our contract
-
-### Step 5 : Install OpenZeppelin Contracts
-
-We'll use OpenZeppelin Contracts that helps you to minimize risks by using battle-tested libraries of smart contracts for Ethereum and other blockchains. It includes the most used implementations of ERC standards.
+### Step 2: Install Dependencies
 
 ```shell
-npm install @openzeppelin/contracts
+npm install --save-dev @nomicfoundation/hardhat-ethers ethers dotenv
 ```
 
-### Step 6 : Write the Contract
+### Step 3: Add Environment Variables
 
-Open up the shardeum-nft-dapp project in your preferable editor. Smart contracts are written in a language called Solidity which is what we will use to write our Domains.sol smart contract
+Create a `.env` file in the project root:
 
-1. Navigate to the "contracts" folder and create a new file called Domains.sol
-2. Below is Domains smart contract from a test NFT dApp that we will be using for this tutorial. Copy and paste in the contents below into your Domains.sol file.
+```shell
+SHARDEUM_RPC=YOUR_SHARDEUM_RPC_URL
+PRIVATE_KEY=YOUR_WALLET_PRIVATE_KEY
+```
 
-Note: This example mints a domain-style NFT (e.g., name.shm). It stores token metadata on-chain using a Base64-encoded `tokenURI`
+**Security note:**
+- Never commit `.env`
+- Add `.env` to `.gitignore`
 
+### Step 4: Write the SimpleStorage Contract
+
+Create `contracts/SimpleStorage.sol`:
 
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+contract SimpleStorage {
+    uint256 public value;
 
-contract Domains is ERC721URIStorage {
-    error Unauthorized();
-    error AlreadyRegistered();
-    error InvalidName(string name);
+    event ValueUpdated(uint256 newValue);
 
-    using Strings for uint256;
-
-    uint256 private _tokenIds;
-    string public tld;
-
-    mapping(string => address) public domains;
-    mapping(string => string) public records;
-    mapping(uint256 => string) public names;
-
-    address payable public owner;
-
-    string svgPartOne =
-        '<svg xmlns="http://www.w3.org/2000/svg" width="270" height="270" fill="none"><path fill="url(#a)" d="M0 0h270v270H0z"/><defs><filter id="b" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="270" width="270"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity=".225" width="200%" height="200%"/></filter></defs><text x="32.5" y="231" font-size="27" fill="#fff" filter="url(#b)" font-family="Plus Jakarta Sans,DejaVu Sans,Noto Color Emoji,Apple Color Emoji,sans-serif" font-weight="bold">';
-    string svgPartTwo = "</text></svg>";
-
-    constructor(string memory _tld) ERC721("Web3 username NFT on Shardeum", "SHMNAME") {
-        owner = payable(msg.sender);
-        tld = _tld;
+    constructor(uint256 _value) {
+        value = _value;
+        emit ValueUpdated(_value);
     }
 
-    function price(string calldata name) public pure returns (uint256) {
-        uint256 len = _strlen(name);
-        if (len < 3 || len > 10) revert InvalidName(name);
-
-        // Example pricing logic (in wei):
-        // 3 chars: 0.9 ETH equivalent (placeholder), 4: 0.5, 5: 0.3, 6+: 0.1
-        // Update these values to match your intended pricing model.
-        if (len == 3) return 0.9 ether;
-        if (len == 4) return 0.5 ether;
-        if (len == 5) return 0.3 ether;
-        return 0.1 ether;
-    }
-
-    function register(string calldata name) external payable {
-        if (domains[name] != address(0)) revert AlreadyRegistered();
-
-        uint256 _price = price(name);
-        require(msg.value >= _price, "Not enough SHM paid");
-
-        string memory fullName = string(abi.encodePacked(name, ".", tld));
-        string memory finalSvg = string(abi.encodePacked(svgPartOne, fullName, svgPartTwo));
-
-        uint256 newTokenId = _tokenIds;
-
-        string memory json = Base64.encode(
-            bytes(
-                string(
-                    abi.encodePacked(
-                        '{"name":"',
-                        fullName,
-                        '","description":"Web3 username NFT on Shardeum","image":"data:image/svg+xml;base64,',
-                        Base64.encode(bytes(finalSvg)),
-                        '","length":"',
-                        _strlen(name).toString(),
-                        '"}'
-                    )
-                )
-            )
-        );
-
-        string memory finalTokenUri = string(abi.encodePacked("data:application/json;base64,", json));
-
-        _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, finalTokenUri);
-
-        domains[name] = msg.sender;
-        names[newTokenId] = name;
-
-        _tokenIds++;
-    }
-
-    function getAddress(string calldata name) external view returns (address) {
-        return domains[name];
-    }
-
-    function setRecord(string calldata name, string calldata record) external {
-        if (msg.sender != domains[name]) revert Unauthorized();
-        records[name] = record;
-    }
-
-    function getRecord(string calldata name) external view returns (string memory) {
-        return records[name];
-    }
-
-    function withdraw() external {
-        if (msg.sender != owner) revert Unauthorized();
-
-        uint256 amount = address(this).balance;
-        (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Failed to withdraw SHM");
-    }
-
-    function getAllNames() external view returns (string[] memory) {
-        string[] memory allNames = new string[](_tokenIds);
-        for (uint256 i = 0; i < _tokenIds; i++) {
-            allNames[i] = names[i];
-        }
-        return allNames;
-    }
-
-    // Minimal UTF-8 string length helper
-    function _strlen(string memory s) internal pure returns (uint256) {
-        uint256 len;
-        uint256 i = 0;
-        uint256 bytelength = bytes(s).length;
-
-        while (i < bytelength) {
-            bytes1 b = bytes(s)[i];
-            if (b < 0x80) i += 1;
-            else if (b < 0xE0) i += 2;
-            else if (b < 0xF0) i += 3;
-            else if (b < 0xF8) i += 4;
-            else if (b < 0xFC) i += 5;
-            else i += 6;
-            len++;
-        }
-        return len;
+    function setValue(uint256 _value) external {
+        value = _value;
+        emit ValueUpdated(_value);
     }
 }
 ```
 
-
-
-Now that we have created smart contract, we need to deploy this smart contract to the applicable Shardeum testnet
-
-### Step 7 : Add Shardeum Network to MetaMask and Get SHM
-
-Follow the [Shardeum faucet guide](/docs/developer/faucet) and claim test SHM:
-
-### Step 8 : Add Your Private Key (Environment Variables)
-
-We've created a MetaMask wallet and written our smart contract, and now it's time to connect these two! Before that,
-
-Every transaction sent from your virtual wallet requires a signature using your unique private key. To provide our program with this permission, we can safely store our private key in an environment file.
-
-First, install the dotenv package in your project directory:
-
-
-```shell
-npm install dotenv --save
-```
-
-Create a `.env` file in your project root:
-
-```
-SHARDEUM_RPC=YOUR_SHARDEUM_RPC_URL
-PRIVATE_KEY=YOUR_WALLET_PRIVATE_KEY
-```
-
-Now to connect these to our code, we'll reference these variables in our hardhat.config.js file
-
-**Security note**: never commit `.env` to git. Add it to `.gitignore`.
-
-### Step 9 : Install Hardhat Ethers Plugin
-
-For modern Hardhat projects, use:
-
-```
-npm install --save-dev @nomicfoundation/hardhat-ethers ethers
-```
-
-We'll also require ethers in our hardhat.config.js in the next step.
-
-## Step 10 : Update hardhat.config.js
-
-We've added several dependencies and plugins so far, now we need to update `hardhat.config.js` so that our project knows about all of them.
+### Step 5: Configure Hardhat
 
 Replace `hardhat.config.js` with:
 
@@ -308,41 +98,30 @@ module.exports = {
 };
 ```
 
-**Note**: Chain IDs can differ across Shardeum networks (testnet vs mainnet). Use the chain ID for the specific network you’re connected to.
+*Chain IDs differ across Shardeum networks (testnet vs mainnet). Use the chain ID for the specific network you’re deploying to*
 
-### Step 11 : Compile Contract
-
-To make sure everything is working so far, let's compile our contract. The compile task is one of the built-in hardhat tasks.
-
-From the command line run:
+### Step 6: Compile
 
 ```shell
 npx hardhat compile
 ```
 
+### Step 7: Create a Deploy Script
 
-If no errors, it will compile successfully.
-
-```
-Compiled successfully
-```
-
-### Step 12 : Create a Deploy Script
-
-Now that our contract is written and our configuration file is good to go, it's time to write our contract deploy script.
-
-Navigate to the /scripts folder and create a new file `scripts/deploy.js` by adding the following contents to it:
+Create `scripts/deploy.js`:
 
 ```js
 const hre = require("hardhat");
 
 async function main() {
-  const Domains = await hre.ethers.getContractFactory("Domains");
-  const domains = await Domains.deploy("shm");
+  const SimpleStorage = await hre.ethers.getContractFactory("SimpleStorage");
 
-  await domains.waitForDeployment();
+  // constructor arg for SimpleStorage(uint256 _value)
+  const contract = await SimpleStorage.deploy(1);
 
-  console.log("Contract deployed to:", await domains.getAddress());
+  await contract.waitForDeployment();
+
+  console.log("SimpleStorage deployed to:", await contract.getAddress());
 }
 
 main().catch((error) => {
@@ -351,76 +130,28 @@ main().catch((error) => {
 });
 ```
 
-Hardhat does an amazing job of explaining what each line of these codes does in their contracts tutorial. We've adopted their explanations here.
-
-```js
-const domainContractFactory = await hre.ethers.getContractFactory("Domains");
-```
-
-A ContractFactory in ethers.js is an abstraction used to deploy new smart contracts, so  Disperse here is a factory for instances of our Disperse contract. When using the hardhat-ethers plugin ContractFactory and Contract, instances are connected to the first signer (owner) by default.
-
-```js
-await domainContract.deployed()
-```
-
-Calling deploy() on a ContractFactory will start the deployment, and return a Promise that resolves to a Contract object. This is the object that has a method for each of our smart contract functions.
-  
-You should then see something like this:
-
-```
-G:\shardeum-nft-dapp>node scripts/deploy-domains.jsshm name services deployed
-contract depolyed to :  0x5FbDB2315678afecb367f032d93F642f64180aa3
-_name contract.shm
-Registering contract on the contract with tokenId 0
-
---------------------------------------------------------
-Final tokenURI data:application/json;base64,eyJuYW1lIjoiY29udHJhY3Quc2htIiwiZGVzY3JpcHRpb24iOiJXZWIzIHVzZXIgbmFtZSBORlQgb24gc2hhcmRldW0gfCBTSE0iLCJpbWFnZSI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIZHBaSFJvUFNJeU56QWlJR2hsYVdkb2REMGlNamN3SWlCbWFXeHNQU0p1YjI1bElqNDhjR0YwYUNCbWFXeHNQU0oxY213b0kyRXBJaUJrUFNKTk1DQXdhREkzTUhZeU56QklNSG9pTHo0OFpHVm1jejQ4Wm1sc2RHVnlJR2xrUFNKaUlpQmpiMnh2Y2kxcGJuUmxjbkJ2YkdGMGFXOXVMV1pwYkhSbGNuTTlJbk5TUjBJaUlHWnBiSFJsY2xWdWFYUnpQU0oxYzJWeVUzQmhZMlZQYmxWelpTSWdhR1ZwWjJoMFBTSXlOekFpSUhkcFpIUm9QU0l5TnpBaVBqeG1aVVJ5YjNCVGFHRmtiM2NnWkhnOUlqQWlJR1I1UFNJeElpQnpkR1JFWlhacFlYUnBiMjQ5SWpJaUlHWnNiMjlrTFc5d1lXTnBkSGs5SWk0eU1qVWlJSGRwWkhSb1BTSXlNREFsSWlCb1pXbG5hSFE5SWpJd01DVWlMejQ4TDJacGJIUmxjajQ4TDJSbFpuTStQSE4yWnlCNFBTSXhOU0lnZVQwaU1UVWlJSGRwWkhSb1BTSXhNakFpSUdobGFXZG9kRDBpTVRBNElpQjJhV1YzUW05NFBTSXdJREFnTVRJd0lERXdPQ0lnWm1sc2JEMGlibTl1WlNJZ2VHMXNibk05SW1oMGRIQTZMeTkzZDNjdWR6TXViM0puTHpJd01EQXZjM1puSWo0OGNHRjBhQ0JrUFNKTk1qa3VORE0xT0NBM055NHlPRGc0VERFMkxqY3lNVE1nTVRBd1NERXdNeTR5TnpsTU9UQXVOVFkwTXlBM055NHlPRGc0U0RJNUxqUXpOVGhhSWlCbWFXeHNQU0ozYUdsMFpTSXZQanh3WVhSb0lHUTlJazAyTUNBeU1pNDNNVEV5VERRM0xqSTROVFlnTUV3MElEYzNMakk0T0RsSU1qa3VORE0xT0V3Mk1DQXlNaTQzTVRFeVdpSWdabWxzYkQwaWQyaHBkR1VpTHo0OGNHRjBhQ0JrUFNKTk9UQXVOVFkwTWlBM055NHlPRGc1U0RFeE5rdzNNaTQzTVRRMUlDMHpMakExTVRjMlpTMHdOVXcyTUNBeU1pNDNNVEV4VERrd0xqVTJORElnTnpjdU1qZzRPVm9pSUdacGJHdzlJbmRvYVhSbElpOCtQSEJoZEdnZ1pEMGlUVFl3SURjekxqTTROVE5ETmpjdU5qQXpOeUEzTXk0ek9EVXpJRGN6TGpjMk56Y2dOamN1TURNd015QTNNeTQzTmpjM0lEVTVMakU1TURsRE56TXVOelkzTnlBMU1TNHpOVEUxSURZM0xqWXdNemNnTkRRdU9UazJOQ0EyTUNBME5DNDVPVFkwUXpVeUxqTTVOalFnTkRRdU9UazJOQ0EwTmk0eU16STBJRFV4TGpNMU1UVWdORFl1TWpNeU5DQTFPUzR4T1RBNVF6UTJMakl6TWpRZ05qY3VNRE13TXlBMU1pNHpPVFkwSURjekxqTTROVE1nTmpBZ056TXVNemcxTTFvaUlHWnBiR3c5SW5kb2FYUmxJaTgrUEhOMGIzQWdiMlptYzJWMFBTSXhJaUJ6ZEc5d0xXTnZiRzl5UFNJak1HTmtOMlUwSWlCemRHOXdMVzl3WVdOcGRIazlJaTQ1T1NJdlBqd3ZiR2x1WldGeVIzSmhaR2xsYm5RK1BDOWtaV1p6UGp4MFpYaDBJSGc5SWpNeUxqVWlJSGs5SWpJek1TSWdabTl1ZEMxemFYcGxQU0l5TnlJZ1ptbHNiRDBpSTJabVppSWdabWxzZEdWeVBTSjFjbXdvSTJJcElpQm1iMjUwTFdaaGJXbHNlVDBpVUd4MWN5QktZV3RoY25SaElGTmhibk1zUkdWcVlWWjFJRk5oYm5Nc1RtOTBieUJEYjJ4dmNpQkZiVzlxYVN4QmNIQnNaU0JEYjJ4dmNpQkZiVzlxYVN4ellXNXpMWE5sY21sbUlpQm1iMjUwTFhkbGFXZG9kRDBpWW05c1pDSStZMjl1ZEhKaFkzUXVjMmh0UEM5MFpYaDBQand2YzNablBnPT0iLCJsZW5ndGgiOiI4In0=
---------------------------------------------------------
-
-0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has registered a domain
-Minted domain contract.shm
-owner of contract domain :  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-```
-
-Copy the Final tokenURI and paste in browser new tab which will look like this:
-
-![deploy_nft_smart_contract_1](/img/deploy_nft_smart_contract/deploy_nft_smart_contract_1.jpg)
-
-Now copy the data as selection shown above from the json and paste in new browser tab. This is how it may appear:
-
-![deploy_nft_smart_contract_2](/img/deploy_nft_smart_contract/deploy_nft_smart_contract_2.jpg)
-
-### Step 13 : Deploy Contract to Shardeum
-
-Run this command in command prompt:
+### Step 8: Deploy to Shardeum
 
 ```shell
 npx hardhat run scripts/deploy.js --network shardeum
 ```
 
-Copy the deployed contract address and view it on the explorer:
+Copy the deployed contract address and view it on [Shardeum explorers](/docs/overview/endpoints#shardeum-explorer)
 
-- [Shardeum Testnet Explorer](https://explorer-mezame.shardeum.org/)
-- [Shardeum Mainnet Explorer](https://explorer.shardeum.org/)
+**(Optional) Interact Quickly**
 
-![deploy_nft_smart_contract_3](/img/deploy_nft_smart_contract/deploy_nft_smart_contract_3.jpg)
+You can interact via Hardhat console:
 
-Click on Transaction hash to see the full details of contract creation:
+```shell
+npx hardhat console --network shardeum
+```
 
-![deploy_nft_smart_contract_4](/img/deploy_nft_smart_contract/deploy_nft_smart_contract_4.jpg)
+Then:
 
-Congrats! You just deployed an NFT smart contract to the Shardeum network.
+```js
+const c = await ethers.getContractAt("SimpleStorage", "<CONTRACT_ADDRESS>");
+await c.value();
+await c.setValue(42);
+await c.value();
+```
 
-{/* ## Video Tutorial
-
-<iframe id="ytplayer" type="text/html"
-  class="video"
-  src="https://www.youtube.com/embed/XI6vn2RpSUA"
-  allowFullScreen="allowFullScreen"
-  mozallowFullScreen="mozallowFullScreen"
-  msallowFullScreen="msallowFullScreen"
-  oallowFullScreen="oallowFullScreen"
-  webkitallowFullScreen="webkitallowFullScreen"
-  frameBorder="0">
-  </iframe>
-*/}
