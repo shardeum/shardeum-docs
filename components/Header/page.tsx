@@ -28,7 +28,7 @@ const navItems = [
   { name: 'Connect to Shardeum', href: '/docs/overview/endpoints' },
   { name: 'Delegate Now', href: 'https://dashboard.shardeum.org/validators' },
   { name: 'Github', href: 'https://github.com/shardeum' },
-  { name: 'Testnet SHM', href: '/docs/developer/faucet' },
+  { name: 'Testnet SHM', href: '/docs/developer/testnet-quickstart' },
 ];
 
 function classNames(...classes: string[]) {

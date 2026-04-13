@@ -2,7 +2,7 @@ const navigation = {
   general: [
     { name: 'Home', href: '/' },
     { name: 'Roadmap', href: 'https://shardeum.org/roadmap/' },
-    { name: 'Testnet SHM', href: '/docs/developer/faucet' },
+    { name: 'Testnet SHM', href: '/docs/developer/testnet-quickstart' },
     { name: 'Ambassador Program', href: 'https://shardeum.org/ambassador-program/' },
     { name: 'Blog', href: 'https://shardeum.org/blog/' },
   ],
