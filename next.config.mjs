@@ -96,12 +96,17 @@ const config = {
       },
       {
         source: '/docs/faucet/claim',
-        destination: '/docs/developer/faucet',
+        destination: '/docs/developer/testnet-quickstart',
         permanent: true,
       },
       {
         source: '/docs/faucet',
-        destination: '/docs/developer/faucet',
+        destination: '/docs/developer/testnet-quickstart',
+        permanent: true,
+      },
+      {
+        source: '/docs/developer/faucet',
+        destination: '/docs/developer/testnet-quickstart',
         permanent: true,
       },
       // Wildcard for all smart contracts pages

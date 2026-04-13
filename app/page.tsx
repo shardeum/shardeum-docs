@@ -27,10 +27,10 @@ const features = [
     link: '/docs/overview/endpoints'
   },
   {
-    name: 'Faucet',
-    description: 'Access testnet SHM tokens with our simple faucet service.',
+    name: 'Testnet Quickstart',
+    description: 'Connect to Shardeum testnet, get testnet SHM, and start building or integrating in minutes',
     icon: CurrencyDollarIcon,
-    link: '/docs/developer/faucet'
+    link: '/docs/developer/testnet-quickstart'
   },
   {
     name: 'Architecture',
