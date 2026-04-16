@@ -1,4 +1,4 @@
 {
-   "title": "Run a Node/Delegate SHM",
+   "title": "Run a Node on Mainnet",
    "pages": ["node-types", "run-a-full-node", "run-a-validator-node", "advanced-operations", "run-an-rpc-node", "delegate-shm"]
 }
