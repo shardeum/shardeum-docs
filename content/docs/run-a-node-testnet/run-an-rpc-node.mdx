@@ -205,25 +205,25 @@ For higher traffic or team-based testing:
 
 ## 13. Useful Commands
 
-Check sync:
+### Check sync
 
 ```bash
 shardeumd status | jq '.SyncInfo'
 ```
 
-Check network peers:
+### Check network peers:
 
 ```bash
 curl -s http://localhost:26657/net_info | jq '.result'
 ```
 
-Check logs:
+### Check logs
 
 ```bash
 journalctl -u shardeumd-rpc-testnet -f
 ```
 
-Query JSON-RPC:
+### Query JSON-RPC:
 
 ```bash
 curl -s http://<your-ip>:8545 \
