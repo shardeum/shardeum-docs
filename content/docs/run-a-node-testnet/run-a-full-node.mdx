@@ -1,6 +1,272 @@
 ---
 title: Run a Full Node
-description: Guide to running a full node on Shardeum testnet
+description: Guide to running a full node on the Shardeum testnet
 ---
 
-Content coming soon.
+import { Callout } from 'fumadocs-ui/components/callout';
+
+A full node verifies blocks, relays network data, and can optionally serve RPC endpoints for developers, dApps, and testing environments. Full nodes do not participate in consensus and do not require staking or validator setup.
+
+<Callout type="warn">
+Ensure you are using the correct testnet configuration, including chain ID, genesis file, and peers. Incorrect values may prevent your node from syncing.
+</Callout>
+
+## 1. System Requirements
+
+Recommended:
+
+- OS: Ubuntu 22.04 LTS
+- CPU: 4 cores
+- RAM: 8–16 GB
+- Storage: 500 GB+ NVMe SSD
+- Network: 100 Mbps
+- Dependencies: git, jq, curl, make, build-essential, pkg-config
+- Go: v1.25+
+
+### Install dependencies:
+
+```bash
+sudo apt update
+sudo apt install git jq curl make build-essential pkg-config -y
+```
+
+## 2. Install Shardeum Node Binary
+
+```bash
+git clone https://github.com/shardeum/shardeum-evm.git
+cd shardeum-evm
+make install
+```
+
+Verify:
+
+```bash
+shardeumd version
+command -v shardeumd
+```
+
+## 3. Environment Variables
+
+```bash
+export SHARDEUM_CONFIG_DIR="$PWD/config"
+export SHARDEUM_NETWORK=testnet
+```
+
+## 4. Initialize the Node
+
+Choose a node ID and moniker (ASCII only):
+
+```bash
+NODE_ID="node0"
+MONIKER="shardeum-testnet-fullnode"
+
+shardeumd init "$MONIKER" \
+  --chain-id shardeum_8119-2 \
+  --home $HOME/.testnet/$NODE_ID \
+  --overwrite
+```
+
+*Chain ID: Refer to the latest testnet configuration in the repository*
+
+## 5. Copy Genesis File
+
+```bash
+cp config/environments/testnet-genesis.json $HOME/.testnet/$NODE_ID/config/genesis.json
+ls -lh $HOME/.testnet/$NODE_ID/config/genesis.json
+jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
+```
+
+## 6. Start and Sync the Node
+
+Start:
+
+```bash
+shardeumd start \
+  --home $HOME/.testnet/$NODE_ID \
+  --chain-id shardeum_8119-2 \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657 \
+  > $HOME/.testnet/$NODE_ID/node.log &
+```
+
+**Note**: Initial sync may take time depending on your hardware and network conditions.
+
+Monitor:
+
+```bash
+shardeumd status | jq '.SyncInfo'
+```
+
+Or tail the log:
+
+```bash
+tail -f $HOME/.testnet/$NODE_ID/node.log
+```
+
+Wait until fully synced.
+
+<Callout type="warn"> 
+Ensure your node is connected to peers. Without peers, the node will not sync. Refer to the repository or official documentation for the latest seeds or peer configuration. 
+</Callout>
+
+## 7. Optional: Run as systemd Service
+
+Create service:
+
+```bash
+sudo nano /etc/systemd/system/shardeumd-testnet.service
+```
+
+Example:
+
+```ini
+[Unit]
+Description=Shardeum Testnet Full Node
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/shardeumd start --home /root/.testnet/node0
+Restart=on-failure
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable:
+
+```bash
+sudo systemctl enable shardeumd-testnet
+sudo systemctl start shardeumd-testnet
+sudo systemctl status shardeumd-testnet
+```
+
+## 8. Optional: Enable JSON-RPC
+
+Edit `config/app.toml` inside your node directory:
+
+```toml
+json-rpc.enable = true
+json-rpc.address = "0.0.0.0:8545"
+json-rpc.ws-address = "0.0.0.0:8546"
+```
+
+Restart the node if using systemd.
+
+## 9. Firewall Configuration
+
+```bash
+sudo ufw allow 27656/tcp   # P2P
+sudo ufw allow 8545/tcp    # JSON-RPC (optional)
+sudo ufw allow 8546/tcp    # WebSocket (optional)
+sudo ufw enable
+```
+
+<Callout type="warn"> 
+For public exposure, restrict JSON-RPC access to trusted IPs or use a reverse proxy. 
+</Callout>
+
+## 10. Optional: Pruning Settings
+
+Full nodes can reduce storage usage.
+
+Default:
+
+```toml
+pruning = "default"
+```
+
+Custom:
+
+```toml
+pruning = "custom"
+pruning-keep-recent = "10000"
+pruning-interval = "50"
+```
+
+Restart node after making changes.
+
+## 11. Node Management Commands
+
+### Sync Status
+
+```bash
+shardeumd status | jq '.SyncInfo'
+```
+
+### Node ID
+
+```bash
+shardeumd comet show-node-id
+```
+
+### Check Peers
+
+```bash
+curl -s http://localhost:26657/net_info | jq '.result.n_peers'
+```
+
+### Logs
+
+```bash
+journalctl -u shardeumd-testnet -f
+```
+
+Or
+
+```bash
+tail -f $HOME/.testnet/$NODE_ID/node.log
+```
+
+### Stop Node
+
+```bash
+pkill shardeumd
+```
+
+Or
+
+```bash
+sudo systemctl stop shardeumd-testnet
+```
+
+## 12. Troubleshooting
+
+### Node Won’t Sync
+
+- Check peer connections
+- Verify testnet chain ID and genesis file
+- Ensure correct network configuration
+- Verify time sync (NTP): `timedatectl status`
+- Check port 27656 is open
+
+### Out of Disk Space
+
+- Enable pruning in `app.toml`
+- Increase disk size
+- Avoid archive mode unless required
+
+### RPC Not Responding
+
+- Check firewall rules
+- Verify JSON-RPC settings
+- Confirm node is fully synced
+- Restart node/service
+
+## 13. Important Notes
+
+- EVM Chain ID: `8119`
+- Network: Testnet (configuration may change)
+- Genesis File: Use latest from repository
+- Archive Mode: Use `pruning = "nothing"` only if required
+- Backups: Back up `node_key.json` securely
+
+## Full Node Setup Complete
+
+Your Shardeum testnet full node is now running and contributing to network testing and infrastructure. You may use it for:
+
+- dApp testing and development
+- RPC infrastructure
+- Network experimentation and validation
+
