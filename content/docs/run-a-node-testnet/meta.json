@@ -1,0 +1,4 @@
+{
+   "title": "Run a Node on Testnet",
+   "pages": ["node-setup-overview", "run-an-rpc-node", "run-a-full-node", "run-a-validator-node"]
+}
