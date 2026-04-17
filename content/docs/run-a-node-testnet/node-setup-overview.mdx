@@ -1,6 +1,78 @@
 ---
 title: Node Setup Overview
-description: Overview of setting up nodes on Shardeum testnet
+description: Overview of node setup options on the Shardeum testnet
 ---
 
-Content coming soon.
+The Shardeum testnet supports multiple node setup options depending on how you want to participate. Whether you want to validate the network or simply run infrastructure for testing and development, you can choose the setup that best fits your needs.
+
+## Validator Nodes
+
+Validator nodes on the testnet help validate the network by participating in consensus and block production. They are intended for users who want to test validator operations, node management workflows, and network participation in a live test environment.
+
+Use a validator node if you want to:
+
+- Participate in testnet consensus
+- Practice validator setup and operations
+- Test upgrades, monitoring, and maintenance workflows
+- Simulate validator participation before mainnet
+
+## Full Nodes
+
+Full nodes on the testnet do not participate in consensus, but they do verify and maintain the blockchain state. They are useful for developers, infrastructure providers, and teams that need reliable access to network data without running a validator.
+
+Use a full node if you want to:
+
+- Support RPC access for wallets, dApps, or internal tools
+- Test application integrations against live network data
+- Improve testnet infrastructure and resilience
+- Run a non-validating node for development or operational purposes
+
+By default, full nodes typically run with pruning enabled so they store only the recent state required for normal operation.
+
+### RPC Nodes
+
+RPC nodes are full nodes configured to expose JSON-RPC and WebSocket endpoints for developers, dApps, indexers, and other infrastructure use cases. They do not participate in consensus.
+
+Use an RPC node if you want to:
+
+- Provide application access to the testnet
+- Support developer tools and wallet connections
+- Run dedicated infrastructure for testing and integrations
+
+## Archive Nodes
+
+Archive nodes are a special configuration of full nodes that retain the complete historical state of the blockchain from genesis onward. They are mainly useful for advanced infrastructure and data-heavy use cases.
+
+Use an archive node if you need:
+
+- Historical blockchain data
+- Support for indexers and analytics tools
+- Data services for explorers or research
+- Full access to past state for debugging and testing
+
+To run an archive node, pruning must be disabled.
+
+### Startup Flag
+
+```bash
+--pruning nothing
+```
+
+## Which Setup Should You Choose?
+
+Choose the node type based on your goal:
+
+- Run a validator node if you want to test validator participation on the network
+- Run a full or RPC node if you need reliable blockchain data or application access without participating in validation.
+- Run an archive node if you need complete historical state for advanced tooling or analysis
+
+## Before You Begin
+
+Before setting up a node on the Shardeum testnet, make sure you have:
+
+- The correct testnet binary and version
+- The testnet chain ID
+- The testnet RPC and REST endpoints, if needed
+- The appropriate hardware and storage for your chosen node type
+- Testnet-specific configuration details from the official documentation
+
