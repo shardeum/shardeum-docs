@@ -1,6 +1,267 @@
 ---
 title: Run an RPC Node
-description: Guide to running an RPC node on Shardeum testnet
+description: Guide to running an RPC node on the Shardeum testnet
 ---
 
-Content coming soon.
+import { Callout } from 'fumadocs-ui/components/callout';
+
+An RPC node provides JSON-RPC and WebSocket endpoints for developers, dApps, indexers, infrastructure providers, and testing or integration environments.
+RPC nodes do not validate blocks and do not require staking.
+
+<Callout type="warn"> 
+RPC nodes should not expose consensus ports publicly and must follow strict security practices. 
+</Callout>
+
+## 1. System Requirements
+
+Recommended:
+
+- OS: Ubuntu 22.04 LTS
+- CPU: 4 cores
+- RAM: 8–16 GB
+- Storage: 500 GB+ NVMe SSD
+- Network: High-bandwidth connection
+- Dependencies: git, jq, curl, make, build-essential, pkg-config
+- Go: v1.25+
+
+### Install dependencies:
+
+```bash
+sudo apt update
+sudo apt install git jq curl make build-essential pkg-config -y
+```
+
+## 2. Install Shardeum Node Binary
+
+```bash
+git clone https://github.com/shardeum/shardeum-evm.git
+cd shardeum-evm
+make install
+```
+
+Verify:
+
+```bash
+shardeumd version
+command -v shardeumd
+```
+
+## 3. Environment Variables
+
+```bash
+export SHARDEUM_CONFIG_DIR="$PWD/config"
+export SHARDEUM_NETWORK=testnet
+```
+
+## 4. Initialize the Node
+
+```bash
+NODE_ID="rpcnode"
+MONIKER="shardeum-testnet-rpc"
+
+shardeumd init "$MONIKER" \
+  --chain-id shardeum_8119-2 \
+  --home $HOME/.testnet/$NODE_ID \
+  --overwrite
+```
+
+## 5. Copy Genesis File
+
+```bash
+cp config/environments/testnet-genesis.json $HOME/.testnet/$NODE_ID/config/genesis.json
+jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
+```
+
+## 6. Start and Sync the Node
+
+Start:
+
+```bash
+shardeumd start \
+  --home $HOME/.testnet/$NODE_ID \
+  --chain-id shardeum_8119-2 \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657 \
+  > $HOME/.testnet/$NODE_ID/node.log &
+```
+
+Note: Ensure you are using the latest seeds or peers from the official repository or documentation. Without peers, the node may not sync.
+
+Monitor:
+
+```bash
+shardeumd status | jq '.SyncInfo'
+tail -f $HOME/.testnet/$NODE_ID/node.log
+```
+
+Wait until fully synced.
+
+## 7. Enable JSON-RPC
+
+Edit `$HOME/.testnet/$NODE_ID/config/app.toml`:
+
+Find the RPC section and set:
+
+```toml
+json-rpc.enable = true
+json-rpc.address = "0.0.0.0:8545"
+json-rpc.ws-address = "0.0.0.0:8546"
+```
+
+Restart your node if using systemd.
+
+## 8. Optional: Enable gRPC and REST Endpoints
+
+In `app.toml`:
+
+```toml
+grpc.enable = true
+grpc.address = "0.0.0.0:9090"
+
+api.enable = true
+api.address = "0.0.0.0:1317"
+```
+
+Enable these only if required by your infrastructure or testing flow.
+
+## 9. Firewall Configuration
+
+Expose only the ports you actually need:
+
+```bash
+sudo ufw allow 8545/tcp   # JSON-RPC
+sudo ufw allow 8546/tcp   # WebSocket
+sudo ufw allow 9090/tcp   # gRPC (optional)
+sudo ufw allow 1317/tcp   # REST API (optional)
+sudo ufw allow 27656/tcp  # P2P
+sudo ufw enable
+```
+
+<Callout type="error"> 
+Do not expose port 26657 (Tendermint RPC) to the public. Restrict sensitive endpoints to localhost or trusted IPs. 
+</Callout>
+
+## 10. systemd Service (Recommended)
+
+Create service:
+
+```bash
+sudo nano /etc/systemd/system/shardeumd-rpc-testnet.service
+```
+
+Example:
+
+```ini
+[Unit]
+Description=Shardeum Testnet RPC Node
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/shardeumd start --home /root/.testnet/rpcnode
+Restart=on-failure
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable:
+
+```bash
+sudo systemctl enable shardeumd-rpc-testnet
+sudo systemctl start shardeumd-rpc-testnet
+```
+
+## 11. Pruning
+
+RPC nodes often use archive or custom pruning depending on their purpose.
+
+For full historical state:
+
+```toml
+pruning = "nothing"
+```
+
+For lighter infrastructure:
+
+```toml
+pruning = "custom"
+pruning-keep-recent = "10000"
+pruning-interval = "50"
+```
+
+Restart the node after changes.
+
+## 12. Scaling RPC Nodes (Optional)
+
+For higher traffic or team-based testing:
+
+- Use load balancers such as Nginx, HAProxy, or AWS ELB
+- Run multiple RPC nodes behind a reverse proxy
+- Rate-limit requests to avoid overload
+- Separate public RPC from internal infrastructure RPC
+- Run indexing services in parallel if needed
+
+## 13. Useful Commands
+
+Check sync:
+
+```bash
+shardeumd status | jq '.SyncInfo'
+```
+
+Check network peers:
+
+```bash
+curl -s http://localhost:26657/net_info | jq '.result'
+```
+
+Check logs:
+
+```bash
+journalctl -u shardeumd-rpc-testnet -f
+```
+
+Query JSON-RPC:
+
+```bash
+curl -s http://<your-ip>:8545 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
+```
+
+## 14. Troubleshooting
+
+### RPC endpoint not responding
+
+- Confirm JSON-RPC is enabled in `app.toml`
+- Confirm IP binding is correct
+- Check firewall rules
+- Check that the node is fully synced
+
+### High latency
+
+- Reduce pruning burden if archive mode is unnecessary
+- Increase hardware resources
+- Add more RPC nodes behind a proxy
+
+### Node stuck catching up
+
+- Check peers
+- Restart node
+- Verify time sync (NTP)
+- Confirm you are using the correct testnet chain ID and genesis file
+
+## RPC Node Setup Complete
+
+Your RPC node is operational and ready to serve JSON-RPC and WebSocket traffic for the Shardeum testnet.
+
+Use this setup for:
+
+- Testing environments
+- dApp and wallet integrations
+- Indexers and infra services
+- Exchange and backend validation flows
+
