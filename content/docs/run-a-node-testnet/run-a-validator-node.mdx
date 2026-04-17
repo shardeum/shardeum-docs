@@ -1,6 +1,223 @@
 ---
 title: Run a Validator Node
-description: Guide to running a validator node on Shardeum testnet
+description: Guide to running a validator node on the Shardeum testnet
 ---
 
-Content coming soon.
+import { Callout } from 'fumadocs-ui/components/callout';
+
+A validator node participates in block production and consensus on the Shardeum testnet. It is used to test validator operations, node performance, and network behavior in a live environment.
+
+Validator requirements and staking behavior on testnet may differ from mainnet.
+
+<Callout type="warn">
+Testnet configurations, chain IDs, staking requirements, and token availability may change. Always refer to the latest repository or official announcements.
+</Callout>
+
+---
+
+## 1. System Requirements
+
+- Operating System: Ubuntu 22.04 LTS  
+- CPU: 4 cores (8 threads recommended)  
+- RAM: 16GB  
+- Storage: 1TB NVMe SSD  
+- Network: 100 Mbps dedicated  
+- Dependencies: git, jq, curl, make, build-essential, pkg-config  
+- Go: Version 1.25+  
+
+### Install dependencies:
+
+```bash
+sudo apt update
+sudo apt install git jq curl make build-essential pkg-config -y
+```
+
+## 2. Install Shardeum Node Binary
+
+```bash
+git clone https://github.com/shardeum/shardeum-evm.git
+cd shardeum-evm
+make install
+```
+
+Verify:
+
+```bash
+shardeumd version
+command -v shardeumd
+```
+
+## 3. Set Environment Variables
+
+```bash
+export SHARDEUM_CONFIG_DIR="$PWD/config"
+export SHARDEUM_NETWORK=testnet
+```
+
+## 4. Initialize the Node
+
+<Callout type="warn"> 
+Ensure your keys and mnemonic are stored securely. Loss of keys may result in loss of validator access. 
+</Callout>
+
+```bash
+NODE_ID="<validator-id>"
+MONIKER="<validator-name>"
+
+shardeumd init "$MONIKER" \
+  --chain-id shardeum_8119-2 \
+  --home $HOME/.testnet/$NODE_ID \
+  --overwrite
+```
+
+*Note: Chain ID: Refer to the latest testnet configuration in the repository*
+
+## 5. Copy Genesis File
+
+```bash
+cp config/environments/testnet-genesis.json $HOME/.testnet/$NODE_ID/config/genesis.json
+```
+
+Verify:
+
+```bash
+jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
+```
+
+## 6. Start and Sync the Node
+
+```bash
+shardeumd start \
+  --home $HOME/.testnet/$NODE_ID \
+  --chain-id shardeum_8119-2 \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657 \
+  > $HOME/.testnet/$NODE_ID/node.log &
+```
+
+Monitor:
+
+```bash
+tail -f $HOME/.testnet/$NODE_ID/node.log
+```
+
+<Callout type="warn"> 
+Ensure your node is connected to peers. Without peers, the node will not sync. 
+</Callout>
+
+Wait until fully synced before proceeding.
+
+**Note**: Initial sync may take time depending on hardware and network conditions.
+
+You can verify sync status using:
+
+```bash
+shardeumd status | jq '.SyncInfo'
+```
+
+## 7. Create Validator Key
+
+<Callout type="error"> 
+Only perform this step after the node is fully synced. 
+</Callout>
+
+```bash
+shardeumd keys add validator-key
+```
+
+Or recover:
+
+```bash
+shardeumd keys add validator-key --recover
+```
+
+Retrieve your validator address:
+
+```bash
+shardeumd keys show validator-key -a
+```
+
+<Callout type="warn"> 
+Store your mnemonic phrase securely. It is required for recovery. 
+</Callout>
+
+## 8. Fund Your Validator (Testnet)
+
+Testnet SHM tokens can be obtained via [faucets](/docs/developer/testnet-quickstart#step-2-claim-testnet-shm)
+
+<Callout type="info"> 
+Use official testnet faucets or community distribution channels to obtain testnet SHM tokens. 
+</Callout>
+
+Verify balance:
+
+```bash
+shardeumd query bank balances $(shardeumd keys show validator-key -a)
+```
+
+## 9. Create Your Validator
+
+Get consensus key:
+
+```bash
+shardeumd comet show-validator --home $HOME/.testnet/$NODE_ID
+```
+
+Create `validator.json`:
+
+<Callout type="info">
+Adjust the stake amount based on testnet requirements and available balance.
+</Callout>
+
+```json
+{
+  "pubkey": {
+    "@type": "/cosmos.crypto.ed25519.PubKey",
+    "key": "<your consensus key>"
+  },
+  "amount": "1000000000000000000ashm",
+  "moniker": "<your validator name>",
+  "commission-rate": "0.10",
+  "commission-max-rate": "0.20",
+  "commission-max-change-rate": "0.01",
+  "min-self-delegation": "1"
+}
+```
+
+Create validator:
+
+```bash
+shardeumd tx staking create-validator validator.json \
+  --from=validator-key \
+  --chain-id shardeum_8119-2 \
+  --gas="auto" \
+  --gas-adjustment="1.5"
+```
+
+## 10. Verify Validator Status
+
+```bash
+shardeumd query staking validator $(shardeumd keys show validator-key --bech val -a)
+```
+
+Look for:
+- status: BONDED (or equivalent)
+- voting power > 0
+
+## 11. Important Notes
+
+- EVM Chain ID: `8119`
+- Network: Testnet (subject to resets)
+- Tokens: No real value
+- Validator set may reset between testnet phases
+- Slashing/penalties may not fully apply
+
+## Validator Setup Complete
+
+Your testnet validator node is now running. You can use it for:
+
+- Validator testing and operations
+- Performance benchmarking
+- Upgrade and maintenance simulations
+- Network participation experiments
+
