@@ -60,7 +60,7 @@ NODE_ID="rpcnode"
 MONIKER="shardeum-testnet-rpc"
 
 shardeumd init "$MONIKER" \
-  --chain-id shardeum_8119-2 \
+  --chain-id shardeum-testnet \
   --home $HOME/.testnet/$NODE_ID \
   --overwrite
 ```
@@ -79,7 +79,8 @@ Start:
 ```bash
 shardeumd start \
   --home $HOME/.testnet/$NODE_ID \
-  --chain-id shardeum_8119-2 \
+  --chain-id shardeum-testnet \
+  --p2p.seeds "c15cdf69a0332a29a12b448ecf310b39d1d7659d@34.57.163.115:27656,1d6f78c5a0d3302b3b3ee963a9414b4909a5032f@34.170.136.184:27656,2773057c346152646bb71639dcc88828d1bbd1cf@34.63.57.148:27656" \
   --p2p.laddr tcp://0.0.0.0:27656 \
   --rpc.laddr tcp://127.0.0.1:26657 \
   > $HOME/.testnet/$NODE_ID/node.log &
