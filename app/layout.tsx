@@ -1,34 +1,23 @@
-"use client";import './global.css';
-import { RootProvider } from 'fumadocs-ui/provider';
+import './global.css';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { useState, useEffect, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
-import Footer from '../components/Footer/page';
-import Header from '../components/Header/page';
+import ClientLayout from './client-layout';
 
 const inter = Inter({
   subsets: ['latin'],
 });
 
+export const metadata: Metadata = {
+  title: 'Shardeum | EVM L1 for Real-World Asset Tokenization',
+  description:
+    'Shardeum developer docs for EVM smart contracts, Solidity, JSON-RPC, network setup, testnet, nodes and Layer 1 architecture.',
+};
+
 export default function Layout({ children }: { children: ReactNode }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
   return (
-    <html lang="en" className={`${inter.className} ${isDarkMode ? 'dark' : ''}`} suppressHydrationWarning>
+    <html lang="en" className={inter.className} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/img/favicon.ico" />
         <script
@@ -43,7 +32,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           }}
         />
       </head>
-      <body className={!mounted ? 'invisible' : ''}>
+      <body>
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-N6NTB5C"
@@ -52,15 +41,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             style={{ display: 'none', visibility: 'hidden' }}
           ></iframe>
         </noscript>
-        <RootProvider
-          theme={{
-            enabled: true,
-          }}
-        >
-          <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-          <main>{children}</main>
-          <Footer isDarkMode={isDarkMode} />
-        </RootProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
