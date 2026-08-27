@@ -3,7 +3,9 @@ title: Node Types
 description: Understanding different node types on Shardeum
 ---
 
-The Shardeum network runs on two main types of nodes. Each node type serves a different purpose, and operators can choose the configuration that best matches how they want to support the network.
+The Shardeum network runs on two main types of nodes. Each node type serves a different purpose, and operators can choose the configuration that best matches how they want to support the network. 
+
+**Note**: Detailed setup guides for running Validator, Full, Archive, and RPC nodes are available throughout the Run a Node section of this documentation. Read on to learn about each node type.
 
 ## Validator Nodes
 
@@ -20,10 +22,12 @@ The Shardeum network runs on two main types of nodes. Each node type serves a di
    - Improving network resilience
    - Non-validating node participation
 
-### Archive Nodes
+Depending on their infrastructure needs, *developers, dApps, explorers, indexers, and service providers* may also operate:
+
+**Archive Nodes**
 
 Archive nodes are a special configuration of full nodes.
-1. **Role**: Archive nodes store all historical blockchain state from genesis to the present.
+1. **Role**: Archive nodes store all historical blockchain state from genesis to the present. require significantly more storage than standard full nodes.
 2. **Use cases include**:
    - Indexers
    - Blockchain analytics
@@ -36,4 +40,15 @@ Archive nodes are a special configuration of full nodes.
 --pruning nothing
 ```
 
-**Note**: Running an archive node requires significantly more storage and may grow rapidly over time.
+**RPC Nodes**
+
+RPC nodes provide network access for applications and infrastructure through JSON-RPC and WebSocket endpoints.
+1. **Role**: RPC nodes serve requests from developers, dApps, wallets, indexers, and infrastructure providers. They do not participate in consensus.
+2. **Use cases include**:
+   - dApp backend integrations
+   - Wallet connectivity
+   - Indexing services
+   - Developer environments
+   - Public or private RPC infrastructure
+3. **Interfaces**: RPC nodes can expose JSON-RPC and WebSocket endpoints
+4. **Configuration**: RPC access is enabled through the node configuration. Custom pruning is recommended for typical RPC deployments, depending on infrastructure and historical-data requirements.
