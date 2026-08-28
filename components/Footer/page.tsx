@@ -1,7 +1,7 @@
 const navigation = {
   general: [
     { name: 'Home', href: '/' },
-    { name: 'Ecosystem', href: '/docs/ecosystem' },
+    { name: 'Ecosystem', href: 'https://shardeum.org/ecosystem/' },
     { name: 'Testnet Quickstart', href: '/docs/developer/testnet-quickstart' },
     { name: 'Blog', href: 'https://shardeum.org/blog/' },
   ],
@@ -20,8 +20,8 @@ const navigation = {
   ],
   contact: [
     { name: 'General Enquiries', href: 'mailto:hi@shardeum.org' },
-    { name: 'Partnership Enquiries', href: 'https://docs.google.com/forms/d/e/1FAIpQLScrlxjRYCHp-wq96UXvnKIjcxY8bw6X11-kXj4A2iq6nqvg0g/viewform' },
-    { name: 'Report Bugs', href: 'https://github.com/shardeum/shardeum-docs/issues/new' },
+    { name: 'Partnership Enquiries', href: 'https://shm.gg/partner-form' },
+    { name: 'Report Bugs', href: 'https://github.com/shardeum/bug-reporting' },
     { name: 'Report Security Issue', href: 'mailto:security@shardeum.org' },
   ],
   social: [

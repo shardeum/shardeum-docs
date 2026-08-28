@@ -6,7 +6,7 @@ const navItems = [
   { name: 'Connect to Shardeum', href: '/docs/overview/endpoints' },
   { name: 'Delegate Now', href: 'https://dashboard.shardeum.org/validators' },
   { name: 'Github', href: 'https://github.com/shardeum' },
-  { name: 'Partnership Enquiries', href: 'https://docs.google.com/forms/d/e/1FAIpQLScrlxjRYCHp-wq96UXvnKIjcxY8bw6X11-kXj4A2iq6nqvg0g/viewform' },
+  { name: 'Partnership Enquiries', href: 'https://shm.gg/partner-form' },
   { name: 'Testnet Quickstart', href: '/docs/developer/testnet-quickstart' },
 ];
 
