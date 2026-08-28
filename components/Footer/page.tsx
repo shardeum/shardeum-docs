@@ -1,13 +1,12 @@
 const navigation = {
   general: [
     { name: 'Home', href: '/' },
-    { name: 'Roadmap', href: 'https://shardeum.org/roadmap/' },
-    { name: 'Testnet SHM', href: '/docs/developer/testnet-quickstart' },
-    { name: 'Ambassador Program', href: 'https://shardeum.org/ambassador-program/' },
+    { name: 'Ecosystem', href: '/docs/ecosystem' },
+    { name: 'Testnet Quickstart', href: '/docs/developer/testnet-quickstart' },
     { name: 'Blog', href: 'https://shardeum.org/blog/' },
   ],
   community: [
-    { name: 'Telegram', href: 'http://t.me/shardians' },
+    { name: 'Telegram', href: 'https://t.me/shardeum' },
     { name: 'Discord', href: 'http://discord.gg/shardeum' },
     { name: 'Twitter', href: 'https://twitter.com/shardeum' },
     { name: 'GitHub', href: 'https://github.com/shardeum' },
@@ -22,6 +21,8 @@ const navigation = {
   contact: [
     { name: 'General Enquiries', href: 'mailto:hi@shardeum.org' },
     { name: 'Partnership Enquiries', href: 'https://docs.google.com/forms/d/e/1FAIpQLScrlxjRYCHp-wq96UXvnKIjcxY8bw6X11-kXj4A2iq6nqvg0g/viewform' },
+    { name: 'Report Bugs', href: 'https://github.com/shardeum/shardeum-docs/issues/new' },
+    { name: 'Report Security Issue', href: 'mailto:security@shardeum.org' },
   ],
   social: [
     {
@@ -77,7 +78,7 @@ export default function Footer({ isDarkMode }: { isDarkMode: boolean }) {
               alt="Company name"
             />
             <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
-              India's EVM Compatible Layer 1 Blockchain
+              EVM L1 for Real-World Asset Tokenization
             </p>
             <p className="text-xs leading-5 text-gray-500 dark:text-gray-400">&copy; {new Date().getFullYear()} Shardeum, Inc. All rights reserved.</p>
             <div className="flex space-x-6">
