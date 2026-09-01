@@ -1,4 +1,5 @@
 import { getPage, getPages } from '@/app/source';
+import { isExcluded } from '@/app/excluded-pages';
 import type { Metadata } from 'next';
 import { DocsPage, DocsBody } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
@@ -26,17 +27,8 @@ export default async function Page({
 }
 
 export async function generateStaticParams() {
-  const excluded = [
-    'developer/smart-contracts/boilerplate',
-    'developer/smart-contracts/deploy/foundry',
-    'developer/smart-contracts/deploy/hardhat',
-    'developer/smart-contracts/eip-2930/multicall-contract',
-    'developer/smart-contracts/eip-2930/solidityInterfaces',
-    'developer/smart-contracts/events/poll-events',
-  ];
-
   return getPages()
-    .filter((page) => !excluded.includes(page.slugs?.join('/')))
+    .filter((page) => !isExcluded(page.slugs))
     .map((page) => ({
       slug: page.slugs,
     }));

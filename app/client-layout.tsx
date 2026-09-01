@@ -10,17 +10,29 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem('theme');
+    } catch {
+      // localStorage unavailable (private mode / blocked storage) — fall back to OS preference
+    }
+    if (stored === 'dark' || stored === 'light') {
+      setIsDarkMode(stored === 'dark');
+    } else {
+      setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (!mounted) return;
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    try {
+      window.localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    } catch {
+      // ignore persistence failures
     }
-  }, [isDarkMode]);
+  }, [isDarkMode, mounted]);
 
   return (
     <div className={!mounted ? 'invisible' : ''}>
