@@ -12,7 +12,7 @@ export default async function Page({
   params: { slug?: string[] };
 }) {
   const page = getPage(params.slug);
-  if (page == null) notFound();
+  if (page == null || isExcluded(params.slug)) notFound();
 
   const MDX = page.data.exports.default;
 
@@ -36,7 +36,7 @@ export async function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { slug?: string[] } }) {
   const page = getPage(params.slug);
-  if (page == null) notFound();
+  if (page == null || isExcluded(params.slug)) notFound();
 
   return {
     title: page.data.title,
