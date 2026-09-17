@@ -1,4 +1,4 @@
 {
   "title": "Developers",
-  "pages": ["testnet-quickstart", "architecture", "smart-contracts", "deploy-dapps", "json-rpc", "network-interfaces"]
+  "pages": ["testnet-quickstart", "architecture", "smart-contracts", "deploy-dapps", "json-rpc", "network-interfaces", "integration-and-tools"]
 }
