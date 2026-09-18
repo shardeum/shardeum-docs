@@ -34,13 +34,31 @@ sudo apt install git jq curl make build-essential pkg-config -y
 
 ## 2. Install Shardeum Node Binary
 
+**Fetch the latest release tags and check out the currently supported testnet release. Replace `<supported-testnet-release>` in the command line below with the applicable release tag.
+
+Check the [official Shardeum EVM releases](https://github.com/shardeum/shardeum-evm/releases) and use the release tag currently supported for Shardeum testnet. 
+
 ```bash
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
+git fetch --tags
+git checkout <supported-testnet-release>
+```
+
+Build and install the binary (may take several minutes):
+
+```bash
 make install
 ```
 
-Verify:
+Add the Go bin directory to PATH:
+
+```bash
+echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Verify the installation:
 
 ```bash
 shardeumd version
@@ -52,12 +70,13 @@ command -v shardeumd
 ```bash
 export SHARDEUM_CONFIG_DIR="$PWD/config"
 export SHARDEUM_NETWORK=testnet
+export SHARDEUM_CHAIN_ID=shardeum_8119-2
 ```
 
 ## 4. Initialize the Node
 
 <Callout type="warn"> 
-Ensure your keys and mnemonic are stored securely. Loss of keys may result in loss of validator access. 
+Ensure your validator keys and mnemonic are stored securely. Loss of your mnemonic may prevent recovery of the validator account.
 </Callout>
 
 ```bash
@@ -65,7 +84,7 @@ NODE_ID="<validator-id>"
 MONIKER="<validator-name>"
 
 shardeumd init "$MONIKER" \
-  --chain-id shardeum-testnet \
+  --chain-id shardeum_8119-2 \
   --home $HOME/.testnet/$NODE_ID \
   --overwrite
 ```
@@ -82,26 +101,32 @@ Verify:
 jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
 ```
 
+The expected chain ID is:
+
+```text
+shardeum_8119-2
+```
+
 ## 6. Start and Sync the Node
 
 ```bash
 shardeumd start \
   --home $HOME/.testnet/$NODE_ID \
-  --chain-id shardeum-testnet \
+  --chain-id shardeum_8119-2 \
   --p2p.seeds "c15cdf69a0332a29a12b448ecf310b39d1d7659d@34.57.163.115:27656,1d6f78c5a0d3302b3b3ee963a9414b4909a5032f@34.170.136.184:27656,2773057c346152646bb71639dcc88828d1bbd1cf@34.63.57.148:27656" \
   --p2p.laddr tcp://0.0.0.0:27656 \
   --rpc.laddr tcp://127.0.0.1:26657 \
   > $HOME/.testnet/$NODE_ID/node.log &
 ```
 
-Monitor:
+**Monitor node logs:**:
 
 ```bash
 tail -f $HOME/.testnet/$NODE_ID/node.log
 ```
 
 <Callout type="warn"> 
-Ensure your node is connected to peers. Without peers, the node will not sync. 
+Ensure the node is connected to peers and wait until it is fully synced before proceeding.
 </Callout>
 
 Wait until fully synced before proceeding.
@@ -114,7 +139,7 @@ You can verify sync status using:
 shardeumd status | jq '.SyncInfo'
 ```
 
-## 7. Create Validator Key
+## 7. Create the Validator Key
 
 <Callout type="error"> 
 Only perform this step after the node is fully synced. 
@@ -137,15 +162,15 @@ shardeumd keys show validator-key -a
 ```
 
 <Callout type="warn"> 
-Store your mnemonic phrase securely. It is required for recovery. 
+Store your mnemonic phrase securely. It is required for recovery. Also, the operator may be prompted for a keyring passphrase.
 </Callout>
 
 ## 8. Fund Your Validator (Testnet)
 
-Testnet SHM tokens can be obtained via [faucets](/docs/developer/testnet-quickstart#step-2-claim-testnet-shm)
+Your validator account needs testnet SHM to stake and pay transaction fees. Testnet SHM tokens can be obtained via [faucets](/docs/developer/testnet-quickstart#step-2-claim-testnet-shm)
 
 <Callout type="info"> 
-Use official testnet faucets or community distribution channels to obtain testnet SHM tokens. 
+Use official testnet faucets/community distribution channels to obtain testnet SHM tokens. 
 </Callout>
 
 Verify balance:
@@ -154,7 +179,7 @@ Verify balance:
 shardeumd query bank balances $(shardeumd keys show validator-key -a)
 ```
 
-## 9. Create Your Validator
+## 9. Create Your Validator and Stake Testnet SHM
 
 Get consensus key:
 
@@ -165,7 +190,7 @@ shardeumd comet show-validator --home $HOME/.testnet/$NODE_ID
 Create `validator.json`:
 
 <Callout type="info">
-Adjust the stake amount based on testnet requirements and available balance.
+Adjust the stake amount based on current testnet requirements and your available testnet SHM balance.
 </Callout>
 
 ```json
@@ -188,7 +213,7 @@ Create validator:
 ```bash
 shardeumd tx staking create-validator validator.json \
   --from=validator-key \
-  --chain-id shardeum-testnet \
+  --chain-id shardeum_8119-2 \
   --gas="auto" \
   --gas-adjustment="1.5"
 ```
@@ -200,23 +225,77 @@ shardeumd query staking validator $(shardeumd keys show validator-key --bech val
 ```
 
 Look for:
-- status: BONDED (or equivalent)
-- voting power > 0
+- Status: `BOND_STATUS_BONDED`
+- Voting power: greater than `0`
+- Jailed: `false`
 
-## 11. Important Notes
+## 11. Optional: Run as a systemd Service
 
-- Testnet Chain ID: `shardeum-testnet`
-- Network: Testnet (subject to resets)
-- Tokens: No real value
-- Validator set may reset between testnet phases
-- Slashing/penalties may not fully apply
+**Check the installed Shardeum binary path:**
+
+```bash
+command -v shardeumd
+```
+**Create the service file:**
+
+```bash
+sudo nano /etc/systemd/system/shardeumd-testnet.service
+```bash
+
+Example content:
+
+`ini`
+[Unit]
+Description=Shardeum Testnet Validator
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=<shardeumd-binary-path> start \
+  --home /root/.testnet/<validator-id> \
+  --chain-id shardeum_8119-2 \
+  --p2p.seeds "c15cdf69a0332a29a12b448ecf310b39d1d7659d@34.57.163.115:27656,1d6f78c5a0d3302b3b3ee963a9414b4909a5032f@34.170.136.184:27656,2773057c346152646bb71639dcc88828d1bbd1cf@34.63.57.148:27656" \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+  ...
+```
+
+Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd` and `<validator-id>`` with the validator node ID configured earlier.
+
+If the validator is already running from the manual startup command above, stop that process before starting the systemd service.
+
+****Reload systemd, then enable and start the service:**
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable shardeumd-testnet
+sudo systemctl start shardeumd-testnet
+sudo systemctl status shardeumd-testnet
+```
+
+## 12. Important Notes
+
+- Consensus Chain ID: `shardeum_8119-2`
+- EVM Chain ID: `8119`
+- Network: Shardeum EVM Testnet
+- Testnet SHM has no real-world monetary value.
+- Testnet configuration and validator state may be reset or changed between testnet phases.
+- Staking, slashing, validator-set parameters, and other network settings may differ from mainnet.
 
 ## Validator Setup Complete
 
-Your testnet validator node is now running. You can use it for:
+Your Shardeum testnet validator is now configured and participating in the network when bonded.
 
-- Validator testing and operations
-- Performance benchmarking
-- Upgrade and maintenance simulations
+You can use the testnet validator environment for:
+
+- Validator operations and testing
+- Upgrade and maintenance testing
+- Performance monitoring
 - Network participation experiments
 
