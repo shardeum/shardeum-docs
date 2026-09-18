@@ -30,15 +30,49 @@ sudo apt update
 sudo apt install git jq curl make build-essential pkg-config -y
 ```
 
+### Install Go
+
+```bash
+curl -LO https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc
+go version
+```bash
+
 ## 2. Install Shardeum Node Binary
+
+Clone the Shardeum EVM repository:
 
 ```bash
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
+```
+
+Fetch the latest release tags and check out the currently supported testnet release:
+
+```bash
+git fetch --tags
+git checkout <supported-testnet-release>
+```bash
+
+Replace `<supported-testnet-release>` with the release tag currently supported for Shardeum testnet.
+
+Build and install the binary (may take several minutes):
+
+```bash
 make install
 ```
 
-Verify:
+Add the Go bin directory to PATH:
+
+```bash
+echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Verify the installation:
 
 ```bash
 shardeumd version
@@ -69,12 +103,39 @@ shardeumd init "$MONIKER" \
 ## 5. Copy Genesis File
 
 ```bash
-cp config/environments/testnet-genesis.json $HOME/.testnet/$NODE_ID/config/genesis.json
+cp config/environments/testnet-genesis.json \
+   $HOME/.testnet/$NODE_ID/config/genesis.json
+
+```bash
 ls -lh $HOME/.testnet/$NODE_ID/config/genesis.json
 jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
 ```
 
-## 6. Start and Sync the Node
+## 6. Configure Pruning
+
+Full nodes can use pruning to manage storage usage.
+
+Default configuration is:
+
+```toml
+pruning = "default"
+```
+
+If you prefer custom pruning:
+
+```toml
+pruning = "custom"
+pruning-keep-recent = "10000"
+pruning-interval = "50"
+```
+
+If you require complete historical state, run an Archive Node instead using:
+
+```toml
+pruning = "nothing"
+```
+
+## 7. Start and Sync the Node
 
 Start:
 
@@ -108,9 +169,15 @@ Wait until fully synced.
 Ensure your node is connected to peers. Without peers, the node will not sync. Refer to the repository or official documentation for the latest seeds or peer configuration. 
 </Callout>
 
-## 7. Optional: Run as systemd Service
+## 8. Optional: Run as systemd Service
 
-Create service:
+**Check the installed Shardeum binary path:**
+
+```bash
+command -v shardeumd
+```
+
+Create the service file:
 
 ```bash
 sudo nano /etc/systemd/system/shardeumd-testnet.service
@@ -125,23 +192,32 @@ After=network-online.target
 
 [Service]
 User=root
-ExecStart=/usr/local/bin/shardeumd start --home /root/.testnet/node0
+ExecStart=<shardeumd-binary-path> start \
+  --home /root/.testnet/<node-id> \
+  --chain-id shardeum-testnet \
+  --p2p.seeds "<same-testnet-seed-list-used-above>" \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657
 Restart=on-failure
+RestartSec=3
 LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Enable:
+Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd`, `<node-id>` with the node ID configured earlier, and use the same testnet seed list specified in the startup instructions above.
+
+Reload systemd, then enable and start the service:
 
 ```bash
+sudo systemctl daemon-reload
 sudo systemctl enable shardeumd-testnet
 sudo systemctl start shardeumd-testnet
 sudo systemctl status shardeumd-testnet
 ```
 
-## 8. Optional: Enable JSON-RPC
+## 9. Optional: Enable JSON-RPC
 
 Edit `config/app.toml` inside your node directory:
 
@@ -151,9 +227,17 @@ json-rpc.address = "0.0.0.0:8545"
 json-rpc.ws-address = "0.0.0.0:8546"
 ```
 
-Restart the node if using systemd.
+**Path**
 
-## 9. Firewall Configuration
+$HOME/.testnet/$NODE_ID/config/app.toml
+
+If the node is already running as a systemd service, restart it for the changes to take effect:
+
+```bash
+sudo systemctl restart shardeumd-testnet
+```
+
+## 10. Firewall Configuration
 
 ```bash
 sudo ufw allow 27656/tcp   # P2P
@@ -165,26 +249,6 @@ sudo ufw enable
 <Callout type="warn"> 
 For public exposure, restrict JSON-RPC access to trusted IPs or use a reverse proxy. 
 </Callout>
-
-## 10. Optional: Pruning Settings
-
-Full nodes can reduce storage usage.
-
-Default:
-
-```toml
-pruning = "default"
-```
-
-Custom:
-
-```toml
-pruning = "custom"
-pruning-keep-recent = "10000"
-pruning-interval = "50"
-```
-
-Restart node after making changes.
 
 ## 11. Node Management Commands
 
@@ -221,13 +285,13 @@ tail -f $HOME/.testnet/$NODE_ID/node.log
 ### Stop Node
 
 ```bash
-pkill shardeumd
+sudo systemctl stop shardeumd-testnet
 ```
 
-Or
+If you started the node manually instead:
 
 ```bash
-sudo systemctl stop shardeumd-testnet
+pkill shardeumd
 ```
 
 ## 12. Troubleshooting
@@ -246,7 +310,7 @@ sudo systemctl stop shardeumd-testnet
 - Increase disk size
 - Avoid archive mode unless required
 
-### RPC Not Responding
+### JSON-RPC Not Responding
 
 - Check firewall rules
 - Verify JSON-RPC settings
@@ -255,17 +319,15 @@ sudo systemctl stop shardeumd-testnet
 
 ## 13. Important Notes
 
-- EVM Chain ID: `shardeum-testnet`
-- Network: Testnet (configuration may change)
-- Genesis File: Use latest from repository
-- Archive Mode: Use `pruning = "nothing"` only if required
-- Backups: Back up `node_key.json` securely
+- Testnet Chain ID: `shardeum-testnet`
+- EVM Chain ID: `8119`
+- Network: Shardeum EVM Testnet (configuration may change)
+- Genesis File: Use the testnet genesis file included with the supported release.
+- Archive Mode: Use `pruning = "nothing"` only when complete historical state is required.
+- Backups: Back up `node_key.json` securely.
+- Testnet configuration may change between testnet phases.
 
 ## Full Node Setup Complete
 
-Your Shardeum testnet full node is now running and contributing to network testing and infrastructure. You may use it for:
-
-- dApp testing and development
-- RPC infrastructure
-- Network experimentation and validation
+Your Shardeum testnet full node is now configured and syncing with the network. Once fully synced, you can use it for network testing, infrastructure experiments, and optionally serving RPC interfaces.
 
