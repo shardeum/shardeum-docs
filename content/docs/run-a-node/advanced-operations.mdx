@@ -8,7 +8,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 This guide covers advanced operational topics for running production-grade Shardeum nodes.
 
 <Callout type="info">
-While the current codebase supports advanced node operations, operators attempting advanced configurations should have a solid understanding of blockchain infrastructure and system administration.
+Mainnet validator update: Validators should run the currently supported Shardeum EVM mainnet release. Following the September 2026 security update, validators restarting their nodes should use v1.0.2 or later as officially announced. See the [official Shardeum EVM releases] for binaries, Docker images, and checksums.
 </Callout>
 
 ## 1. Production Deployment Best Practices
@@ -214,6 +214,34 @@ echo "Backup completed: backup_$DATE.tar.gz"
 3. Sync node to current block height
 4. Unjail validator if necessary
 
+#### Unjailing a validator
+
+If your validator is jailed, first make sure the node is running correctly and using the currently supported Shardeum mainnet release. Once the underlying issue has been resolved, submit an unjail transaction using your operator key.
+
+```
+export SHARDEUM_NETWORK=mainnet
+export SHARDEUM_CHAIN_ID=shardeum_8118-1
+export SHARDEUM_CONFIG_DIR=<shardeum-config-dir>
+
+shardeumd tx slashing unjail --from <operator-key> \
+  --chain-id shardeum_8118-1 \
+  --node https://rpc.shardeum.org:443 \
+  --gas auto \
+  --gas-adjustment 1.3 \
+  --gas-prices 2048130280389041ashm \
+  --yes
+```
+
+**To find your operator key:**
+
+```
+shardeumd keys list \
+  --keyring-backend [test|os|file] \
+  --home <home-path>
+```
+
+Note: `<home-path>` should be the same node home directory used when starting the validator. Use the same keyring backend that was used when the operator key was created.
+
 ## 5. Performance Optimization
 
 ### Pruning Strategies
@@ -349,27 +377,28 @@ shardeumd query slashing signing-info $(shardeumd comet show-validator)
 ### Coordinated Network Upgrades
 
 **Preparation:**
-1. Monitor official announcements for upgrade schedule
-2. Backup all critical files
-3. Test upgrade on testnet first
-4. Prepare rollback plan
+1. Monitor official Shardeum announcements for the upgrade schedule and any release-specific instructions.
+2. Back up critical validator files and configuration.
+3. Review the release notes and any upgrade-specific requirements.
+4. Confirm that your environment meets any updated requirements before proceeding.
 
 **Upgrade steps:**
-1. Stop the node: `sudo systemctl stop shardeumd`
-2. Backup current binary: `cp $(which shardeumd) shardeumd.backup`
-3. Download and install new binary
-4. Verify version: `shardeumd version`
-5. Start node: `sudo systemctl start shardeumd`
-6. Monitor logs for issues
+1. Confirm the currently supported Shardeum mainnet release from the [official Shardeum EVM releases](https://github.com/shardeum/shardeum-evm/releases) and review any release-specific instructions.
+2. Stop the validator.
+3. Back up the existing binary and critical validator files.
+4. Download the new release or Docker image.
+5. Verify the provided checksum/digest.
+6. Replace the existing binary/image.
+7. Verify the installed version.
+8. Restart the node.
+9. Confirm the node is syncing and the validator is operating normally.
+10. If the validator was jailed, complete the unjail procedure below.
 
-### Rollback Procedure
+### Recovery and Rollback
 
-If upgrade fails:
-```bash
-sudo systemctl stop shardeumd
-cp shardeumd.backup /usr/local/bin/shardeumd
-sudo systemctl start shardeumd
-```
+Do not downgrade to an earlier binary unless the applicable release or network-upgrade instructions explicitly confirm that rollback is supported. Recovery requirements may vary between upgrades.
+
+If an upgrade fails, first review the release-specific recovery instructions and official Shardeum announcements. If rollback is supported, restore the previous binary according to those instructions before restarting the validator.
 
 ## 9. Troubleshooting Advanced Issues
 
