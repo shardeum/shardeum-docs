@@ -47,10 +47,19 @@ go version
 ```bash
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
+git fetch --tags
+git checkout v1.0.2
 make install
 ```
 
-Verify:
+Add the Go bin directory to PATH:
+
+```
+echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Verify the installation:
 
 ```bash
 shardeumd version
@@ -84,7 +93,38 @@ cp config/mainnet-genesis.json $HOME/.mainnet/$NODE_ID/config/genesis.json
 jq -r '.chain_id' $HOME/.mainnet/$NODE_ID/config/genesis.json
 ```
 
-## 6. Start and Sync the Node
+## 6. Configure Pruning
+
+For a typical RPC node, custom pruning helps manage storage while retaining recent state.
+
+Edit:
+
+`$HOME/.mainnet/$NODE_ID/config/app.toml`
+
+Set:
+
+```toml
+pruning = "custom"
+pruning-keep-recent = "10000"
+pruning-interval = "50"
+```
+
+If you require complete historical state, run an Archive Node instead. Archive nodes disable pruning using `--pruning nothing`.
+
+## 7. Enable JSON-RPC before the first start
+
+Edit `$HOME/.mainnet/$NODE_ID/config/app.toml`.
+
+Find the RPC section and set:
+
+```md
+```toml
+json-rpc.enable = true
+json-rpc.address = "0.0.0.0:8545"
+json-rpc.ws-address = "0.0.0.0:8546"
+```
+
+## 8. Start and Sync the Node
 
 Start:
 
@@ -92,10 +132,9 @@ Start:
 shardeumd start \
   --home $HOME/.mainnet/$NODE_ID \
   --chain-id shardeum_8118-1 \
-  --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 \
+  --p2p.seeds ... \
   --p2p.laddr tcp://0.0.0.0:27656 \
   --rpc.laddr tcp://127.0.0.1:26657 \
-  --pruning nothing \
   > $HOME/.mainnet/$NODE_ID/node.log &
 ```
 
@@ -107,20 +146,6 @@ tail -f $HOME/.mainnet/$NODE_ID/node.log
 ```
 
 Wait until fully synced.
-
-## 7. Enable JSON-RPC
-
-Edit `$HOME/.mainnet/$NODE_ID/config/app.toml`.
-
-Find the RPC section and set:
-
-```toml
-json-rpc.enable = true
-json-rpc.address = "0.0.0.0:8545"
-json-rpc.ws-address = "0.0.0.0:8546"
-```
-
-Restart your node if using systemd.
 
 ## 8. Optional: Enable gRPC & REST Endpoints
 
@@ -138,7 +163,7 @@ Enable these only if required by your infrastructure.
 
 ## 9. Firewall Configuration
 
-Expose only RPC/WebSocket ports:
+Expose only the ports required for your deployment:
 
 ```bash
 sudo ufw allow 8545/tcp   # JSON-RPC
@@ -156,7 +181,15 @@ Restrict sensitive endpoints to localhost or trusted IPs.
 
 ## 10. systemd Service (Recommended)
 
-Create service:
+**Check the installed Shardeum binary path:**
+
+```bash
+command -v shardeumd
+```
+
+Use the returned path for `ExecStart`.
+
+Create the service file:
 
 ```bash
 sudo nano /etc/systemd/system/shardeumd-rpc.service
@@ -171,34 +204,32 @@ After=network-online.target
 
 [Service]
 User=root
-ExecStart=/usr/local/bin/shardeumd start --home /root/.mainnet/rpcnode
+ExecStart=<shardeumd-binary-path> start \
+  --home /root/.mainnet/rpcnode \
+  --chain-id shardeum_8118-1 \
+  --p2p.seeds <same-seed-list-used-above> \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657
 Restart=on-failure
+RestartSec=3
 LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
 ```
 
+Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd`, and use the same seed list specified in the startup instructions above.
+
+Also, if the node is already running from the manual startup command above, stop that process before starting it as a systemd service.
+
 Enable:
 
 ```bash
+sudo systemctl daemon-reload
 sudo systemctl enable shardeumd-rpc
 sudo systemctl start shardeumd-rpc
+sudo systemctl status shardeumd-rpc
 ```
-
-## 11. Pruning (Recommended for RPC Nodes)
-
-RPC nodes often use custom pruning.
-
-Edit `app.toml`:
-
-```toml
-pruning = "custom"
-pruning-keep-recent = "10000"
-pruning-interval = "50"
-```
-
-Restart the node.
 
 ## 12. Scaling RPC Nodes (Optional)
 
@@ -208,7 +239,7 @@ For high-traffic dApps:
 - Run multiple RPC nodes behind a reverse proxy
 - Rate-limit requests to avoid overload
 - Separate "public RPC" from "private infra RPC"
-- Run indexing services in parallel (The Graph, SubQuery, etc.)
+- Run dedicated indexing services in parallel where required.
 
 ## 13. Useful Commands
 
@@ -233,7 +264,7 @@ journalctl -u shardeumd-rpc -f
 **Query RPC:**
 
 ```bash
-curl -s http://<your-ip>:8545 \
+curl -s http://localhost:8545 \
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
@@ -250,9 +281,10 @@ curl -s http://<your-ip>:8545 \
 
 ### High latency
 
-- Reduce pruning window
-- Increase hardware resources
-- Add more RPC nodes behind a proxy
+- Check CPU, memory, disk I/O, and network utilization
+- Review RPC request volume and rate limits
+- Confirm the node remains fully synced
+- Scale across additional RPC nodes if required
 
 ### Node stuck catching up
 
