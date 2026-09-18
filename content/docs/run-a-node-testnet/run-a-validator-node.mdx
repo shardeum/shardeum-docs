@@ -230,15 +230,16 @@ Look for:
 ```bash
 command -v shardeumd
 ```
+
 **Create the service file:**
 
 ```bash
 sudo nano /etc/systemd/system/shardeumd-testnet.service
-```bash
+```
 
 Example content:
 
-`ini`
+```ini
 [Unit]
 Description=Shardeum Testnet Validator
 After=network-online.target
@@ -257,10 +258,9 @@ LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
-  ...
 ```
 
-Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd` and `<validator-id>`` with the validator node ID configured earlier.
+Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd` and `<validator-id>` with the validator node ID configured earlier.
 
 If the validator is already running from the manual startup command above, stop that process before starting the systemd service.
 
