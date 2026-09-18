@@ -5,6 +5,10 @@ description: Guide to running a validator node on Shardeum
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
+<Callout type="info">
+Mainnet validator update: Validators should run the currently supported Shardeum EVM mainnet release. Following the September 2026 security update, validators restarting their nodes should use v1.0.2 or later as officially announced. See the [official Shardeum EVM releases] for binaries, Docker images, and checksums.
+</Callout>
+
 A validator node participates in block production and consensus, requires staking, and must maintain high uptime. Validators can be jailed or slashed for misbehavior.
 
 This guide describes how to install, configure, and operate a validator node on Shardeum EVM mainnet.
@@ -39,12 +43,14 @@ go version
 
 ## 2. Install Shardeum Node Binary
 
+**Fetch the latest release tags and check out the supported mainnet release:**
+
 ```bash
-git clone https://github.com/shardeum/shardeum-evm.git
-cd shardeum-evm
+git fetch --tags
+git checkout v1.0.2
 ```
 
-**Build binary (May take several minutes):**
+**Build and install the binary (may take several minutes):**
 
 ```bash
 make install
@@ -53,20 +59,14 @@ make install
 **Add Go bin directory to PATH:**
 
 ```bash
-echo 'export PATH=$PATH:/root/go/bin' >> ~/.bashrc
+echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-**Verify installation:**
+**Verify the installation:**
 
 ```bash
 shardeumd version
-```
-
-**Verify binary is accessible:**
-
-```bash
-command -v shardeumd
 ```
 
 ## 3. Set Environment Variables
@@ -358,5 +358,6 @@ delegator_shares: <your voting power>
 - Voting power: > 0
 - Jailed: `false`
 
+Validator showing `jailed: true`? See [Unjailing a Validator](/docs/run-a-node/advanced-operations#unjailing-a-validator)
 
 **For guidance on validator troubleshooting, debugging, monitoring, and performance best practices, continue to the Advanced Operations section.**
