@@ -42,10 +42,19 @@ go version
 ```bash
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
+git fetch --tags
+git checkout v1.0.2
 make install
 ```
 
-Verify:
+Add the Go bin directory to PATH:
+
+```bash
+echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Verify the installation:
 
 ```bash
 shardeumd version
@@ -93,7 +102,6 @@ shardeumd start \
   --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 \
   --p2p.laddr tcp://0.0.0.0:27656 \
   --rpc.laddr tcp://127.0.0.1:26657 \
-  --pruning nothing \
   > $HOME/.mainnet/$NODE_ID/node.log &
 ```
 
@@ -113,7 +121,13 @@ Sync is complete when block height matches the explorer.
 
 ## 7. Optional: Run as systemd Service
 
-Create service:
+**Check the installed Shardeum binary path:**
+
+```bash
+command -v shardeumd
+```
+
+Create the service file:
 
 ```bash
 sudo nano /etc/systemd/system/shardeumd.service
@@ -128,7 +142,7 @@ After=network-online.target
 
 [Service]
 User=root
-ExecStart=/usr/local/bin/shardeumd start --home /root/.mainnet/node0
+ExecStart=<shardeumd-binary-path> start --home /root/.mainnet/node0
 Restart=on-failure
 LimitNOFILE=65535
 
@@ -136,9 +150,15 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 ```
 
+Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd`.
+
 Enable:
 
+```md
+**Reload systemd, then enable and start the service:**
+
 ```bash
+sudo systemctl daemon-reload
 sudo systemctl enable shardeumd
 sudo systemctl start shardeumd
 sudo systemctl status shardeumd
@@ -294,7 +314,7 @@ df -h
   ```
 - Increase disk space
 
-**Important:** If running as Archive Node with `--pruning nothing`, you need adequate storage for complete history.
+**Important:** If running as Archive Node with `--pruning nothing`  , you need adequate storage for complete history.
 
 ### RPC Not Responding
 
