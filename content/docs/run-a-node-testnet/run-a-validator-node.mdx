@@ -34,16 +34,19 @@ sudo apt install git jq curl make build-essential pkg-config -y
 
 ## 2. Install Shardeum Node Binary
 
-**Fetch the latest release tags and check out the currently supported testnet release. Replace `<supported-testnet-release>` in the command line below with the applicable release tag.
-
-Check the [official Shardeum EVM releases](https://github.com/shardeum/shardeum-evm/releases) and use the release tag currently supported for Shardeum testnet. 
+Clone the Shardeum EVM repository:
 
 ```bash
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
-git fetch --tags
-git checkout <supported-testnet-release>
 ```
+
+Fetch the latest release tags and check out the supported testnet release:
+
+```bash
+git fetch --tags
+git checkout v1.1.0
+```bash
 
 Build and install the binary (may take several minutes):
 
@@ -113,7 +116,7 @@ shardeumd start \
   > $HOME/.testnet/$NODE_ID/node.log &
 ```
 
-**Monitor node logs:**:
+**Monitor node logs:**
 
 ```bash
 tail -f $HOME/.testnet/$NODE_ID/node.log
@@ -161,10 +164,8 @@ Store your mnemonic phrase securely. It is required for recovery. Also, the oper
 
 ## 8. Fund Your Validator (Testnet)
 
-Your validator account needs testnet SHM to stake and pay transaction fees. Testnet SHM tokens can be obtained via [faucets](/docs/developer/testnet-quickstart#step-2-claim-testnet-shm)
-
 <Callout type="info"> 
-Use official testnet faucets/community distribution channels to obtain testnet SHM tokens. 
+Your validator account needs testnet SHM to stake and pay transaction fees. Use official testnet faucets or community distribution channels to obtain testnet SHM.
 </Callout>
 
 Verify balance:
