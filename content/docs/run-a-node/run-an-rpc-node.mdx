@@ -6,8 +6,8 @@ description: Guide to running an RPC node on Shardeum
 import { Callout } from 'fumadocs-ui/components/callout';
 
 <Callout type="warning">
-Governance Proposal #1 has passed. Shardeum mainnet will upgrade to `v1.1.0` at block height `7,927,860`, currently estimated for **October 13, 2026 at ~06:00 UTC**. Validators and node operators should download and verify the `v1.1.0` binary in advance, but **must not run it before the upgrade height**. Continue running the current mainnet release until the network halts at the scheduled height.
-[View upgrade details](https://shardeum.org/blog/v1-1-0-mainnet-upgrade/) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
+The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and node operators should now use the `v1.1.0` release.
+[View upgrade details](https://shm.gg/upgrade-status) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
 </Callout>
 
 An RPC node provides JSON-RPC and WebSocket endpoints for developers, dApps, indexers, infrastructure providers, and partners.
@@ -53,7 +53,7 @@ go version
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
 git fetch --tags
-git checkout v1.0.2
+git checkout v1.1.0
 make install
 ```
 
@@ -122,7 +122,6 @@ Edit `$HOME/.mainnet/$NODE_ID/config/app.toml`.
 
 Find the RPC section and set:
 
-```md
 ```toml
 json-rpc.enable = true
 json-rpc.address = "0.0.0.0:8545"
@@ -152,7 +151,7 @@ tail -f $HOME/.mainnet/$NODE_ID/node.log
 
 Wait until fully synced.
 
-## 8. Optional: Enable gRPC & REST Endpoints
+## 9. Optional: Enable gRPC & REST Endpoints
 
 In `app.toml`:
 
@@ -166,7 +165,7 @@ api.address = "0.0.0.0:1317"
 
 Enable these only if required by your infrastructure.
 
-## 9. Firewall Configuration
+## 10. Firewall Configuration
 
 Expose only the ports required for your deployment:
 
@@ -184,7 +183,7 @@ Do not expose port 26657 (Tendermint RPC) to the public.
 Restrict sensitive endpoints to localhost or trusted IPs.
 </Callout>
 
-## 10. systemd Service (Recommended)
+## 11. systemd Service (Recommended)
 
 **Check the installed Shardeum binary path:**
 
