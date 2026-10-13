@@ -8,8 +8,8 @@ import { Callout } from 'fumadocs-ui/components/callout';
 This guide covers advanced operational topics for running production-grade Shardeum nodes.
 
 <Callout type="info">
-Governance Proposal #1 has passed. Shardeum mainnet will upgrade to `v1.1.0` at block height `7,927,860`, currently estimated for **October 13, 2026 at ~06:00 UTC**. Validators and node operators should download and verify the `v1.1.0` binary in advance, but **must not run it before the upgrade height**. Continue running the current mainnet release until the network halts at the scheduled height.
-[View upgrade details](https://shardeum.org/blog/v1-1-0-mainnet-upgrade/) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
+The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and node operators should now use the `v1.1.0` release.
+[View upgrade details](https://shm.gg/upgrade-status) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
 </Callout>
 
 ## 1. Production Deployment Best Practices
@@ -393,7 +393,7 @@ shardeumd query slashing signing-info $(shardeumd comet show-validator)
 7. Verify the installed version.
 8. Restart the node.
 9. Confirm the node is syncing and the validator is operating normally.
-10. If the validator was jailed, complete the unjail procedure below.
+10. If the validator was jailed, follow the [unjail procedure](#unjailing-a-validator).
 
 ### Recovery and Rollback
 
