@@ -39,7 +39,7 @@ sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 source ~/.bashrc
 go version
-```bash
+```
 
 ## 2. Install Shardeum Node Binary
 
@@ -55,7 +55,7 @@ Fetch the latest release tags and check out the currently supported testnet rele
 ```bash
 git fetch --tags
 git checkout <supported-testnet-release>
-```bash
+```
 
 Replace `<supported-testnet-release>` with the release tag currently supported for Shardeum testnet.
 
@@ -105,6 +105,9 @@ shardeumd init "$MONIKER" \
 ```bash
 cp config/environments/testnet-genesis.json \
    $HOME/.testnet/$NODE_ID/config/genesis.json
+```
+
+Verify the genesis file:
 
 ```bash
 ls -lh $HOME/.testnet/$NODE_ID/config/genesis.json
