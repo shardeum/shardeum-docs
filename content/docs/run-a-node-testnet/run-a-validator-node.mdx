@@ -32,6 +32,17 @@ sudo apt update
 sudo apt install git jq curl make build-essential pkg-config -y
 ```
 
+### Install Go:
+
+```bash
+curl -LO https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc
+go version
+```
+
 ## 2. Install Shardeum Node Binary
 
 Clone the Shardeum EVM repository:
@@ -106,6 +117,12 @@ Verify:
 jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
 ```
 
+The expected chain ID is:
+
+```text
+shardeum-testnet
+```
+
 ## 6. Start and Sync the Node
 
 ```bash
@@ -124,40 +141,37 @@ shardeumd start \
 tail -f $HOME/.testnet/$NODE_ID/node.log
 ```
 
-<Callout type="warn"> 
-Ensure the node is connected to peers and wait until it is fully synced before proceeding.
-</Callout>
+Verify sync status:
 
-Wait until fully synced before proceeding.
+```bash
+shardeumd status --home $HOME/.testnet/$NODE_ID | jq '.SyncInfo'
+```
 
 **Note**: Initial sync may take time depending on hardware and network conditions.
 
-You can verify sync status using:
-
-```bash
-shardeumd status | jq '.SyncInfo'
-```
-
 ## 7. Create the Validator Key
 
-<Callout type="error"> 
-Only perform this step after the node is fully synced. 
+<Callout type="warn">
+Ensure the node is connected to peers and wait until it is fully synced before proceeding.
 </Callout>
 
 ```bash
-shardeumd keys add validator-key
+shardeumd keys add validator-key \
+  --home $HOME/.testnet/$NODE_ID
 ```
 
 Or recover:
 
 ```bash
-shardeumd keys add validator-key --recover
+shardeumd keys add validator-key --recover \
+  --home $HOME/.testnet/$NODE_ID
 ```
 
 Retrieve your validator address:
 
 ```bash
-shardeumd keys show validator-key -a
+shardeumd keys show validator-key -a \
+  --home $HOME/.testnet/$NODE_ID
 ```
 
 <Callout type="warn"> 
@@ -173,7 +187,11 @@ Your validator account needs testnet SHM to stake and pay transaction fees. Use 
 Verify balance:
 
 ```bash
-shardeumd query bank balances $(shardeumd keys show validator-key -a)
+VALIDATOR_ADDRESS=$(shardeumd keys show validator-key -a \
+  --home $HOME/.testnet/$NODE_ID)
+
+shardeumd query bank balances "$VALIDATOR_ADDRESS" \
+  --home $HOME/.testnet/$NODE_ID
 ```
 
 ## 9. Create Your Validator and Stake Testnet SHM
@@ -211,6 +229,7 @@ Create validator:
 shardeumd tx staking create-validator validator.json \
   --from=validator-key \
   --chain-id shardeum-testnet \
+  --home $HOME/.testnet/$NODE_ID \
   --gas="auto" \
   --gas-adjustment="1.5"
 ```
@@ -218,7 +237,13 @@ shardeumd tx staking create-validator validator.json \
 ## 10. Verify Validator Status
 
 ```bash
-shardeumd query staking validator $(shardeumd keys show validator-key --bech val -a)
+VALIDATOR_OPERATOR_ADDRESS=$(shardeumd keys show validator-key \
+  --bech val \
+  -a \
+  --home $HOME/.testnet/$NODE_ID)
+
+shardeumd query staking validator "$VALIDATOR_OPERATOR_ADDRESS" \
+  --home $HOME/.testnet/$NODE_ID
 ```
 
 Look for:
@@ -241,6 +266,8 @@ sudo nano /etc/systemd/system/shardeumd-testnet.service
 ```
 
 Example content:
+
+> The example below assumes the node was installed and initialized as the `root` user. If you used another system user, replace `User=root` and `/root/.testnet/<validator-id>` with the corresponding user and node-home path.
 
 ```ini
 [Unit]
@@ -267,7 +294,7 @@ Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeum
 
 If the validator is already running from the manual startup command above, stop that process before starting the systemd service.
 
-****Reload systemd, then enable and start the service:**
+**Reload systemd, then enable and start the service:**
 
 ```bash
 sudo systemctl daemon-reload
