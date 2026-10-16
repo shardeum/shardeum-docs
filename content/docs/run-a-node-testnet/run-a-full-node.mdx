@@ -114,11 +114,21 @@ ls -lh $HOME/.testnet/$NODE_ID/config/genesis.json
 jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
 ```
 
+The expected chain ID is:
+
+```text
+shardeum-testnet
+```
+
 ## 6. Configure Pruning
 
 Full nodes can use pruning to manage storage usage.
 
-Default configuration is:
+Edit:
+
+`$HOME/.testnet/$NODE_ID/config/app.toml`
+
+The default configuration is:
 
 ```toml
 pruning = "default"
@@ -157,7 +167,7 @@ shardeumd start \
 Monitor:
 
 ```bash
-shardeumd status | jq '.SyncInfo'
+shardeumd status --home $HOME/.testnet/$NODE_ID | jq '.SyncInfo'
 ```
 
 Or tail the log:
@@ -186,6 +196,8 @@ Create the service file:
 sudo nano /etc/systemd/system/shardeumd-testnet.service
 ```
 
+> The example below assumes the node was installed and initialized as the `root` user. If you used another system user, replace `User=root` and `/root/.testnet/<node-id>` with the corresponding user and node-home path.
+
 Example:
 
 ```ini
@@ -198,7 +210,7 @@ User=root
 ExecStart=<shardeumd-binary-path> start \
   --home /root/.testnet/<node-id> \
   --chain-id shardeum-testnet \
-  --p2p.seeds "<same-testnet-seed-list-used-above>" \
+  --p2p.seeds "c15cdf69a0332a29a12b448ecf310b39d1d7659d@34.57.163.115:27656,1d6f78c5a0d3302b3b3ee963a9414b4909a5032f@34.170.136.184:27656,2773057c346152646bb71639dcc88828d1bbd1cf@34.63.57.148:27656" \
   --p2p.laddr tcp://0.0.0.0:27656 \
   --rpc.laddr tcp://127.0.0.1:26657
 Restart=on-failure
@@ -209,7 +221,9 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 ```
 
-Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd`, `<node-id>` with the node ID configured earlier, and use the same testnet seed list specified in the startup instructions above.
+Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd` and `<node-id>` with the node ID configured earlier.
+
+If the node is already running from the manual startup command above, stop that process before starting it through systemd.
 
 Reload systemd, then enable and start the service:
 
@@ -222,15 +236,21 @@ sudo systemctl status shardeumd-testnet
 
 ## 9. Optional: Enable JSON-RPC
 
-Edit: $HOME/.testnet/$NODE_ID/config/app.toml
+Edit:
+
+`$HOME/.testnet/$NODE_ID/config/app.toml`
+
+Under the existing `[json-rpc]` section, set:
 
 ```toml
-json-rpc.enable = true
-json-rpc.address = "0.0.0.0:8545"
-json-rpc.ws-address = "0.0.0.0:8546"
+enable = true
+address = "0.0.0.0:8545"
+ws-address = "0.0.0.0:8546"
 ```
 
-If the node is already running as a systemd service, restart it for the changes to take effect:
+Restart the node after saving the changes.
+
+If using systemd:
 
 ```bash
 sudo systemctl restart shardeumd-testnet
@@ -238,15 +258,34 @@ sudo systemctl restart shardeumd-testnet
 
 ## 10. Firewall Configuration
 
+Before enabling UFW, allow SSH access so you do not lock yourself out:
+
 ```bash
-sudo ufw allow 27656/tcp   # P2P
-sudo ufw allow 8545/tcp    # JSON-RPC (optional)
-sudo ufw allow 8546/tcp    # WebSocket (optional)
+sudo ufw allow OpenSSH
+```
+
+Allow P2P traffic:
+
+```bash
+sudo ufw allow 27656/tcp
+```
+
+If this node is intentionally serving public JSON-RPC, also allow:
+
+```bash
+sudo ufw allow 8545/tcp   # JSON-RPC
+sudo ufw allow 8546/tcp   # WebSocket
+```
+
+Then enable and check the firewall:
+
+```bash
 sudo ufw enable
+sudo ufw status
 ```
 
 <Callout type="warn"> 
-For public exposure, restrict JSON-RPC access to trusted IPs or use a reverse proxy. 
+Only expose JSON-RPC publicly when required. Restrict access where appropriate and use suitable rate limiting and reverse-proxy protections for public RPC services.
 </Callout>
 
 ## 11. Node Management Commands
@@ -254,13 +293,13 @@ For public exposure, restrict JSON-RPC access to trusted IPs or use a reverse pr
 ### Sync Status
 
 ```bash
-shardeumd status | jq '.SyncInfo'
+shardeumd status --home $HOME/.testnet/$NODE_ID | jq '.SyncInfo'
 ```
 
 ### Node ID
 
 ```bash
-shardeumd comet show-node-id
+shardeumd comet show-node-id --home $HOME/.testnet/$NODE_ID
 ```
 
 ### Check Peers
