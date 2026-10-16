@@ -8,7 +8,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 This guide covers advanced operational topics for running production-grade Shardeum nodes.
 
 <Callout type="info">
-The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and node operators should now use the `v1.1.0` release.
+The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and `v1.1.0` is the current mainnet release. New nodes syncing from genesis must use the required historical binaries for the relevant chain heights. See the applicable node setup guide for fresh-sync instructions.
 [View upgrade details](https://shm.gg/upgrade-status) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
 </Callout>
 
@@ -31,7 +31,7 @@ After=network-online.target
 
 [Service]
 User=root
-ExecStart=/usr/local/bin/shardeumd start --home /root/.mainnet/node0
+ExecStart=/root/go/bin/shardeumd start --home /root/.mainnet/node0
 Restart=on-failure
 RestartSec=3
 LimitNOFILE=65535
@@ -40,9 +40,41 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 ```
 
-**Enable and start the service:**
+Use the same node-specific start arguments and configuration described in the applicable node guide.
+
+#### Using systemd With Cosmovisor
+
+If the node was configured with Cosmovisor, use the following service configuration instead of the standard configuration above so the node continues to run through Cosmovisor.
+
+Example service file:
+
+```ini
+[Unit]
+Description=Shardeum Node
+After=network-online.target
+
+[Service]
+User=root
+Environment="DAEMON_NAME=shardeumd"
+Environment="DAEMON_HOME=/root/.mainnet/node0"
+Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
+Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/go/bin"
+ExecStart=/root/go/bin/cosmovisor run start --home /root/.mainnet/node0
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Use the same node-specific start arguments and configuration described in the applicable node guide.
+
+After saving the applicable service file, enable and start the service:
 
 ```bash
+sudo systemctl daemon-reload
 sudo systemctl enable shardeumd
 sudo systemctl start shardeumd
 sudo systemctl status shardeumd
@@ -50,26 +82,35 @@ sudo systemctl status shardeumd
 
 ### Firewall Configuration
 
+Before enabling UFW, allow SSH access so you do not lock yourself out of the server:
+
+```bash
+sudo ufw allow OpenSSH
+```
+
 **For Full Nodes / RPC Nodes:**
 
 ```bash
 sudo ufw allow 27656/tcp   # P2P
-sudo ufw allow 8545/tcp    # JSON-RPC (optional)
-sudo ufw allow 8546/tcp    # WebSocket (optional)
+
+# Only open these ports if the node is intended to provide public RPC access
+sudo ufw allow 8545/tcp    # JSON-RPC
+sudo ufw allow 8546/tcp    # WebSocket
+
 sudo ufw enable
+sudo ufw status
 ```
 
 **For Validators:**
 
 ```bash
 sudo ufw allow 27656/tcp   # P2P
-sudo ufw allow 8545/tcp    # JSON-RPC (optional)
-sudo ufw allow 8546/tcp    # WebSocket (optional)
 sudo ufw enable
+sudo ufw status
 ```
 
 <Callout type="error">
-For validators, consider restricting RPC access to localhost only. Never expose validator RPC endpoints publicly.
+Do not expose validator RPC endpoints publicly. Keep RPC access bound to localhost or restrict it to trusted internal systems.
 </Callout>
 
 ## 2. Monitoring and Alerting
@@ -191,10 +232,11 @@ mkdir -p $BACKUP_DIR/$DATE
 
 # Backup critical files
 cp ~/.mainnet/$NODE_ID/config/priv_validator_key.json $BACKUP_DIR/$DATE/
+cp ~/.mainnet/$NODE_ID/data/priv_validator_state.json $BACKUP_DIR/$DATE/
 cp ~/.mainnet/$NODE_ID/config/node_key.json $BACKUP_DIR/$DATE/
 cp ~/.mainnet/$NODE_ID/config/*.toml $BACKUP_DIR/$DATE/
 
-# Create encrypted archive
+# Create compressed archive
 tar -czf $BACKUP_DIR/backup_$DATE.tar.gz -C $BACKUP_DIR $DATE
 rm -rf $BACKUP_DIR/$DATE
 
@@ -377,29 +419,33 @@ shardeumd query slashing signing-info $(shardeumd comet show-validator)
 
 ### Coordinated Network Upgrades
 
+Upgrade requirements may differ depending on whether the node is managed directly with `shardeumd` or through Cosmovisor. Always follow the release-specific instructions for the applicable network upgrade.
+
+If your node uses Cosmovisor, add the required upgrade binary using the exact upgrade name specified for that release and continue running the node through Cosmovisor. Do not bypass the Cosmovisor-managed binary unless the release-specific instructions explicitly require it.
+
 **Preparation:**
 1. Monitor official Shardeum announcements for the upgrade schedule and any release-specific instructions.
-2. Back up critical validator files and configuration.
+2. Back up critical node files and configuration.
 3. Review the release notes and any upgrade-specific requirements.
 4. Confirm that your environment meets any updated requirements before proceeding.
 
-**Upgrade steps:**
+**Manual binary upgrade steps:**
 1. Confirm the currently supported Shardeum mainnet release from the [official Shardeum EVM releases](https://github.com/shardeum/shardeum-evm/releases) and review any release-specific instructions.
-2. Stop the validator.
-3. Back up the existing binary and critical validator files.
+2. Stop the node.
+3. Back up the existing binary and critical node files and configuration.
 4. Download the new release or Docker image.
 5. Verify the provided checksum/digest.
 6. Replace the existing binary/image.
 7. Verify the installed version.
 8. Restart the node.
-9. Confirm the node is syncing and the validator is operating normally.
+9. Confirm the node is syncing and operating normally.
 10. If the validator was jailed, follow the [unjail procedure](#unjailing-a-validator).
 
 ### Recovery and Rollback
 
 Do not downgrade to an earlier binary unless the applicable release or network-upgrade instructions explicitly confirm that rollback is supported. Recovery requirements may vary between upgrades.
 
-If an upgrade fails, first review the release-specific recovery instructions and official Shardeum announcements. If rollback is supported, restore the previous binary according to those instructions before restarting the validator.
+If an upgrade fails, first review the release-specific recovery instructions and official Shardeum announcements. If rollback is supported, restore the previous binary according to those instructions before restarting the node.
 
 ## 9. Troubleshooting Advanced Issues
 
@@ -416,12 +462,14 @@ sudo systemctl restart shardeumd
 
 ### Database Corruption
 
-```bash
-# Reset data (will require full resync)
-shardeumd tendermint unsafe-reset-all --home ~/.mainnet/$NODE_ID
+Resetting node data requires the node to resync.
 
-# Restore from snapshot (if available)
-# Download snapshot and extract to data directory
+When a compatible snapshot is available, restore from a suitable post-upgrade snapshot.
+
+If syncing from genesis, follow the fresh-sync instructions in the applicable node setup guide. After a state-breaking upgrade, syncing from genesis may require historical binaries and Cosmovisor to switch binaries at the appropriate upgrade heights.
+
+```bash
+shardeumd tendermint unsafe-reset-all --home ~/.mainnet/$NODE_ID
 ```
 
 ### Network Connectivity Issues
