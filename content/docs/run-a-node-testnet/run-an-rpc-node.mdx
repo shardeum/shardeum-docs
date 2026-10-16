@@ -5,11 +5,10 @@ description: Guide to running an RPC node on the Shardeum testnet
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-An RPC node provides JSON-RPC and WebSocket endpoints for developers, dApps, indexers, infrastructure providers, and testing or integration environments.
-RPC nodes do not validate blocks and do not require staking.
+An RPC node provides JSON-RPC and WebSocket endpoints for developers, dApps, indexers, infrastructure providers, and testing or integration environments. RPC nodes verify chain data but do not participate in consensus or require staking.
 
-<Callout type="warn"> 
-RPC nodes should not expose consensus ports publicly and must follow strict security practices. 
+<Callout type="warn">
+Do not expose the node's CometBFT RPC endpoint publicly. Only expose application RPC endpoints that are required for your deployment, and protect them with appropriate access controls and rate limiting.
 </Callout>
 
 ## 1. System Requirements
@@ -107,13 +106,21 @@ cp config/environments/testnet-genesis.json \
 jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
 ```
 
+The expected chain ID is:
+
+```text
+shardeum-testnet
+```
+
 ## 6. Configure Pruning
 
 For a typical RPC node, custom pruning helps manage storage while retaining recent state.
 
-Edit `$HOME/.testnet/$NODE_ID/config/app.toml`
+Edit:
 
-Find the RPC section and set:
+`$HOME/.testnet/$NODE_ID/config/app.toml`
+
+Set:
 
 ```toml
 pruning = "custom"
@@ -129,14 +136,16 @@ pruning = "nothing"
 
 ## 7. Enable JSON-RPC
 
-Edit `$HOME/.testnet/$NODE_ID/config/app.toml`:
+Edit:
 
-Find the RPC section and set:
+`$HOME/.testnet/$NODE_ID/config/app.toml`
+
+Under the existing `[json-rpc]` section, set:
 
 ```toml
-json-rpc.enable = true
-json-rpc.address = "0.0.0.0:8545"
-json-rpc.ws-address = "0.0.0.0:8546"
+enable = true
+address = "0.0.0.0:8545"
+ws-address = "0.0.0.0:8546"
 ```
 
 ## 8. Start and Sync the Node
@@ -153,10 +162,15 @@ shardeumd start \
   > $HOME/.testnet/$NODE_ID/node.log &
 ```
 
-Monitor:
+Verify sync status:
 
 ```bash
-shardeumd status | jq '.SyncInfo'
+shardeumd status --home $HOME/.testnet/$NODE_ID | jq '.SyncInfo'
+```
+
+Or tail the log:
+
+```bash
 tail -f $HOME/.testnet/$NODE_ID/node.log
 ```
 
@@ -164,33 +178,71 @@ Wait until fully synced.
 
 ## 9. Optional: Enable gRPC and REST Endpoints
 
-In `app.toml`:
+Edit:
+
+`$HOME/.testnet/$NODE_ID/config/app.toml`
+
+Under the existing `[grpc]` section, set:
 
 ```toml
-grpc.enable = true
-grpc.address = "0.0.0.0:9090"
+enable = true
+address = "0.0.0.0:9090"
+```
 
-api.enable = true
-api.address = "0.0.0.0:1317"
+Under the existing `[api]` section, set:
+
+```toml
+enable = true
+address = "tcp://0.0.0.0:1317"
 ```
 
 Enable these only if required by your infrastructure or testing flow.
 
+Restart the node after making changes.
+
+If using systemd:
+
+```bash
+sudo systemctl restart shardeumd-rpc-testnet
+```
+
 ## 10. Firewall Configuration
 
-Expose only the ports required for your deployment:
+Before enabling UFW, allow SSH access so you do not lock yourself out:
+
+```bash
+sudo ufw allow OpenSSH
+```
+
+Allow P2P traffic:
+
+```bash
+sudo ufw allow 27656/tcp
+```
+
+Allow the RPC endpoints required for your deployment:
 
 ```bash
 sudo ufw allow 8545/tcp   # JSON-RPC
 sudo ufw allow 8546/tcp   # WebSocket
-sudo ufw allow 9090/tcp   # gRPC (optional)
-sudo ufw allow 1317/tcp   # REST API (optional)
-sudo ufw allow 27656/tcp  # P2P
+```
+
+If you enabled the optional gRPC or REST endpoints, also allow:
+
+```bash
+sudo ufw allow 9090/tcp   # gRPC
+sudo ufw allow 1317/tcp   # REST API
+```
+
+Then enable and check the firewall:
+
+```bash
 sudo ufw enable
+sudo ufw status
 ```
 
 <Callout type="error"> 
-Do not expose port 26657 (Tendermint RPC) to the public. Restrict sensitive endpoints to localhost or trusted IPs. 
+Do not expose port `26657` (CometBFT RPC) publicly. Restrict sensitive endpoints to localhost or trusted systems, and protect public RPC endpoints with suitable rate limiting and reverse-proxy controls.
 </Callout>
 
 ## 11. systemd Service (Recommended)
@@ -208,6 +260,8 @@ sudo nano /etc/systemd/system/shardeumd-rpc-testnet.service
 ```
 
 Example content:
+
+> The example below assumes the node was installed and initialized as the `root` user. If you used another system user, replace `User=root` and `/root/.testnet/rpcnode` with the corresponding user and node-home path.
 
 ```ini
 [Unit]
@@ -230,7 +284,7 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 ```
 
-Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd` and use the same testnet seed list specified above.
+Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd`.
 
 If the node is already running from the manual startup command, stop that process before starting the systemd service.
 
@@ -251,14 +305,14 @@ For higher traffic or team-based testing:
 - Run multiple RPC nodes behind a reverse proxy
 - Rate-limit requests to avoid overload
 - Separate public RPC from internal infrastructure RPC
-- Run dedicated indexing services in parallel where required.
+- Run dedicated indexing services in parallel where required
 
 ## 13. Useful Commands
 
 ### Check sync
 
 ```bash
-shardeumd status | jq '.SyncInfo'
+shardeumd status --home $HOME/.testnet/$NODE_ID | jq '.SyncInfo'
 ```
 
 ### Check network peers:
