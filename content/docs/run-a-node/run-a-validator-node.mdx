@@ -6,7 +6,7 @@ description: Guide to running a validator node on Shardeum
 import { Callout } from 'fumadocs-ui/components/callout';
 
 <Callout type="info">
-The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and node operators should now use the `v1.1.0` release.
+The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and `v1.1.0` is the current mainnet release. New nodes syncing from genesis must follow the historical binary instructions in the **Start and Sync the Node** section below.
 [View upgrade details](https://shm.gg/upgrade-status) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
 </Callout>
 
@@ -130,7 +130,127 @@ shardeum_8118-1
 
 ## 6. Start and Sync the Node
 
-Start the node:
+### Before You Start: Syncing a New Node From Genesis After a State-Breaking Upgrade
+
+> Skip this section if your node is already synced past the latest upgrade height or if you are restoring from a compatible post-upgrade snapshot.
+
+If a compatible post-upgrade snapshot is available, use the snapshot to bootstrap the node with the current binary. The Cosmovisor instructions below are only for nodes syncing from genesis.
+
+When syncing a new node from genesis after a state-breaking upgrade, the node must use the binary version that corresponds to each part of the chain history.
+
+For the current Shardeum mainnet chain history:
+
+- Use `v1.0.2` to sync from genesis until the upgrade at height `7,927,860`.
+- At the upgrade, Cosmovisor switches the node to `v1.1.0`.
+- Continue syncing with `v1.1.0`.
+
+Use Cosmovisor to manage the binary switch at the upgrade height.
+
+#### Set Up Cosmovisor and the Required Binaries
+
+Install Cosmovisor:
+
+```bash
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@latest
+
+export PATH=$PATH:$HOME/go/bin
+
+cosmovisor version
+```
+
+Cosmovisor uses the node's home directory to store and manage the binaries required for each part of the chain history. Set the required environment variables:
+
+```bash
+export DAEMON_NAME=shardeumd
+export DAEMON_HOME="$HOME/.mainnet/$NODE_ID"
+export DAEMON_ALLOW_DOWNLOAD_BINARIES=false
+export DAEMON_RESTART_AFTER_UPGRADE=true
+```
+
+> Run the remaining Cosmovisor commands in the same shell session so these environment variables remain available.
+
+Download the required Shardeum binaries from the official releases:
+
+> **Important:** Use the current `v1.0.2` binary from the official release. An earlier `v1.0.2` binary published before October 16, 2026 cannot replay Shardeum mainnet from genesis.
+
+```bash
+mkdir -p "$HOME/shardeum-binaries"
+cd "$HOME/shardeum-binaries"
+
+curl -L \
+  -o shardeumd-v1.0.2-linux-amd64 \
+  https://github.com/shardeum/shardeum-evm/releases/download/v1.0.2/shardeumd-v1.0.2-linux-amd64
+
+curl -L \
+  -o shardeumd-v1.1.0-linux-amd64 \
+  https://github.com/shardeum/shardeum-evm/releases/download/v1.1.0/shardeumd-v1.1.0-linux-amd64
+```
+
+Verify the SHA-256 checksums:
+
+```bash
+echo "1b57360a1d9ad340e396105521e19237cea5d162cc68eb265f00b1fe206d8849  shardeumd-v1.0.2-linux-amd64" | sha256sum -c -
+
+echo "08cf7e6a7381bc8ffabaf265a2571304353409d85a7504f3d96fcfb0b2240f89  shardeumd-v1.1.0-linux-amd64" | sha256sum -c -
+```
+
+Both commands should return `OK`.
+
+Make the binaries executable:
+
+```bash
+chmod +x shardeumd-v1.0.2-linux-amd64
+chmod +x shardeumd-v1.1.0-linux-amd64
+```
+
+Initialize Cosmovisor with `v1.0.2` as the genesis binary:
+
+```bash
+cosmovisor init "$HOME/shardeum-binaries/shardeumd-v1.0.2-linux-amd64"
+```
+
+Add `v1.1.0` using the exact upgrade name:
+
+```bash
+cosmovisor add-upgrade \
+  v0.4.0-to-v0.6.3 \
+  "$HOME/shardeum-binaries/shardeumd-v1.1.0-linux-amd64"
+```
+
+Verify that both binaries are in place:
+
+```bash
+"$DAEMON_HOME/cosmovisor/genesis/bin/shardeumd" version
+
+"$DAEMON_HOME/cosmovisor/upgrades/v0.4.0-to-v0.6.3/bin/shardeumd" version
+```
+
+Cosmovisor starts with `v1.0.2`. When the node reaches the upgrade at height `7,927,860`, it detects the onchain upgrade and switches to `v1.1.0` automatically.
+
+#### Start a Genesis Sync With Cosmovisor
+
+If you followed the genesis-sync instructions above, start the node through Cosmovisor:
+
+```bash
+cosmovisor run start \
+  --home $HOME/.mainnet/$NODE_ID \
+  --chain-id shardeum_8118-1 \
+  --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 \
+  --p2p.laddr tcp://0.0.0.0:27656 \
+  --rpc.laddr tcp://127.0.0.1:26657 \
+  --pruning nothing \
+  > $HOME/.mainnet/$NODE_ID/node.log &
+```
+
+Watch the logs:
+
+```bash
+tail -f $HOME/.mainnet/$NODE_ID/node.log
+```
+
+### Start the Node Normally
+
+If you skipped the genesis-sync section because your node is already past the latest upgrade height or you restored from a compatible post-upgrade snapshot, start the node normally:
 
 ```bash
 shardeumd start \
@@ -141,8 +261,11 @@ shardeumd start \
   --rpc.laddr tcp://127.0.0.1:26657 \
   --pruning nothing \
   > $HOME/.mainnet/$NODE_ID/node.log &
+```
 
-# Watch logs
+Watch the logs:
+
+```bash
 tail -f $HOME/.mainnet/$NODE_ID/node.log
 ```
 
