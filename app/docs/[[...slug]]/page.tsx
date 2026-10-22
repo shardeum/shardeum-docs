@@ -6,11 +6,10 @@ import { notFound } from 'next/navigation';
 
 export const dynamicParams = false; // Prevent dynamic fallback generation
 
-export default async function Page({
-  params,
-}: {
-  params: { slug?: string[] };
+export default async function Page(props: {
+  params: Promise<{ slug?: string[] }>;
 }) {
+  const params = await props.params;
   const page = getPage(params.slug);
   if (page == null || isExcluded(params.slug)) notFound();
 
@@ -34,7 +33,10 @@ export async function generateStaticParams() {
     }));
 }
 
-export function generateMetadata({ params }: { params: { slug?: string[] } }) {
+export async function generateMetadata(props: {
+  params: Promise<{ slug?: string[] }>;
+}) {
+  const params = await props.params;
   const page = getPage(params.slug);
   if (page == null || isExcluded(params.slug)) notFound();
 
