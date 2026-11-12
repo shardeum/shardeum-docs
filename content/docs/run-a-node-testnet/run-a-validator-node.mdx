@@ -48,6 +48,7 @@ go version
 Clone the Shardeum EVM repository:
 
 ```bash
+cd "$HOME"
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
 ```
@@ -56,10 +57,13 @@ Fetch the latest release tags and check out the currently supported testnet rele
 
 ```bash
 git fetch --tags
-git checkout <supported-testnet-release>
+git tag --list
+
+TESTNET_RELEASE="REPLACE_WITH_SUPPORTED_TESTNET_TAG"
+git checkout "$TESTNET_RELEASE"
 ```
 
-Replace `<supported-testnet-release>` with the release tag currently supported for Shardeum testnet.
+Replace `REPLACE_WITH_SUPPORTED_TESTNET_TAG` with the release tag supported by the currently running Shardeum testnet. Ensure the selected release includes the correct testnet genesis file and network configuration before building.
 
 Build and install the binary (may take several minutes):
 
@@ -92,12 +96,12 @@ export SHARDEUM_CHAIN_ID=shardeum-testnet
 ## 4. Initialize the Node
 
 <Callout type="warn"> 
-Ensure your validator keys and mnemonic are stored securely. Loss of your mnemonic may prevent recovery of the validator account.
+Ensure your validator keys and mnemonic are stored securely. Loss of your mnemonic may prevent recovery of the validator account. **Also:** Initialize only a new node directory. Do not rerun initialization with `--overwrite` on an existing validator without first securing its configuration, consensus keys, and signing state.
 </Callout>
 
 ```bash
-NODE_ID="<validator-id>"
-MONIKER="<validator-name>"
+NODE_ID="node0"
+MONIKER="shardeum-testnet-validator"
 
 shardeumd init "$MONIKER" \
   --chain-id shardeum-testnet \
@@ -107,21 +111,21 @@ shardeumd init "$MONIKER" \
 
 ## 5. Copy Genesis File
 
-```bash
-cp config/environments/testnet-genesis.json $HOME/.testnet/$NODE_ID/config/genesis.json
-```
-
-Verify:
+Copy the testnet genesis file from the repository:
 
 ```bash
-jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
+cp config/environments/testnet-genesis.json \
+  "$HOME/.testnet/$NODE_ID/config/genesis.json"
 ```
 
-The expected chain ID is:
+Verify that the genesis file matches the expected chain ID:
 
-```text
-shardeum-testnet
+```bash
+jq -e '.chain_id == "shardeum-testnet"' \
+  "$HOME/.testnet/$NODE_ID/config/genesis.json"
 ```
+
+The command should return `true`. If verification fails, confirm that you are using the correct testnet genesis file before proceeding.
 
 ## 6. Start and Sync the Node
 
@@ -202,7 +206,15 @@ Get consensus key:
 shardeumd comet show-validator --home $HOME/.testnet/$NODE_ID
 ```
 
-Create `validator.json`:
+The command returns a JSON object containing the validator's consensus public key. Copy the value of its `key` field into the corresponding field in `validator.json`. Keep the `@type` field unchanged.
+
+Create the validator configuration file:
+
+```bash
+nano validator.json
+```
+
+Paste the following JSON template, replace the placeholder values, and save the file before creating the validator.
 
 <Callout type="info">
 Adjust the stake amount based on current testnet requirements and your available testnet SHM balance.
@@ -234,6 +246,8 @@ shardeumd tx staking create-validator validator.json \
   --gas-adjustment="1.5"
 ```
 
+> **Transaction fees:** The command uses automatic gas estimation. If the transaction is rejected due to insufficient fees, specify `--gas-prices` using a value accepted by the current testnet. Ensure your account holds enough testnet SHM to cover both staking and transaction fees.
+
 ## 10. Verify Validator Status
 
 ```bash
@@ -251,6 +265,8 @@ Look for:
 - Voting power: greater than `0`
 - Jailed: `false`
 
+Note: A successfully registered validator may not immediately be bonded. `BOND_STATUS_BONDED` and positive voting power indicate active validator-set participation, whereas an unbonded validator may be waiting to enter the active set.
+
 ## 11. Optional: Run as a systemd Service
 
 **Check the installed Shardeum binary path:**
@@ -267,17 +283,21 @@ sudo nano /etc/systemd/system/shardeumd-testnet.service
 
 Example content:
 
-> The example below assumes the node was installed and initialized as the `root` user. If you used another system user, replace `User=root` and `/root/.testnet/<validator-id>` with the corresponding user and node-home path.
+> **Example configuration:** The service below assumes that Shardeum was installed under `/root` and initialized using `NODE_ID="node0"`. Adjust the system user, binary path, configuration directory, and node-home path to match your installation. For production validators, a dedicated non-root user is recommended.
 
 ```ini
 [Unit]
 Description=Shardeum Testnet Validator
+Wants=network-online.target
 After=network-online.target
 
 [Service]
 User=root
+Environment="SHARDEUM_NETWORK=testnet"
+Environment="SHARDEUM_CHAIN_ID=shardeum-testnet"
+Environment="SHARDEUM_CONFIG_DIR=/root/shardeum-evm/config"
 ExecStart=<shardeumd-binary-path> start \
-  --home /root/.testnet/<validator-id> \
+  --home /root/.testnet/node0 \
   --chain-id shardeum-testnet \
   --p2p.seeds "c15cdf69a0332a29a12b448ecf310b39d1d7659d@34.57.163.115:27656,1d6f78c5a0d3302b3b3ee963a9414b4909a5032f@34.170.136.184:27656,2773057c346152646bb71639dcc88828d1bbd1cf@34.63.57.148:27656" \
   --p2p.laddr tcp://0.0.0.0:27656 \
@@ -290,7 +310,7 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 ```
 
-Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd` and `<validator-id>` with the validator node ID configured earlier.
+Replace `<shardeumd-binary-path>` with the absolute path returned by `command -v shardeumd`. If you selected a different node ID, update the `--home` path accordingly.
 
 If the validator is already running from the manual startup command above, stop that process before starting the systemd service.
 
@@ -302,6 +322,17 @@ sudo systemctl enable shardeumd-testnet
 sudo systemctl start shardeumd-testnet
 sudo systemctl status shardeumd-testnet
 ```
+
+Check the service logs and confirm that the node's block height continues advancing:
+
+```bash
+sudo journalctl -u shardeumd-testnet -n 50 --no-pager
+
+curl -s http://127.0.0.1:26657/status \
+  | jq -r '.result.sync_info.latest_block_height'
+```
+
+Run the block-height command again after a short interval to verify progress.
 
 ## 12. Important Notes
 
