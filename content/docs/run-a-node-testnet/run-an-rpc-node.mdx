@@ -54,10 +54,13 @@ Fetch the latest release tags and check out the currently supported testnet rele
 
 ```bash
 git fetch --tags
-git checkout <supported-testnet-release>
+git tag --list
+
+TESTNET_RELEASE="REPLACE_WITH_SUPPORTED_TESTNET_TAG"
+git checkout "$TESTNET_RELEASE"
 ```
 
-Replace `<supported-testnet-release>` with the release tag currently supported for Shardeum testnet.
+Replace `REPLACE_WITH_SUPPORTED_TESTNET_TAG` with the release tag supported by the currently running Shardeum testnet. Ensure the selected release includes the correct testnet genesis file and network configuration before building the binary.
 
 Build and install the binary (may take several minutes):
 
@@ -102,8 +105,10 @@ shardeumd init "$MONIKER" \
 
 ```bash
 cp config/environments/testnet-genesis.json \
-  $HOME/.testnet/$NODE_ID/config/genesis.json
-jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
+  "$HOME/.testnet/$NODE_ID/config/genesis.json"
+
+jq -e '.chain_id == "shardeum-testnet"' \
+  "$HOME/.testnet/$NODE_ID/config/genesis.json"
 ```
 
 The expected chain ID is:
@@ -144,8 +149,8 @@ Under the existing `[json-rpc]` section, set:
 
 ```toml
 enable = true
-address = "0.0.0.0:8545"
-ws-address = "0.0.0.0:8546"
+address = "127.0.0.1:8545"
+ws-address = "127.0.0.1:8546"
 ```
 
 ## 8. Start and Sync the Node
@@ -186,14 +191,14 @@ Under the existing `[grpc]` section, set:
 
 ```toml
 enable = true
-address = "0.0.0.0:9090"
+address = "127.0.0.1:9090"
 ```
 
 Under the existing `[api]` section, set:
 
 ```toml
 enable = true
-address = "tcp://0.0.0.0:1317"
+address = "tcp://127.0.0.1:1317"
 ```
 
 Enable these only if required by your infrastructure or testing flow.
@@ -220,19 +225,19 @@ Allow P2P traffic:
 sudo ufw allow 27656/tcp
 ```
 
-Allow the RPC endpoints required for your deployment:
+The JSON-RPC, WebSocket, gRPC, and REST endpoints are configured to listen on localhost, so their backend ports do not need to be opened publicly.
+
+For externally accessible RPC services, use a secure reverse proxy with HTTPS/WSS, rate limiting, and appropriate access controls. Allow the proxy's public HTTPS port (typically `443/tcp`) while keeping the backend ports restricted.
+
+If direct external access is specifically required, configure the appropriate listening addresses and limit firewall access to trusted IP addresses or networks.
+
+If the HTTPS reverse proxy runs on this server, allow HTTPS traffic before enabling UFW:
 
 ```bash
-sudo ufw allow 8545/tcp   # JSON-RPC
-sudo ufw allow 8546/tcp   # WebSocket
+sudo ufw allow 443/tcp
 ```
 
-If you enabled the optional gRPC or REST endpoints, also allow:
-
-```bash
-sudo ufw allow 9090/tcp   # gRPC
-sudo ufw allow 1317/tcp   # REST API
-```
+Skip this rule if HTTPS is terminated elsewhere and this server does not need to accept public HTTPS connections.
 
 Then enable and check the firewall:
 
@@ -266,10 +271,14 @@ Example content:
 ```ini
 [Unit]
 Description=Shardeum Testnet RPC Node
+Wants=network-online.target
 After=network-online.target
 
 [Service]
 User=root
+Environment="SHARDEUM_NETWORK=testnet"
+Environment="SHARDEUM_CHAIN_ID=shardeum-testnet"
+Environment="SHARDEUM_CONFIG_DIR=/root/shardeum-evm/config"
 ExecStart=<shardeumd-binary-path> start \
   --home /root/.testnet/rpcnode \
   --chain-id shardeum-testnet \
@@ -296,6 +305,15 @@ sudo systemctl enable shardeumd-rpc-testnet
 sudo systemctl start shardeumd-rpc-testnet
 sudo systemctl status shardeumd-rpc-testnet
 ```
+
+Confirm that the service is running and that the node's block height continues advancing:
+
+```bash
+curl -s http://127.0.0.1:26657/status \
+  | jq -r '.result.sync_info.latest_block_height'
+```
+
+Run the command again after a short interval to verify progress.
 
 ## 12. Scaling RPC Nodes (Optional)
 
