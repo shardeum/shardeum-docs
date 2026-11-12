@@ -8,8 +8,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 This guide covers advanced operational topics for running production-grade Shardeum nodes.
 
 <Callout type="info">
-The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and `v1.1.0` is the current mainnet release. New nodes syncing from genesis must use the required historical binaries for the relevant chain heights. See the applicable node setup guide for fresh-sync instructions.
-[View upgrade details](https://shm.gg/upgrade-status) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
+Shardeum mainnet has successfully upgraded to `v1.2.0` (Cosmos EVM `v0.6.4`). Network operations have resumed, and `v1.2.0` is the current mainnet release. New nodes syncing from genesis must use the required historical binaries at the corresponding upgrade heights. See the applicable node setup guide for instructions. [View upgrade details](https://shm.gg/upgrade-status) | [Download v1.2.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.2.0)
 </Callout>
 
 ## 1. Production Deployment Best Practices
@@ -22,16 +21,21 @@ Create a systemd service file for automatic restarts and easier management:
 sudo nano /etc/systemd/system/shardeumd.service
 ```
 
+> **Production recommendation:** Run Shardeum nodes under a dedicated, non-root system user with appropriate permissions. The example paths below assume installation under `/root` and must be adjusted for your environment. **Important:** Stop any manually running node process before starting it through systemd. Never run two processes against the same node home directory.
+
 **Example service file:**
 
 ```ini
 [Unit]
 Description=Shardeum Node
+Wants=network-online.target
 After=network-online.target
 
 [Service]
 User=root
-ExecStart=/root/go/bin/shardeumd start --home /root/.mainnet/node0
+Environment="SHARDEUM_NETWORK=mainnet"
+Environment="SHARDEUM_CONFIG_DIR=/root/shardeum-evm/config"
+ExecStart=/root/go/bin/shardeumd start --home /root/.mainnet/node0 --chain-id shardeum_8118-1 --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 --p2p.laddr tcp://0.0.0.0:27656 --rpc.laddr tcp://127.0.0.1:26657 --pruning nothing
 Restart=on-failure
 RestartSec=3
 LimitNOFILE=65535
@@ -51,6 +55,7 @@ Example service file:
 ```ini
 [Unit]
 Description=Shardeum Node
+Wants=network-online.target
 After=network-online.target
 
 [Service]
@@ -60,7 +65,9 @@ Environment="DAEMON_HOME=/root/.mainnet/node0"
 Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
 Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/go/bin"
-ExecStart=/root/go/bin/cosmovisor run start --home /root/.mainnet/node0
+Environment="SHARDEUM_NETWORK=mainnet"
+Environment="SHARDEUM_CONFIG_DIR=/root/shardeum-evm/config"
+ExecStart=/root/go/bin/cosmovisor run start --home /root/.mainnet/node0 --chain-id shardeum_8118-1 --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 --p2p.laddr tcp://0.0.0.0:27656 --rpc.laddr tcp://127.0.0.1:26657 --pruning nothing
 Restart=on-failure
 RestartSec=3
 LimitNOFILE=65535
@@ -79,6 +86,16 @@ sudo systemctl enable shardeumd
 sudo systemctl start shardeumd
 sudo systemctl status shardeumd
 ```
+
+After starting the service, check the logs and confirm that the node's latest block height is advancing:
+
+```bash
+sudo journalctl -u shardeumd -n 50 --no-pager
+
+curl -s http://127.0.0.1:26657/status | jq -r '.result.sync_info.latest_block_height'
+```
+
+Run the block-height command again after a short interval and confirm that the height increases.
 
 ### Firewall Configuration
 
@@ -120,8 +137,9 @@ Do not expose validator RPC endpoints publicly. Keep RPC access bound to localho
 Edit `config.toml`:
 
 ```toml
+[instrumentation]
 prometheus = true
-prometheus_listen_addr = ":26660"
+prometheus_listen_addr = "127.0.0.1:26660"
 ```
 
 ### Monitoring Stack Setup
@@ -219,71 +237,89 @@ KMS setup requires advanced configuration. Thoroughly test in a non-production e
 # Mnemonic phrase (keep offline and secure)
 ```
 
+<Callout type="warn">
+**Validator backup safety:** Keep consensus keys and signing-state files secure. Never run multiple validators using the same consensus key, and do not restore an outdated `priv_validator_state.json` without verifying the latest signing state. Incorrect recovery can lead to double-signing and slashing. Use a consistent backup procedure and securely store backups offline.
+</Callout>
+
+> **Before backing up:** Stop the validator or use a tested, consistent backup procedure. Avoid copying signing-state files while they are being updated. Never restore a backup in a way that creates two active signers using the same consensus key.
+
 ### Backup Script Example
 
 ```bash
 #!/bin/bash
+set -euo pipefail
+umask 077
 NODE_ID="node0"
 BACKUP_DIR="/secure/backup/location"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 # Create backup directory
-mkdir -p $BACKUP_DIR/$DATE
+mkdir -p "$BACKUP_DIR/$DATE"
 
 # Backup critical files
-cp ~/.mainnet/$NODE_ID/config/priv_validator_key.json $BACKUP_DIR/$DATE/
-cp ~/.mainnet/$NODE_ID/data/priv_validator_state.json $BACKUP_DIR/$DATE/
-cp ~/.mainnet/$NODE_ID/config/node_key.json $BACKUP_DIR/$DATE/
-cp ~/.mainnet/$NODE_ID/config/*.toml $BACKUP_DIR/$DATE/
+cp "$HOME/.mainnet/$NODE_ID/config/priv_validator_key.json" "$BACKUP_DIR/$DATE/"
+cp "$HOME/.mainnet/$NODE_ID/data/priv_validator_state.json" "$BACKUP_DIR/$DATE/"
+cp "$HOME/.mainnet/$NODE_ID/config/node_key.json" "$BACKUP_DIR/$DATE/"
+cp "$HOME/.mainnet/$NODE_ID/config/"*.toml "$BACKUP_DIR/$DATE/"
 
 # Create compressed archive
-tar -czf $BACKUP_DIR/backup_$DATE.tar.gz -C $BACKUP_DIR $DATE
-rm -rf $BACKUP_DIR/$DATE
+tar -czf "$BACKUP_DIR/backup_$DATE.tar.gz" -C "$BACKUP_DIR" "$DATE"
+rm -rf -- "$BACKUP_DIR/$DATE"
 
 echo "Backup completed: backup_$DATE.tar.gz"
 ```
 
 ### Disaster Recovery
 
-**If validator key is compromised:**
-1. Immediately unbond and remove validator
-2. Generate new keys
-3. Create new validator
-4. Report incident to network
+**If a validator key is suspected to be compromised:**
+
+1. Secure the affected system and prevent further unauthorized access or signing.
+2. Identify whether the operator account key, consensus-signing key, or both are affected.
+3. Follow the appropriate recovery procedure. Do not assume compromised consensus keys can be rotated on the existing validator.
+4. Ensure the same consensus key is never active on multiple validator instances.
 
 **If node fails:**
-1. Deploy new server with identical configuration
-2. Restore backup files
-3. Sync node to current block height
-4. Unjail validator if necessary
+
+1. Ensure the previous validator instance is stopped and cannot resume signing.
+2. Deploy a replacement server with the required configuration.
+3. Restore a verified backup, including the correct consensus-signing state.
+4. Synchronize the node to the current block height.
+5. Verify normal operation and unjail the validator if eligible.
 
 #### Unjailing a validator
 
-If your validator is jailed, first make sure the node is running correctly and using the currently supported Shardeum mainnet release. Once the underlying issue has been resolved, submit an unjail transaction using your operator key.
+If your validator was jailed for downtime, first resolve the underlying issue and ensure the node is syncing correctly.
 
-```
+Once the required jail period has expired, submit an unjail transaction using your validator operator key. Validators permanently tombstoned for double-signing cannot be unjailed.
+
+```bash
+cd "$HOME/shardeum-evm"
 export SHARDEUM_NETWORK=mainnet
 export SHARDEUM_CHAIN_ID=shardeum_8118-1
-export SHARDEUM_CONFIG_DIR=<shardeum-config-dir>
+export SHARDEUM_CONFIG_DIR="$PWD/config"
 
-shardeumd tx slashing unjail --from <operator-key> \
+shardeumd tx slashing unjail --from validator-key \
   --chain-id shardeum_8118-1 \
-  --node https://rpc.shardeum.org:443 \
+  --node tcp://127.0.0.1:26657 \
   --gas auto \
   --gas-adjustment 1.3 \
   --gas-prices 2048130280389041ashm \
   --yes
 ```
 
+Replace `validator-key` if you used a different operator key name.
+
 **To find your operator key:**
 
-```
-shardeumd keys list \
-  --keyring-backend [test|os|file] \
-  --home <home-path>
+If you followed the Validator Node guide and used the default keyring configuration:
+
+```bash
+shardeumd keys list
 ```
 
-Note: `<home-path>` should be the same node home directory used when starting the validator. Use the same keyring backend that was used when the operator key was created.
+If you used a custom node home or keyring backend when creating the key, specify those same settings when listing or using the key.
+
+> **Important:** The operator account keyring and the validator's consensus-signing key are separate. Use the account key that controls your validator when submitting an unjail transaction.
 
 ## 5. Performance Optimization
 
@@ -305,18 +341,17 @@ pruning-interval = "50"
 - Use minimal pruning or default settings
 - Avoid aggressive pruning to maintain full state
 
-### Database Optimization
+### State Synchronization
 
-**Enable state sync for faster initial sync:**
+State sync can reduce initial synchronization time by restoring a recent network state instead of replaying the entire blockchain history.
 
-Edit `config.toml`:
-```toml
-[statesync]
-enable = true
-rpc_servers = "rpc1.shardeum.org:26657,rpc2.shardeum.org:26657"
-trust_height = <recent_height>
-trust_hash = "<block_hash>"
-```
+For Shardeum v1.2.0, use a compatible post-upgrade state snapshot, if state sync is supported and suitable snapshot-serving peers are available.
+
+Before enabling state sync, obtain two verified CometBFT RPC endpoints and a trusted block height and hash from reliable network sources.
+
+Configure these values under `[statesync]` in `config.toml`. Do not enable state sync until the required endpoints, trusted values, and snapshot availability have been verified.
+
+If state sync is unavailable, follow the historical binary synchronization instructions in the applicable node setup guide.
 
 ### Hardware Tuning
 
@@ -348,7 +383,11 @@ sudo sysctl -w net.core.wmem_max=134217728
 
 **Example Nginx configuration:**
 
+>Add the following configuration within Nginx's http context. For publicly accessible RPC services, configure HTTPS and appropriate access controls.
+
 ```nginx
+limit_req_zone $binary_remote_addr zone=rpc_limit:10m rate=10r/s;
+
 upstream rpc_backend {
     least_conn;
     server 10.0.1.10:8545;
@@ -403,7 +442,7 @@ log_level = "debug"
 
 ```bash
 # Check sync status
-shardeumd status | jq '.SyncInfo'
+shardeumd status --home "$HOME/.mainnet/$NODE_ID" | jq '.SyncInfo'
 
 # Check peer connections
 curl -s http://localhost:26657/net_info | jq '.result.n_peers'
@@ -412,7 +451,8 @@ curl -s http://localhost:26657/net_info | jq '.result.n_peers'
 curl -s http://localhost:26657/consensus_state
 
 # Check validator signing info
-shardeumd query slashing signing-info $(shardeumd comet show-validator)
+shardeumd query slashing signing-info \
+  "$(shardeumd comet show-validator --home "$HOME/.mainnet/$NODE_ID")"
 ```
 
 ## 8. Upgrade Procedures
@@ -424,12 +464,14 @@ Upgrade requirements may differ depending on whether the node is managed directl
 If your node uses Cosmovisor, add the required upgrade binary using the exact upgrade name specified for that release and continue running the node through Cosmovisor. Do not bypass the Cosmovisor-managed binary unless the release-specific instructions explicitly require it.
 
 **Preparation:**
-1. Monitor official Shardeum announcements for the upgrade schedule and any release-specific instructions.
+
+1. Monitor official Shardeum announcements for upgrade schedules and release-specific instructions.
 2. Back up critical node files and configuration.
-3. Review the release notes and any upgrade-specific requirements.
-4. Confirm that your environment meets any updated requirements before proceeding.
+3. Review the release notes and upgrade requirements.
+4. Confirm that the environment meets any updated requirements.
 
 **Manual binary upgrade steps:**
+
 1. Confirm the currently supported Shardeum mainnet release from the [official Shardeum EVM releases](https://github.com/shardeum/shardeum-evm/releases) and review any release-specific instructions.
 2. Stop the node.
 3. Back up the existing binary and critical node files and configuration.
@@ -468,9 +510,9 @@ When a compatible snapshot is available, restore from a suitable post-upgrade sn
 
 If syncing from genesis, follow the fresh-sync instructions in the applicable node setup guide. After a state-breaking upgrade, syncing from genesis may require historical binaries and Cosmovisor to switch binaries at the appropriate upgrade heights.
 
-```bash
-shardeumd tendermint unsafe-reset-all --home ~/.mainnet/$NODE_ID
-```
+<Callout type="warn">
+**Caution:** Database resets can remove node state and require synchronization again. For validators, an incorrect reset or signing-state restoration can create double-signing risks. Stop the node and follow a verified recovery procedure before modifying its data directory.
+</Callout>
 
 ### Network Connectivity Issues
 
