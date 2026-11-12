@@ -46,6 +46,7 @@ go version
 Clone the Shardeum EVM repository:
 
 ```bash
+cd "$HOME"
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
 ```
@@ -54,10 +55,13 @@ Fetch the latest release tags and check out the currently supported testnet rele
 
 ```bash
 git fetch --tags
-git checkout <supported-testnet-release>
+git tag --list
+
+TESTNET_RELEASE="REPLACE_WITH_SUPPORTED_TESTNET_TAG"
+git checkout "$TESTNET_RELEASE"
 ```
 
-Replace `<supported-testnet-release>` with the release tag currently supported for Shardeum testnet.
+Replace `REPLACE_WITH_SUPPORTED_TESTNET_TAG` with the release tag supported by the currently running Shardeum testnet. Ensure the selected release includes the correct testnet genesis file and network configuration before building.
 
 Build and install the binary (may take several minutes):
 
@@ -102,23 +106,21 @@ shardeumd init "$MONIKER" \
 
 ## 5. Copy Genesis File
 
+Copy the testnet genesis file from the repository:
+
 ```bash
 cp config/environments/testnet-genesis.json \
-   $HOME/.testnet/$NODE_ID/config/genesis.json
+  "$HOME/.testnet/$NODE_ID/config/genesis.json"
 ```
 
-Verify the genesis file:
+Verify that the genesis file matches the expected chain ID:
 
 ```bash
-ls -lh $HOME/.testnet/$NODE_ID/config/genesis.json
-jq -r '.chain_id' $HOME/.testnet/$NODE_ID/config/genesis.json
+jq -e '.chain_id == "shardeum-testnet"' \
+  "$HOME/.testnet/$NODE_ID/config/genesis.json"
 ```
 
-The expected chain ID is:
-
-```text
-shardeum-testnet
-```
+The command should return `true`. If verification fails, confirm that you are using the correct testnet genesis file before proceeding.
 
 ## 6. Configure Pruning
 
@@ -196,19 +198,23 @@ Create the service file:
 sudo nano /etc/systemd/system/shardeumd-testnet.service
 ```
 
-> The example below assumes the node was installed and initialized as the `root` user. If you used another system user, replace `User=root` and `/root/.testnet/<node-id>` with the corresponding user and node-home path.
+> **Example configuration:** The service below assumes Shardeum was installed under `/root` and initialized using `NODE_ID="node0"`. Adjust the system user, binary path, configuration directory, and node-home path to match your installation. A dedicated non-root user is recommended for production deployments.
 
 Example:
 
 ```ini
 [Unit]
 Description=Shardeum Testnet Full Node
+Wants=network-online.target
 After=network-online.target
 
 [Service]
 User=root
+Environment="SHARDEUM_NETWORK=testnet"
+Environment="SHARDEUM_CHAIN_ID=shardeum-testnet"
+Environment="SHARDEUM_CONFIG_DIR=/root/shardeum-evm/config"
 ExecStart=<shardeumd-binary-path> start \
-  --home /root/.testnet/<node-id> \
+  --home /root/.testnet/node0 \
   --chain-id shardeum-testnet \
   --p2p.seeds "c15cdf69a0332a29a12b448ecf310b39d1d7659d@34.57.163.115:27656,1d6f78c5a0d3302b3b3ee963a9414b4909a5032f@34.170.136.184:27656,2773057c346152646bb71639dcc88828d1bbd1cf@34.63.57.148:27656" \
   --p2p.laddr tcp://0.0.0.0:27656 \
@@ -221,7 +227,7 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 ```
 
-Replace `<shardeumd-binary-path>` with the path returned by `command -v shardeumd` and `<node-id>` with the node ID configured earlier.
+Replace `<shardeumd-binary-path>` with the absolute path returned by `command -v shardeumd`. If you selected a different node ID, update the `--home` path accordingly.
 
 If the node is already running from the manual startup command above, stop that process before starting it through systemd.
 
@@ -234,6 +240,15 @@ sudo systemctl start shardeumd-testnet
 sudo systemctl status shardeumd-testnet
 ```
 
+Confirm that the service is running and that the node's block height continues advancing:
+
+```bash
+curl -s http://127.0.0.1:26657/status \
+  | jq -r '.result.sync_info.latest_block_height'
+```
+
+Run the command again after a short interval to verify progress.
+
 ## 9. Optional: Enable JSON-RPC
 
 Edit:
@@ -244,9 +259,11 @@ Under the existing `[json-rpc]` section, set:
 
 ```toml
 enable = true
-address = "0.0.0.0:8545"
-ws-address = "0.0.0.0:8546"
+address = "127.0.0.1:8545"
+ws-address = "127.0.0.1:8546"
 ```
+
+This configuration restricts JSON-RPC and WebSocket access to the local server. For public RPC services, use an HTTPS/WSS reverse proxy with appropriate access controls, rate limiting, and monitoring.
 
 Restart the node after saving the changes.
 
@@ -270,12 +287,19 @@ Allow P2P traffic:
 sudo ufw allow 27656/tcp
 ```
 
-If this node is intentionally serving public JSON-RPC, also allow:
+The optional JSON-RPC and WebSocket endpoints are configured to listen on localhost, so their backend ports do not need to be opened publicly.
+
+For externally accessible RPC services, use a secure reverse proxy with HTTPS/WSS, rate limiting, and appropriate access controls.
+
+If the HTTPS reverse proxy runs on this server, allow HTTPS traffic before enabling UFW:
 
 ```bash
-sudo ufw allow 8545/tcp   # JSON-RPC
-sudo ufw allow 8546/tcp   # WebSocket
+sudo ufw allow 443/tcp
 ```
+
+Skip this rule if HTTPS is terminated elsewhere.
+
+If direct external RPC access is specifically required, configure the appropriate listening addresses and restrict firewall access to trusted IP addresses or networks.
 
 Then enable and check the firewall:
 
@@ -326,11 +350,13 @@ tail -f $HOME/.testnet/$NODE_ID/node.log
 sudo systemctl stop shardeumd-testnet
 ```
 
-If you started the node manually instead:
+If you started the node manually instead, identify the specific node process:
 
 ```bash
-pkill shardeumd
+ps -eo pid,args | grep '[s]hardeumd start'
 ```
+
+Stop only the process associated with your full node using `kill` and its confirmed process ID. Avoid using `pkill shardeumd`, as it may terminate other Shardeum nodes running on the same server.
 
 ## 12. Troubleshooting
 
