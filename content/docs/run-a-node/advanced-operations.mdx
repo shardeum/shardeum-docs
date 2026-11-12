@@ -15,6 +15,8 @@ Shardeum mainnet has successfully upgraded to `v1.2.0` (Cosmos EVM `v0.6.4`). Ne
 
 ## 1. Production Deployment Best Practices
 
+> **Production recommendation:** Run Shardeum nodes under a dedicated, non-root system user with appropriate permissions. The example paths below assume installation under `/root` and must be adjusted for your environment. **Also:** Stop any manually running node process before starting it through systemd. Never run two processes against the same node home directory.
+
 ### Using systemd Service
 
 Create a systemd service file for automatic restarts and easier management:
@@ -22,8 +24,6 @@ Create a systemd service file for automatic restarts and easier management:
 ```bash
 sudo nano /etc/systemd/system/shardeumd.service
 ```
-
-> **Production recommendation:** Run Shardeum nodes under a dedicated, non-root system user with appropriate permissions. The example paths below assume installation under `/root` and must be adjusted for your environment. **Important:** Stop any manually running node process before starting it through systemd. Never run two processes against the same node home directory.
 
 **Example service file:**
 
