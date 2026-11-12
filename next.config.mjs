@@ -24,6 +24,23 @@ const config = {
   
   async redirects() {
     return [
+      // ---- Legacy root-level (non-/docs) URLs ----
+      {
+        source: '/smartContracts/deploy/foundry',
+        destination: '/docs/developer/smart-contracts/deploy-using-foundry',
+        permanent: true,
+      },
+      {
+        source: '/node/run/validator',
+        destination: '/docs/run-a-node/run-a-validator-node',
+        permanent: true,
+      },
+      {
+        source: '/storage/spheron',
+        destination: '/docs/ecosystem/houdini-swap',
+        permanent: true,
+      },
+
       // ---- Legacy /docs/node/** -> /docs/run-a-node/** ----
       // Specific legacy paths MUST come before the /docs/node/:path* catch-all,
       // otherwise the catch-all shadows them and produces broken URLs.
