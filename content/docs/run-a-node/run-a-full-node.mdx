@@ -6,9 +6,8 @@ description: Guide to running a full node on Shardeum
 import { Callout } from 'fumadocs-ui/components/callout';
 
 <Callout type="info">
-The Shardeum mainnet has successfully upgraded to `v1.1.0` (Cosmos EVM `v0.6.3`). Network operations have resumed, and `v1.1.0` is the current mainnet release. New nodes syncing from genesis must follow the historical binary instructions in the **Start and Sync the Node** section below.
-[View upgrade details](https://shm.gg/upgrade-status) | [Download v1.1.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.1.0)
-</Callout>  
+Shardeum mainnet has successfully upgraded to `v1.2.0` (Cosmos EVM `v0.6.4`). Network operations have resumed, and `v1.2.0` is the current mainnet release. New nodes syncing from genesis must follow the historical binary instructions in the **Start and Sync the Node** section below.   [View upgrade details](https://shm.gg/upgrade-status) | [Download v1.2.0](https://github.com/shardeum/shardeum-evm/releases/tag/v1.2.0)
+</Callout> 
 
 A full node verifies blocks, relays network data, and can optionally serve RPC endpoints for dApps and infrastructure partners. Full nodes do not participate in consensus and do not require staking.
 
@@ -45,10 +44,11 @@ go version
 ## 2. Install Shardeum Node Binary
 
 ```bash
+cd "$HOME"
 git clone https://github.com/shardeum/shardeum-evm.git
 cd shardeum-evm
 git fetch --tags
-git checkout v1.1.0
+git checkout v1.2.0
 make install
 ```
 
@@ -100,19 +100,22 @@ jq -r '.chain_id' $HOME/.mainnet/$NODE_ID/config/genesis.json
 
 ### Before You Start: Syncing a New Node From Genesis After a State-Breaking Upgrade
 
-> Skip this section if your node is already synced past the latest upgrade height or if you are restoring from a compatible post-upgrade snapshot.
+> Skip this section if your node is already synced past upgrade height `8,390,300` or if you are restoring from a compatible post-upgrade snapshot.
 
-If a compatible post-upgrade snapshot is available, use the snapshot to bootstrap the node with the current binary. The Cosmovisor instructions below are only for nodes syncing from genesis.
+For new full nodes, state synchronization from a compatible post-upgrade snapshot is recommended, provided suitable snapshot-serving peers and trusted RPC endpoints are available.
 
-When syncing a new node from genesis after a state-breaking upgrade, the node must use the binary version that corresponds to each part of the chain history.
+For state synchronization prerequisites and configuration guidance, see [State Synchronization](/docs/run-a-node/advanced-operations#state-synchronization).
 
-For the current Shardeum mainnet chain history:
+The Cosmovisor instructions below are for nodes syncing from genesis.
 
-- Use `v1.0.2` to sync from genesis until the upgrade at height `7,927,860`.
-- At the upgrade, Cosmovisor switches the node to `v1.1.0`.
-- Continue syncing with `v1.1.0`.
+When syncing from genesis, the node must use the binary corresponding to each part of the chain history:
 
-Use Cosmovisor to manage the binary switch at the upgrade height.
+- Use `v1.0.2` from genesis until upgrade height `7,927,860`.
+- At height `7,927,860`, Cosmovisor switches to `v1.1.0`.
+- Continue with `v1.1.0` until upgrade height `8,390,300`.
+- At height `8,390,300`, Cosmovisor switches to `v1.2.0`.
+
+Use Cosmovisor to manage both historical binary transitions automatically.
 
 #### Set Up Cosmovisor and the Required Binaries
 
@@ -123,7 +126,7 @@ go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@latest
 
 export PATH=$PATH:$HOME/go/bin
 
-cosmovisor version
+command -v cosmovisor
 ```
 
 Cosmovisor uses the node's home directory to store and manage the binaries required for each part of the chain history. Set the required environment variables:
@@ -152,6 +155,10 @@ curl -L \
 curl -L \
   -o shardeumd-v1.1.0-linux-amd64 \
   https://github.com/shardeum/shardeum-evm/releases/download/v1.1.0/shardeumd-v1.1.0-linux-amd64
+
+curl -fL \
+  -o shardeumd-v1.2.0-linux-amd64 \
+  https://github.com/shardeum/shardeum-evm/releases/download/v1.2.0/shardeumd-v1.2.0-linux-amd64
 ```
 
 Verify the SHA-256 checksums:
@@ -160,15 +167,18 @@ Verify the SHA-256 checksums:
 echo "1b57360a1d9ad340e396105521e19237cea5d162cc68eb265f00b1fe206d8849  shardeumd-v1.0.2-linux-amd64" | sha256sum -c -
 
 echo "08cf7e6a7381bc8ffabaf265a2571304353409d85a7504f3d96fcfb0b2240f89  shardeumd-v1.1.0-linux-amd64" | sha256sum -c -
+
+echo "909ffaf1f968a3b87a8dd6b90750fd0b285d099955dcfdf46212082fc07abc36  shardeumd-v1.2.0-linux-amd64" | sha256sum -c -
 ```
 
-Both commands should return `OK`.
+All three commands should return `OK`.
 
 Make the binaries executable:
 
 ```bash
 chmod +x shardeumd-v1.0.2-linux-amd64
 chmod +x shardeumd-v1.1.0-linux-amd64
+chmod +x shardeumd-v1.2.0-linux-amd64
 ```
 
 Initialize Cosmovisor with `v1.0.2` as the genesis binary:
@@ -185,15 +195,26 @@ cosmovisor add-upgrade \
   "$HOME/shardeum-binaries/shardeumd-v1.1.0-linux-amd64"
 ```
 
-Verify that both binaries are in place:
+Add `v1.2.0` using its exact upgrade name:
+
+```bash
+cosmovisor add-upgrade \
+  v0.6.3-to-v0.6.4 \
+  "$HOME/shardeum-binaries/shardeumd-v1.2.0-linux-amd64"
+```
+
+Verify that all three binaries are in place:
 
 ```bash
 "$DAEMON_HOME/cosmovisor/genesis/bin/shardeumd" version
 
 "$DAEMON_HOME/cosmovisor/upgrades/v0.4.0-to-v0.6.3/bin/shardeumd" version
+
+
+"$DAEMON_HOME/cosmovisor/upgrades/v0.6.3-to-v0.6.4/bin/shardeumd" version
 ```
 
-Cosmovisor starts with `v1.0.2`. When the node reaches the upgrade at height `7,927,860`, it detects the onchain upgrade and switches to `v1.1.0` automatically.
+Cosmovisor starts with `v1.0.2` and automatically switches to `v1.1.0` at height `7,927,860`, then to `v1.2.0` at height `8,390,300`, using the corresponding on-chain upgrade plans.
 
 #### Start a Genesis Sync With Cosmovisor
 
@@ -211,7 +232,9 @@ cosmovisor run start \
 
 ### Start the Node Normally
 
-If you skipped the genesis-sync section because your node is already past the latest upgrade height or you restored from a compatible post-upgrade snapshot, start the node normally:
+If your node is already synced past height `8,390,300` or has been restored from a compatible post-upgrade snapshot, confirm that `shardeumd version` reports `v1.2.0` before starting the node normally.
+
+Do not use this startup method with the current binary to sync directly from genesis.
 
 ```bash
 shardeumd start \
@@ -237,114 +260,15 @@ tail -f $HOME/.mainnet/$NODE_ID/node.log
 
 Sync is complete when block height matches the explorer.
 
-## 7. Optional: Run as systemd Service
+## 7. Optional: Run as a systemd Service
 
-A systemd service can automatically restart the node and simplify node management.
+For reliable, long-running operations, use systemd to manage your full node with automatic startup, process recovery, and centralized logging.
 
-Check the installed binary paths:
+The startup commands above are intended for manual operation and initial testing.
 
-```bash
-command -v shardeumd
-command -v cosmovisor
-```
+See [Using systemd Service](/docs/run-a-node/advanced-operations#using-systemd-service) for production setup instructions, including configurations for both direct `shardeumd` execution and Cosmovisor.
 
-Create the service file:
-
-```bash
-sudo nano /etc/systemd/system/shardeumd.service
-```
-
-Choose **one** of the following service configurations depending on how the node was started.
-
-> The examples below assume the node was installed and initialized as the `root` user. If you used another system user, replace `User=root`, `/root/.mainnet/node0`, and `/root/go/bin` with the corresponding user and paths.
-
-### Standard systemd Service
-
-Use this configuration if the node is running directly with `shardeumd`.
-
-```ini
-[Unit]
-Description=Shardeum Full Node
-After=network-online.target
-
-[Service]
-User=root
-ExecStart=<shardeumd-binary-path> start \
-  --home /root/.mainnet/node0 \
-  --chain-id shardeum_8118-1 \
-  --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 \
-  --p2p.laddr tcp://0.0.0.0:27656 \
-  --rpc.laddr tcp://127.0.0.1:26657
-Restart=on-failure
-RestartSec=3
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Replace `<shardeumd-binary-path>` with the path returned by:
-
-```bash
-command -v shardeumd
-```
-
-If you used a different node ID, replace `node0` with that node ID.
-
-### systemd Service With Cosmovisor
-
-If you followed the genesis-sync instructions in the previous section and configured Cosmovisor, use this service configuration instead of the standard configuration above.
-
-```ini
-[Unit]
-Description=Shardeum Full Node
-After=network-online.target
-
-[Service]
-User=root
-Environment="DAEMON_NAME=shardeumd"
-Environment="DAEMON_HOME=/root/.mainnet/node0"
-Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
-Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
-Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/go/bin"
-ExecStart=<cosmovisor-binary-path> run start \
-  --home /root/.mainnet/node0 \
-  --chain-id shardeum_8118-1 \
-  --p2p.seeds ab6c31d63a4a30918dea8d74fb0393e5e10477c4@34.93.180.93:27656,3c722839d9745fc13df16cdfe0eb53f219a30949@34.14.143.72:27656 \
-  --p2p.laddr tcp://0.0.0.0:27656 \
-  --rpc.laddr tcp://127.0.0.1:26657
-Restart=on-failure
-RestartSec=3
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Replace `<cosmovisor-binary-path>` with the path returned by:
-
-```bash
-command -v cosmovisor
-```
-
-If you used a different node ID, replace `node0` in both `DAEMON_HOME` and `--home`.
-
-If the node is already running from the previous section, stop the manually started process before starting it through systemd.
-
-After saving the applicable service configuration, reload systemd and enable the service:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable shardeumd
-sudo systemctl start shardeumd
-sudo systemctl status shardeumd
-```
-
-View the service logs with:
-
-```bash
-journalctl -u shardeumd -f
-```
+> **Important:** Stop the manually running node before starting it through systemd. Never run two processes against the same node home directory.
 
 ## 8. Optional: Enable JSON-RPC
 
@@ -352,13 +276,17 @@ Edit:
 
 `$HOME/.mainnet/$NODE_ID/config/app.toml`
 
-Enable:
+Under the existing `[json-rpc]` section, update these values:
 
 ```toml
-json-rpc.enable = true
-json-rpc.address = "0.0.0.0:8545"
-json-rpc.ws-address = "0.0.0.0:8546"
+enable = true
+address = "127.0.0.1:8545"
+ws-address = "127.0.0.1:8546"
 ```
+
+This configuration keeps JSON-RPC accessible locally.
+
+For public RPC services, configure an authenticated or rate-limited reverse proxy with HTTPS and appropriate access controls. Direct public binding requires additional security precautions.
 
 Restart the node after saving the changes. If using systemd:
 
@@ -408,7 +336,7 @@ Edit `app.toml`:
 pruning = "default"
 ```
 
-Or for higher performance:
+Or to configure custom pruning and state retention:
 
 ```toml
 pruning = "custom"
@@ -469,23 +397,27 @@ shardeumd query bank balances <address>
 
 ### Stopping the Node
 
-**If running `shardeumd` directly:**
-
-```bash
-pkill shardeumd
-```
-
-If running through Cosmovisor manually:
-
-```bash
-pkill cosmovisor
-```
-
-If using systemd:
+**If using systemd:**
 
 ```bash
 sudo systemctl stop shardeumd
 ```
+
+**If running manually:**
+
+Identify the specific node process:
+
+```bash
+ps -eo pid,args | grep -E '[s]hardeumd|[c]osmovisor'
+```
+
+Send a graceful termination signal to the appropriate process:
+
+```bash
+kill -TERM <PID>
+```
+
+Replace `<PID>` with the process ID of the node or Cosmovisor process you intend to stop. Verify that the corresponding process has exited before restarting it or switching to systemd.
 
 ## 12. Troubleshooting
 
@@ -504,6 +436,8 @@ curl -s http://localhost:26657/net_info | jq '.result.n_peers'
 - Try adding more persistent peers
 - Check your time sync (NTP): `timedatectl status`
 - Check port 27656 is open
+- If syncing from genesis, verify the historical binary sequence and both Cosmovisor upgrade configurations.
+- If errors such as `auth failure` or `wrong Block.Header.AppHash` occur, inspect peer connections, binary versions, checksums, and node logs. If unresolved, share the relevant logs in the [validator support channel](https://discord.com/channels/933959587462254612/1354796083066179614).
 
 ### Out of Disk Space
 
